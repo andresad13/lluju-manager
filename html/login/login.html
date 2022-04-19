@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>登录</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/default.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/public.css" />
+    <link rel="stylesheet" class="theme" href="" />
+    <script type="text/javascript" src="../../script/api.js"></script>
+    <script type="text/javascript" src="../../script/common.js"></script>
+    <script>
+        var language = $api.getStorage("language");
+        if (!language) {
+            language = (navigator.language || navigator.browserLanguage).toLowerCase();
+        };
+        if (language == 'zh-CN' || language == 'zh-cn') {
+            $api.setStorage("language", "zh-CN");
+        } else if (language == 'en-US' || language == 'en-us') {
+            $api.setStorage("language", "en-US");
+        } else if (language == 'es-MX' || language == 'es-mx') {
+            $api.setStorage("language", "es-MX");
+        } else {
+            $api.setStorage("language", "es-MX");
+        }
+        console.log("语言：" + language);
+
+        var color = $api.setStorage("themeColor");
+        if (!color) {
+            $api.setStorage("themeColor", "green.css");
+            $(".theme").attr("href", "");
+            $(".theme").attr("href", "../../css/green.css");
+        } else {
+            getTheme();
+        }
+    </script>
+    <style>
+        body,
+        html {
+            font-family: '微软雅黑';
+            width: 100%;
+            height: 100%;
+            background: #FFF;
+        }
+
+        #view>img {
+            display: block;
+            width: 100%;
+            margin: 0 auto;
+            margin-top: 40px;
+            margin-bottom: 40px;
+        }
+
+        #view .publicdiv {
+            position: relative;
+            width: 90%;
+            height: 50px;
+            margin: 15px auto;
+            background: #f0f4f7;
+            border-radius: 50px;
+            padding-left: 25px;
+            box-sizing: border-box;
+        }
+
+        #view .publicdiv input {
+            position: relative;
+            width: 75%;
+            height: 50px;
+            outline: none;
+            padding-left: 3px;
+            font-size: 16px;
+        }
+
+        #view .publicdiv input.center {
+            text-align: center;
+        }
+
+        #view .publicdiv img {
+            position: relative;
+            top: 5px;
+            width: 20px;
+            height: 22px;
+        }
+
+        #view {
+            overflow: hidden;
+        }
+
+        .operation {
+            width: 90%;
+            margin: 22px auto;
+        }
+
+        .operation input {
+            vertical-align: -3px;
+        }
+
+        .return {
+            float: right;
+        }
+
+        .btn {
+            width: 90%;
+            line-height: 50px;
+            margin: 0 auto;
+            color: white;
+            border-radius: 30px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        #view .publicdiv .yCodeImg {
+            position: relative;
+            top: 10px;
+            width: 50px;
+            height: 30px;
+        }
+
+        .logos {}
+    </style>
+</head>
+
+<body>
+    <div id="view" v-cloak>
+        <img class="logos" src="../../image/dlbg.png" alt="">
+        <div class="publicdiv accounts">
+            <img src="../../image/accounts.png" alt="">
+            <input class="center" type="text" v-model="accounts" id="acount" :placeholder="txt.login.accountTxt">
+        </div>
+        <div class="publicdiv pasd">
+            <img src="../../image/pasd.png" alt="">
+            <input class="center" type="password" v-model="pasd" id="pasd" :placeholder="txt.login.passwordTxt">
+        </div>
+        <div class="publicdiv vCode">
+            <input type="text" id="yCode" v-model="vCode" :placeholder="txt.login.verTxt">
+            <img src="" alt="" class="yCodeImg" id="yCodeImg" @click="changeYcode()" />
+        </div>
+        <div class="operation">
+            <input type="checkbox" id="checkBox" name="remember" id="remember">
+            <label for="checkBox">
+                {{txt.login.rememberPasd}}
+            </label>
+            <span class="return" v-if="false" @click="goToReturnPasdPage">{{txt.login.findPasd}}</span>
+        </div>
+        <div class="btn appBg" tapmode="hoverBtn" @click="login">
+            {{txt.login.loginTitle}}
+        </div>
+
+    </div>
+
+    <script type="text/javascript" src="../../script/vue.min.js"></script>
+    <script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+
+    <script type="text/javascript">
+        apiready = function() {
+            api.setStatusBarStyle({
+                style: 'dark',
+            });
+
+            var that;
+            new Vue({
+                el: '#view',
+                data: {
+                    txt: $api.getLanguage() || {},
+                    accounts: "",
+                    pasd: "",
+                    vCode: null,
+                    language: null
+                },
+                created() {
+                    that = this;
+                    this.changeYcode();
+                    fnInitListener();
+                    // that.checkUpdate()
+                },
+                mounted() {
+                    api.addEventListener({
+                        name: 'changeLanguage'
+                    }, function(ret, err) {
+                        this.txt = $api.getLanguage();
+                    });
+
+                    // 颜色改变事件
+                    api.addEventListener({
+                        name: 'chooseColor'
+                    }, function(ret, err) {
+                        $(".theme").attr("href", "");
+                        $(".theme").attr("href", "../../css/" + ret.value + ".css");
+                    });
+
+                    api.addEventListener({
+                        name: 'changeYcode'
+                    }, function(ret, err) {
+                        that.changeYcode()
+                    });
+
+                    api.addEventListener({
+                        name: 'changePasd'
+                    }, function(ret, err) {
+                      $api.setStorage("rememberPasd", 0);
+                      $api.setStorage("pasd", "");
+                      that.pasd = $api.getStorage("pasd");
+                      $api.byId("checkBox").checked = false;
+                    });
+
+                    if ($api.getStorage("rememberPasd") == 1) {
+                        this.accounts = $api.getStorage("account");
+                        that.pasd = $api.getStorage("pasd");
+                        $api.byId("checkBox").checked = true;
+                    }
+
+                    if ($api.getStorage("account")) {
+                      this.accounts = $api.getStorage("account");
+                    }
+                },
+                watch: {
+                    vCode(val) {
+                        this.vCode = val.replace(/\s*/g, "")
+                    },
+                    accounts(val) {
+                        this.accounts = val.replace(/\s*/g, "")
+                    },
+                    pasd(val) {
+                        this.pasd = val.replace(/\s*/g, "")
+                    }
+                },
+                methods: {
+                    // 点击登录事件
+                    login() {
+                        var ver = api.version; //引擎版本信息
+                        var sType = api.systemType; //系统类型
+                        var sVer = api.systemVersion; //系统版本
+                        var model = api.deviceModel; //设备型号
+                        var name = api.deviceName; //设备名称
+                        var cType = api.connectionType; //网络状态
+                        if (sType == "ios") {
+                            var system = 1;
+                        } else {
+                            var system = 2;
+                        };
+
+                        if (!that.accounts) {
+                            myAlert(that.txt.login.accountNull);
+                            return false;
+                        };
+                        if (!that.pasd) {
+                            myAlert(that.txt.login.pasdNull);
+                            return false;
+                        };
+                        if (!that.vCode) {
+                            myAlert(that.txt.login.yzCodeNull);
+                            return false;
+                        };
+
+                        var mobilebz = {
+                            ver: ver,
+                            sType: sType,
+                            sVer: sVer,
+                            model: model,
+                            name: name,
+                            cType: cType
+                        };
+
+                        var subData = {
+                            userName: that.accounts,
+                            password: that.pasd,
+                            imgcode: that.vCode,
+                            appID: api.deviceId,
+                            loginID: system,
+                            mobilebz: 12345,
+                        };
+
+                        that.loginPost(subData)
+                    },
+
+                    loginPost(data) {
+                        myloading();
+                        api.showProgress({
+                          title: 'Loading...',
+                          text: '...',
+                          modal: true
+                        });
+                        api.ajax({
+                            url: publicurl + "appagent/login/login",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "authorization": $api.getStorage("token"),
+                                "_lang": "en-US"
+                            },
+                            method: "post",
+                            data: {
+                              body: JSON.stringify(data)
+                            },
+                            dataType: "json",
+                        }, function(ret, err) {
+                            if (ret) {
+                                closeloading();
+                                console.log('登陆--' + publicurl + "appagent/login/login" + "--结果--" + JSON.stringify(ret) + "--参数--" + JSON.stringify(data));
+                                if (ret.code == 1) {
+                                  $api.setStorage("p_GroupName", ret.data.p_GroupName); //登录账户的角色
+                                  $api.setStorage("adminOpenid", ret.data.adminOpenid); //登录账户的角色
+                                  $api.setStorage("token", ret.data.token); // taken
+                                  var checbox = $api.byId("checkBox");
+                                  if (checbox.checked) {
+                                      $api.setStorage("rememberPasd", 1);
+                                      $api.setStorage("account", that.accounts);
+                                      $api.setStorage("pasd", that.pasd);
+                                      that.vCode = "";
+                                      checbox.checked = true;
+                                  } else {
+                                      $api.setStorage("rememberPasd", 0);
+                                      $api.setStorage("pasd", "");
+                                      that.pasd = "";
+                                      that.vCode = "";
+                                  };
+                                  myToast(that.txt.login.loginSuccess);
+                                  setTimeout(function() {
+                                      api.openWin({
+                                          name: 'index',
+                                          url: '../index/index-nav.html',
+                                          bounces: false,
+                                          vScrollBarEnabled: false,
+                                          hScrollBarEnabled: false,
+                                          slidBackEnabled: false,
+                                          animation: {
+                                              type: 'fade'
+                                          }
+                                      });
+                                  }, 800);
+                                } else {
+                                  myAlert(ret.message || ret.msg, function() {
+                                      $api.send("changeYcode");
+                                  });
+                                }
+                            };
+                            if (err) {
+                                that.changeYcode();
+                                closeloading();
+                                console.log('登陆失败--' + publicurl + "appagent/login/login"  + JSON.stringify(err));
+                                myAlert(JSON.stringify(err))
+                            };
+                        })
+                    },
+
+                    // 改变验证码图片
+                    changeYcode() {
+                        $api.byId("yCodeImg").src = publicurl + "appagent/login/verify?t0=60&t1=14&" + Math.random();
+                        console.log(publicurl + "appagent/login/verify?t0=60&t1=14&" + Math.random())
+                    },
+
+                    // 版本更新
+                    checkUpdate() {
+                        var mam = api.require('mam');
+                        mam.checkUpdate(function(ret, err) {
+                            if (ret) {
+                                var result = ret.result;
+                                if (result.update == true && result.closed == false) {
+                                    var str = that.txt.update.version + result.version + '\n\n' + that.txt.update.content + result.updateTip + '\n\n' + that.txt.update.time + result.time;
+                                    api.confirm({
+                                        title: that.txt.update.tips,
+                                        msg: str,
+                                        buttons: [that.txt.update.confirm, that.txt.update.cancel]
+                                    }, function(ret, err) {
+                                        if (ret.buttonIndex == 1) {
+                                            if (api.systemType == "android") {
+                                                api.download({
+                                                    url: result.source,
+                                                    report: true
+                                                }, function(ret, err) {
+                                                    if (ret && 0 == ret.state) { /* 下载进度 */
+                                                        api.showProgress({
+                                                            title: that.txt.update.download,
+                                                            text: that.txt.update.progress + ret.percent + "%",
+                                                            modal: true
+                                                        });
+                                                    }
+                                                    if (ret && 1 == ret.state) { /* 下载完成 */
+                                                        var savePath = ret.savePath;
+                                                        api.installApp({
+                                                            appUri: savePath
+                                                        });
+                                                    }
+                                                });
+                                            }
+                                            if (api.systemType == "ios") {
+                                                api.installApp({
+                                                    appUri: result.source
+                                                });
+                                            }
+                                        } else {
+                                            api.closeWidget({
+                                                silent: true
+                                            });
+                                        }
+                                    });
+                                } else {
+                                    console.log(that.txt.update.noupdate)
+                                }
+                            } else {
+                                api.alert({
+                                    title: "Tips",
+                                    msg: err.msg,
+                                    buttons: ["Confirm"]
+                                });
+                            }
+                        });
+                    }
+                }
+            })
+        }
+    </script>
+</body>
+
+</html>

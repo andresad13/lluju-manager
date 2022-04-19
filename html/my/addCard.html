@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>银行卡管理</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="" class="theme"/>
+    <script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+	<script type="text/javascript" src="../../script/common.js"></script>
+	<script>
+		 getTheme();
+	</script>
+    <style>
+    	.main{font-size:0.9rem;}
+    	.detail{background:white;padding:0.8rem 0.6rem 0;}
+    	.detail p{height:2.4rem;line-height:2.4rem;margin-bottom:0.6rem;}
+    	.ititle{color:#787878;}
+    	.icontent{float:right;width:14rem;height:2.4rem;text-align:right;border-bottom:1px solid #f1f1f1;padding:0.4rem 0.4rem 0;box-sizing: border-box;}
+    	.selectSpan{float:right;width:14rem;height:2.4rem;border-bottom:1px solid #f1f1f1;text-align:right;}
+    	.selectBox{padding:0.4rem;border-radius:5px;outline:none;border:0;background:white;}
+    	.careful{font-size:0.8rem;color:red;margin-top:0.8rem;text-align:center;}
+    	.btn{width:94%;margin:1rem 3%;}
+    </style>
+</head>
+<body>
+	<div class="main" id="view">
+		<div class="detail">
+			<p>
+				<span class="ititle">{{txt.addCard.title1}}</span>
+				<input type="text" class="icontent" :placeholder="txt.addCard.inputtitle1" id="cardID"/>
+			</p>
+			<p>
+				<span class="ititle">{{txt.addCard.title2}}</span>
+				<input type="text" class="icontent" :placeholder="txt.addCard.inputtitle2" id="userName"/>
+			</p>
+			<p>
+				<span class="ititle">{{txt.addCard.title3}}</span>
+				<input type="text" class="icontent" :placeholder="txt.addCard.inputtitle3" id="kAddress"/>
+			</p>
+		</div>
+		<p class="careful">{{txt.addCard.zhu}}</p>
+		<div>
+			<button class="btn appBg" id="subBtn" tapmode="btnhover" onclick="addBankCard()">{{txt.network.save}}</button>
+		</div>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/vue.min.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		getData();
+		new Vue({
+			el: "#view",
+			data: {
+				txt: $api.getLanguage() || {},
+			}
+		})
+	};
+
+	function getData(){
+		postAjax("appagent/set/bankaccount/inde",{},function(ret){
+			if(ret.code == 1){
+				$("#kAddress").val(ret.data.p_BankName);
+				$("#userName").val(ret.data.p_AccountName);
+				$("#cardID").val(ret.data.p_BankAccount);
+			}
+		});
+	}
+
+	function addBankCard(){
+		var bankCardID = $("#cardID").val();
+		var userName = $("#userName").val();
+		var kAddress = $("#kAddress").val();
+
+		if(!bankCardID || !userName || !kAddress){
+			myAlert(that.txt.my.infoNoEnd);
+			return false;
+		};
+
+		postAjax("appagent/set/bankaccount/edit",{
+			p_BankName:kAddress,
+			p_BankAccount:bankCardID,
+			p_AccountName:userName
+		},function(ret){
+			if(ret.code == 1){
+				myToast(ret.msg||ret.message);
+				$api.send("addBankCardOk");
+				api.closeWin({});
+			}
+		});
+
+	}
+</script>
+</html>

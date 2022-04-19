@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>设备排行</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="" class="theme"/>
+    <script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+	<script type="text/javascript" src="../../script/common.js"></script>
+	<script>
+		 getTheme();
+	</script>
+  <style>
+    	.timeBox{position:fixed;display:flex;width: 100%;top:0;height:2.6rem;padding:0.3rem 0.6rem;box-sizing:border-box;background:white;line-height: 2rem;z-index: 10;}
+    	#dateSearch{flex:5;border:1px solid #f1f1f1;border-radius:5px;margin-right:0.4rem;text-align:center;}
+    	.btn{flex:1;}
+    	.opearBtn{position:fixed;width:100%;height:3.2rem;padding:0.4rem 0.6rem;top:2.6rem;box-sizing:border-box;display: flex;z-index: 10;}
+    	.btn{flex:1;margin-right:0.5rem;}
+    	.opearBtn .btn:last-child{margin-right:0;}
+
+    	.list{margin-top:6.4rem;position: relative;}
+    	.item{margin:0.6rem 0.6rem 0;background:white;border-radius:5px;}
+    	.itemTitle{padding:0.3rem 0.6rem;line-height: 2rem;border-bottom:1px solid #f1f1f1;font-size:1rem;font-weight:600;}
+    	.dot{display:inline-block;width:2rem;height:2rem;background:#DDD;color:white;text-align:center;line-height:2rem;border-radius:50%;margin-right:0.2rem;}
+    	.content{line-height:2.6rem;padding:0 0.6rem;color:#787878;display:flex;}
+    	.content>span{display:inline-block;padding-right: 10px;}
+  </style>
+</head>
+<body>
+	<div class="main" id="view" v-cloak>
+
+		<div class="timeBox">
+			<input type="text" :placeholder="txt.other.selectTime" id="dateSearch" readonly="readonly" onclick="chooseTime(this)"/> <button class="btn appBg" tapmode="btnhover" @click="search()">{{txt.persent.search}}</button>
+		</div>
+
+		<div class="opearBtn">
+			<button class="btn appBg" tapmode="btnhover" @click="prevDay()">{{txt.paihang.prev}}</button>
+			<button class="btn orangeBtn" tapmode="btnhover" @click="yesterday()">{{txt.paihang.toDay}}</button>
+			<button class="btn greenBtn" tapmode="btnhover" @click="nextDay()">{{txt.paihang.next}}</button>
+		</div>
+
+		<div class="list">
+
+			<div class="item" v-for="(i,index) in listData">
+
+				<p class="itemTitle">
+					<span class="dot">{{index+1}}</span> {{i.p_DeviceID}}({{i.p_DeviceType}})
+				</p>
+
+				<p class="content">
+					<span style="margin-right:1rem;">{{txt.paihang.jine}}：{{i.p_totalMoney}}</span>
+					<span>{{txt.paihang.leaseRetuan}}：{{i.p_count}}</span>
+				</p>
+
+			</div>
+
+		</div>
+
+		<div class="nomore">
+			—— {{txt.other.allData}} ——
+		</div>
+
+	</div>
+</body>
+<script type="text/javascript" src="../../script/vue.min.js"></script>
+<script type="text/javascript" src="../../script/fastclick.js"></script>
+<script type="text/javascript" src="../../script/myJq.js"></script>
+<script type="text/javascript">
+	var subTime = "";
+	var day;
+	var that;
+	apiready = function(){
+		var page=1,total=0,key = "",pageSize = 10,isloadOk = true;
+		var app = new Vue({
+			el:"#view",
+			data:{
+				txt: $api.getLanguage() || {},
+				listData:[],
+				showUser:"",
+				myRoleName: $api.getStorage("p_GroupName")
+			},
+			mounted() {
+				FastClick.attach(document.body);
+				that = this;
+				that.yesterday();
+				myUpLoad(function(){
+					if (isloadOk){
+						if (total == pageSize) {
+								page++;
+								that.getData();
+						} else {
+								$(".nomore").show();
+						}
+					}
+				});
+				myPullDown(function(){
+					page = 1;
+					that.yesterday();
+				});
+
+			},
+			methods:{
+				getData:function(){
+					isloadOk = false;
+					postAjax("appagent/device/index/ranking",{
+						page: page,
+						checkTime: subTime,
+						pageSize: pageSize
+					},function(ret){
+						if (ret.code == 1){
+							if (!ret.data.data) return false
+							total = ret.data.data.length;
+							if (total > 0) {
+								if (page == 1){
+									that.listData = [];
+								};
+								that.listData = that.listData.concat(ret.data.data || []);
+								closeNoData();
+								if (total < pageSize) {
+									$(".nomore").show();
+								} else {
+									$(".nomore").hide();
+								}
+							} else if (total == 0 && page != 1) {
+								$(".nomore").show();
+							} else {
+								that.listData = [];
+								$(".nomore").hide();
+								$(".list").noData(that.txt.other.noDatas,"../../image/null.png");
+							}
+						};
+						isloadOk = true;
+						api.refreshHeaderLoadDone();
+					});
+				},
+				search: function(){
+					page = 1;
+					that.getData();
+				},
+//				上一日
+				prevDay:function(){
+					page = 1;
+					day.setDate(day.getDate() - 1);
+        			subTime = day.format("yyyy/MM/dd");
+        			w = getWeekDay(subTime);
+        			$("#dateSearch").val(subTime + " " + w);
+        			that.getData();
+				},
+//				下一日
+				nextDay:function(){
+					page = 1;
+					day.setDate(day.getDate() + 1);
+					var a = day.getTime();
+					var b = new Date();
+					b.setDate(b.getDate() - 1);
+					var btime = b.getTime();
+					if (a > b){
+						day.setDate(day.getDate() - 1);
+						myAlert(that.txt.paihang.noCount);
+						return false;
+					};
+					subTime = day.format("yyyy/MM/dd");
+        			w = getWeekDay(subTime);
+        			$("#dateSearch").val(subTime + " " + w);
+        			that.getData();
+				},
+//				今日，即昨日的数据
+				yesterday:function(){
+					page = 1;
+					day = new Date();
+	        day.setDate(day.getDate() - 1);
+	        subTime = day.format("yyyy/MM/dd");
+					var w = getWeekDay(subTime);
+					$("#dateSearch").val(subTime + " " + w);
+					that.getData();
+				}
+			}
+		})
+	};
+
+	function chooseTime(e){
+		api.openPicker({
+		    type: 'date',
+		    title: that.txt.other.selectTime
+		}, function(ret, err) {
+		    if (ret) {
+		    	subTime = ret.year+"/"+ret.month+"/"+ret.day;
+		        $(e).val(subTime + getWeekDay(subTime));
+		    }
+		});
+	};
+
+	//获取星期
+	function getWeekDay(str){
+		// var str = ret.year+"/"+ret.month+"/"+ret.day;
+    var timestamp = new Date(str);
+    var weekday = timestamp.getDay();
+		if(weekday == 0){
+    	return that.txt.week.w1;
+    }else if(weekday == 1){
+    	return that.txt.week.w2;
+    }else if(weekday == 2){
+    	return that.txt.week.w3;
+    }else if(weekday == 3){
+    	return that.txt.week.w4;
+    }else if(weekday == 4){
+    	return that.txt.week.w5;
+    }else if(weekday == 5){
+    	return that.txt.week.w6;
+    }else if(weekday == 6){
+    	return that.txt.week.w7;
+    }
+	};
+
+	Date.prototype.format = function (fmt) {
+        var o = {
+            "M+": this.getMonth() + 1, //月份
+            "d+": this.getDate(), //日
+            "h+": this.getHours(), //小时
+            "m+": this.getMinutes(), //分
+            "s+": this.getSeconds(), //秒
+            "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+            "S": this.getMilliseconds() //毫秒
+        };
+        if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var k in o)
+            if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        return fmt;
+    }
+</script>
+</html>

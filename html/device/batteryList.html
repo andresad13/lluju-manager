@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>电池列表</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="" class="theme"/>
+    <script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+	<script type="text/javascript" src="../../script/common.js"></script>
+	<script>
+		 getTheme();
+	</script>
+    <style>
+    	.list{margin-top:0.6rem;}
+    	.item{margin:0.5rem 0.6rem;background:white;border-radius:5px;padding-bottom:0.4rem;}
+    	.itemOne{padding:0.3rem;border-bottom:1px solid #f1f1f1;line-height: 1.8rem;font-size: 14px;}
+    	.delBtn{float:right;width: 2rem;margin-top:0.5rem;}
+    	.userAvatar{width:3rem;height:3rem;border-radius:5px;vertical-align: text-bottom;margin-bottom:-0.9rem;margin-right:0.3rem;}
+    	.orderContent{padding:0 0.6rem;}
+    	.itemP{margin-top:0.4rem; display: flex;justify-content: space-between;align-items: center;}
+    	.itemP>span{display:inline-block;}
+    	.status{float:right;color:#159F5C;}
+
+    	.opear{border-top:1px solid #f1f1f1;margin-top:0.4rem;text-align:right;padding:0.4rem 0.6rem 0;}
+    	.jiesuan{float:left;line-height: 2.2rem;color:#787878;}
+    	.redtxt{font-weight:600;color:red;}
+    </style>
+</head>
+<body>
+	<div class="main" id="view" v-cloak>
+		<div class="list">
+			<div class="item" v-for="i in batteryList">
+    			<p class="itemOne">
+						{{txt.device.deviceNumber}}{{i.p_BatteryID}} <span class="status">{{i.p_Lisence}}</span>
+				  </p>
+
+    			<div class="orderContent">
+    				<p class="itemP">
+    					<span>{{txt.cell.itemTxt1}}{{i.p_Capacity}}%</span> <span>{{txt.cell.itemTxt2}}{{i.p_BayonetInt}}</span>
+    				</p>
+    			</div>
+    			<p class="opear" v-if="myRoleName!='店铺管理'">
+    				<button class="btn appBg" tapmode="btnhover" @click="ejectBattery(i.p_id, i.p_BayonetInt)">{{txt.cell.itemBtn}}</button>
+    			</p>
+    		</div>
+    	</div>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/vue.min.js"></script>
+<script type="text/javascript" src="../../script/fastclick.js"></script>
+<script type="text/javascript" src="../../script/myJq.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		var deviceID = api.pageParam.data;
+		var that;
+		api.setStatusBarStyle({
+				style: 'dark',
+		});
+		var app = new Vue({
+			el:"#view",
+			data:{
+				txt: $api.getLanguage() || {},
+				batteryList:[],
+				myRoleName:$api.getStorage("p_GroupName")
+			},
+			mounted() {
+				FastClick.attach(document.body);
+				that = this;
+				that.getData();
+				myPullDown(function(){
+					that.getData();
+				});
+			},
+			methods:{
+				sortNumber(a, b) {
+						return a.p_BayonetInt - b.p_BayonetInt
+				},
+				getData:function(){
+					postAjax("appagent/device/batteryList",{
+						id: deviceID
+					},function(ret){
+						if(ret.code == 1){
+							if(ret.data.data.length > 0){
+								that.batteryList = ret.data.data.sort(that.sortNumber);
+								closeNoData();
+							} else if(ret.data.data.length <= 0){
+								that.batteryList = [];
+								$(".main").noData(that.txt.cell.msg,"../../image/null.png");
+							}
+						};
+						api.refreshHeaderLoadDone();
+					});
+				},
+				ejectBattery:function(id, pBayonetInt){
+					myConfirm(that.txt.cell.alertD,function(){
+						postAjax("appagent/device/popOne",{
+							id: deviceID,
+							bayonetInt: pBayonetInt
+						},function(ret){
+							if(ret.code == 1){
+								myAlert(that.txt.cell.chenggogn,function(ret){
+									that.getData();
+								});
+							};
+						})
+					});
+				}
+			}
+		});
+
+	};
+</script>
+</html>

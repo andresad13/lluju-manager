@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+	<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+	<title>网点详情</title>
+	<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+	<link rel="stylesheet" type="text/css" href="" class="theme" />
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+	<script type="text/javascript" src="../../script/common.js"></script>
+	<script>
+		var theme = $api.getStorage("themeColor");
+		getTheme("../../" + theme);
+	</script>
+	<style>
+		html,
+		body {
+			font-size: 16px;
+			overflow-x: hidden;
+		}
+
+		.main {
+			font-size: 1rem;
+			padding-bottom: 6rem;
+		}
+
+		.detail {
+			background: white;
+			padding: 0.8rem 0.6rem 0;
+		}
+
+		.detail p {
+			height: 2.4rem;
+			line-height: 2.4rem;
+			margin-bottom: 0.6rem;
+		}
+
+		.ititle {
+			color: #101010;
+			font-size: 14px;
+		}
+
+		.icontent {
+			float: right;
+			width: 11.5rem;
+			height: 2.4rem;
+			text-align: right;
+			border-bottom: 1px solid #f1f1f1;
+			padding: 0.4rem 0.8rem 0 0.4rem;
+			box-sizing: border-box;
+			font-size: 14px;
+		}
+
+		.firstPrise {
+			width: 6.5rem;
+		}
+
+		.careful {
+			font-size: 0.8rem;
+			color: red;
+			margin-top: 0.8rem;
+			text-align: center;
+		}
+
+		.btn {
+			width: 94%;
+			margin: 0.6rem 3%;
+		}
+
+		.selectSpan {
+			float: right;
+			width: 14rem;
+			height: 2.4rem;
+			border-bottom: 1px solid #f1f1f1;
+			text-align: right;
+		}
+
+		.selectBox {
+			padding: 0.4rem;
+			border-radius: 5px;
+			outline: none;
+			border: 0;
+			background: white;
+		}
+
+		.bt {
+			color: red;
+			font-size: 14px;
+		}
+
+		.bottom {
+			position: fixed;
+			width: 100%;
+			bottom: 0;
+			background: white;
+			border-top: 1px solid #f1f1f1;
+			box-shadow: 0 0 8px #999;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div class="main" id="view" v-cloak>
+		<div class="detail">
+			<p>
+				<span class="bt">*</span>{{txt.network.shopname}}<span class="ititle"></span>
+				<input type="text" class="icontent" :placeholder="txt.network.inputShopName" id="shopName" v-model="shopDetail.p_ShopName" />
+			</p>
+			<!-- <p>
+				<span class="bt">*</span><span class="ititle">{{txt.network.quyu}}</span>
+				<input type="text" class="icontent" :placeholder="txt.network.inputquyu" readonly="readonly" @click="selctAddress($event)" id="shopArea" v-model="shopDetail.p_Prov == shopDetail.p_City ? shopDetail.p_Prov + '-' + shopDetail.p_Dist : shopDetail.p_Prov + '-' + shopDetail.p_City + '-' + shopDetail.p_Dist" />
+			</p> -->
+			<p>
+				<span class="bt">*</span><span class="ititle">{{txt.network.address}}</span>
+				<input type="text" class="icontent" :placeholder="txt.network.inputaddress" id="desAddress" v-model="shopDetail.p_Address" />
+			</p>
+			<p>
+				<span class="ititle">{{txt.network.shoplogo}}</span>
+				<input type="text" class="icontent" :placeholder="txt.network.inputShopLogo" readonly="readonly" id="shopLogo" @click="uploadLogo()" v-model="shopDetail.p_Logo" />
+			</p>
+
+			<p>
+				<span class="bt">*</span><span class="ititle">{{txt.network.jwd}}</span>
+				<input type="text" class="icontent" :placeholder="txt.network.inputjwd" readonly="readonly" id="location" @click="chooseLocation($event)" v-model="shopDetail.p_Lat+','+shopDetail.p_Lng" />
+			</p>
+
+			<p>
+				<span class="bt">*</span><span class="ititle">{{txt.network.yajin}}</span>
+				<input type="number" class="icontent" :placeholder="txt.network.inputyajin" id="deposit" v-model="shopDetail.p_Account" />
+			</p>
+			<p>
+				<span class="bt">*</span><span class="ititle">{{txt.network.mianfei}}</span>
+				<input type="number" class="icontent" :placeholder="txt.network.mianfei" id="freeTime" v-model="shopDetail.p_FreeTime" />
+			</p>
+			<p>
+				<span class="bt">*</span><span class="ititle">{{txt.network.jifei}}</span>
+				<input type="number" class="icontent firstPrise" :placeholder="txt.network.inputjifei" id="price" v-model="shopDetail.p_Price" />
+			</p>
+			<p>
+				<span class="bt">*</span><span class="ititle">{{txt.network.shanxiang}}</span>
+				<input type="number" class="icontent" :placeholder="txt.network.shangxiang" id="cappedPrice" v-model="shopDetail.p_Price_Max" />
+			</p>
+	<!-- <p>
+				<span class="bt">*</span><span class="ititle">退款方式</span>0
+				<span class="selectSpan">
+					<select name="specialShop" id="refundMethod" class="selectBox">
+						<option value="1" :selected="shopDetail.p_Zitui==1 ? 'selected' : ''">自动退款</option>
+						<option value="0" :selected="shopDetail.p_Zitui==0 ? 'selected' : ''">用户提现</option>
+					</select>
+				</span>
+			</p>-->
+			<p>
+				<span class="bt">*</span><span class="ititle">{{txt.network.lianxi}}</span>
+				<input type="number" class="icontent" :placeholder="txt.network.inputlianxi" id="telNum" v-model="shopDetail.p_Tel" />
+			</p>
+			<p>
+				<span class="ititle">{{txt.count.yewuyuan}}</span>
+				<input type="text" class="icontent" :placeholder="txt.count.inputyewuyuan" readonly="readonly" v-model="shopDetail.p_AgentName4" id="salesman" @click="$api.openPage('../../publicWin.html','html/network/','roleList',txt.userListDetail.myYw,'yw')" />
+			</p>
+			<p>
+				<span class="ititle">{{txt.network.ticheng}}</span>
+				<input type="text" class="icontent" :placeholder="txt.network.ticheng" readonly="readonly" v-model="shopDetail.p_AgentMoney4" id="salesmanTc" />
+			</p>
+			<p>
+				<span class="ititle">{{txt.network.shanghu}}</span>
+				<input type="text" class="icontent" :placeholder="txt.network.inputshanghu" readonly="readonly" v-model="shopDetail.p_AgentName5" id="shopAdmin" @click="chooseRole('../../publicWin.html','html/network/','roleList',txt.network.shanghu,'dp')" />
+			</p>
+			<p>
+				<span class="ititle">{{txt.network.shticheng}}</span>
+				<input type="text" class="icontent" :placeholder="txt.network.inputshticheng" readonly="readonly" v-model="shopDetail.p_AgentMoney5" id="shopAdminTc" />
+			</p>
+		</div>
+		<p v-if="myRoleName!='店铺管理'" class="careful">{{txt.network.zhu}}</p>
+
+		<div v-if="myRoleName!='店铺管理'" class="obtn" style="text-align:center;margin-top:0.6rem;">
+			<button class="btn redBtn" tapmode="btnhover" @click="clearSalesman()">{{txt.network.remove1}}</button>
+			<button class="btn redBtn" tapmode="btnhover" @click="clearShopAdmin()">{{txt.network.remove2}}</button>
+		</div>
+		<div v-if="myRoleName!='店铺管理'" class="bottom">
+			<button class="btn appBg" tapmode="btnhover" @click="editShop()">{{txt.network.save}}</button>
+		</div>
+	</div>
+
+</body>
+
+<script type="text/javascript" src="../../script/vue.min.js"></script>
+<script type="text/javascript" src="../../script/fastclick.js"></script>
+<script type="text/javascript" src="../../script/shangtu.js"></script>
+<script type="text/javascript">
+	apiready = function() {
+		var shopID = api.pageParam.data;
+		var that, prov, city, dist, logoPath;
+		var citys;
+		api.setStatusBarStyle({
+				style: 'dark',
+		});
+		var app = new Vue({
+			el: "#view",
+			data: {
+				txt: $api.getLanguage() || {},
+				shopDetail: {},
+				myRoleName: $api.getStorage("p_GroupName"),
+				defaultValue: {}
+			},
+			mounted() {
+				FastClick.attach(document.body);
+				that = this;
+				that.getData();
+				that.getDefaultValue();
+
+				api.addEventListener({
+					//监听业务员选择
+					name: 'chooseSalesman'
+				}, function(ret, err) {
+					that.shopDetail.p_AgentName4 = ret.value.username;
+					that.shopDetail.p_AgentMoney4 = ret.value.tc;
+					that.shopDetail.p_AgentID4 = ret.value.userid;
+
+					that.shopDetail.p_AgentName5 = "";
+					that.shopDetail.p_AgentMoney5 = 0;
+					that.shopDetail.p_AgentID5 = "";
+				});
+
+				api.addEventListener({ //监听商户管理选择
+					name: 'chooseShopAdmin'
+				}, function(ret, err) {
+					that.shopDetail.p_AgentName5 = ret.value.username;
+					that.shopDetail.p_AgentMoney5 = ret.value.tc;
+					that.shopDetail.p_AgentMoney4 = that.shopDetail.p_AgentMoney4 - ret.value.tc;
+					that.shopDetail.p_AgentID5 = ret.value.userid;
+				});
+
+				api.addEventListener({ //监听坐标选择
+					name: 'chooseLocataionOk'
+				}, function(ret, err) {
+					var hash = ret.value.lat + "," + ret.value.lng;
+					$api.byId("location").value = hash;
+				});
+			},
+			methods: {
+				getData: function() {
+					postAjax("appagent/shop/storeDetails", {
+						pid: +shopID
+					}, function(ret) {
+						if (ret.code == 1) {
+							that.shopDetail = ret.data.data;
+							citys = that.shopDetail.p_Prov + that.shopDetail.p_City + that.shopDetail.p_Dist;
+						}
+					});
+				},
+				getDefaultValue: function() {
+					postAjax("appagent/shop/defaultInfo", {
+						authorization: $api.getStorage("token"),
+					}, function(ret) {
+						if (ret.code == 1) {
+							that.defaultValue = ret.data;
+						};
+					});
+				},
+				//选择地址
+				selctAddress: function(e) {
+					//					e = e.target;
+					selectArea(function(ret, err) {
+						if (ret.eventType == "ok") {
+							var str;
+							if (ret["level1"] && ret["level2"] && ret["level3"]) {
+								str = ret["level1"] + "-" + ret["level2"] + "-" + ret["level3"];
+								that.shopDetail.p_Prov = ret["level1"];
+								that.shopDetail.p_City = ret["level2"];
+								that.shopDetail.p_Dist = ret["level3"];
+							} else if (ret["level1"] && ret["level2"]) {
+								str = ret["level1"] + "-" + ret["level2"];
+								that.shopDetail.p_Prov = ret["level1"];
+								that.shopDetail.p_City = ret["level2"];
+								that.shopDetail.p_Dist = "";
+							}
+							citys = that.shopDetail.p_Prov + that.shopDetail.p_City + that.shopDetail.p_Dist
+						}
+					}, that.txt.selseceAddressTxts);
+				},
+
+				//选择角色
+				chooseRole: function(winurl, route, pagename, title, type) {
+					if (that.shopDetail.p_AgentID4) {
+						type = type + "," + that.shopDetail.p_AgentID4;
+					};
+					$api.openPage(winurl, route, pagename, title, type);
+				},
+
+				//上传图片
+				uploadLogo: function() {
+					selectAction.shang_tu(function(url) {
+						api.openWin({
+							name: 'clip',
+							url: 'clip.html',
+							pageParam: {
+								url: url,
+								appearance: "rectangle", //rectangle方形             circular圆形
+								clipWidth: api.winWidth - 100, //裁剪去取宽度
+								clipHeight: api.winWidth - 100, //裁剪去取高度
+							}
+						});
+						api.addEventListener({
+							name: 'clip'
+						}, function(ret, err) {
+							var imgurl = ret.value.url;
+							myloading();
+							$api.post(publicurlUpData + 'upload/file', {
+								files: {
+									file: imgurl
+								}
+							}, function(rel, err1) {
+								// alert(JSON.stringify(rel))
+								if (rel.code == 1) {
+									// $api.setStorage('url', rel.data.path);
+									// that.shopDetail.p_Logo = rel.data.url;
+									$api.byId("shopLogo").value = rel.data.path;
+									logoPath = rel.data.url;
+								} else {
+									myAlert(JSON.stringify(rel));
+								};
+								if (err1) {
+									myAlert(JSON.stringify(err1));
+								}
+								closeloading();
+							}, "json");
+						});
+					}, that.txt.camera);
+				},
+
+				//查经纬度
+				chooseLocation: function(e) {
+					$api.openPage('../../publicWin.html', 'html/network/', 'map', that.txt.userListDetail.map, {
+							latLon: e.target.value,
+							region: citys,
+							city: $api.byId("desAddress").value
+					});
+				},
+				//清空业务员
+				clearSalesman: function() {
+					that.shopDetail.p_AgentID4 = "";
+					that.shopDetail.p_AgentName4 = "";
+					that.shopDetail.p_AgentMoney4 = 0;
+
+					that.shopDetail.p_AgentID5 = "";
+					that.shopDetail.p_AgentName5 = "";
+					that.shopDetail.p_AgentMoney5 = 0;
+				},
+				//清空商户管理
+				clearShopAdmin: function() {
+					that.shopDetail.p_AgentMoney4 = parseInt(that.shopDetail.p_AgentMoney4) + parseInt(that.shopDetail.p_AgentMoney5) || '';
+
+					that.shopDetail.p_AgentID5 = "";
+					that.shopDetail.p_AgentName5 = "";
+					that.shopDetail.p_AgentMoney5 = 0;
+				},
+
+				editShop: function() {
+					if($api.getStorage('pgroupName') == '店铺管理') {
+						alert(that.txt.selseceAddressTxts.noPermission);
+						return;
+					}
+					var shopName = $api.byId("shopName").value;
+					// var shopArea = $api.byId("shopArea").value;
+					var desAddress = $api.byId("desAddress").value;
+					var shopLogo = $api.byId("shopLogo").value;
+					var location = $api.byId("location").value;
+					var telNum = $api.byId("telNum").value;
+					var deposit = $api.byId("deposit").value;
+					var freeTime = $api.byId("freeTime").value;
+					var price = $api.byId("price").value;
+					var cappedPrice = $api.byId("cappedPrice").value;
+					//					var refundMethod = $api.byId("refundMethod").value;
+					var salesman = $api.byId("salesman").value;
+					var salesmanTc = $api.byId("salesmanTc").value;
+					var shopAdmin = $api.byId("shopAdmin").value;
+					var shopAdminTc = $api.byId("shopAdminTc").value;
+
+					if (!shopName) {
+						myToast(that.txt.userListDetail.inputshop);
+						return false;
+					};
+					// if (!shopArea) {
+					// 	myToast(that.txt.userListDetail.inputquyu);
+					// 	return false;
+					// };
+					if (!desAddress) {
+						myToast(that.txt.userListDetail.inputdiz);
+						return false;
+					};
+					//					if(!shopLogo){
+					//						myToast("请选择商户logo！");
+					//						return false;
+					//					};
+					if (!location) {
+						myToast(that.txt.userListDetail.selectJ);
+						return false;
+					};
+					if (!telNum) {
+						myToast(that.txt.userListDetail.inputlian);
+						return false;
+					};
+					if (!checkMobile(telNum)) {
+						myToast(that.txt.userListDetail.inputlianxi);
+						return false;
+					}
+					if (!deposit) {
+						myToast(that.txt.userListDetail.inputyj);
+						return false;
+					};
+					if (+deposit < +that.defaultValue.CDB_Cost) {
+						myToast(that.txt.device.yj + that.txt.symbol.moneySymbol + that.defaultValue.CDB_Cost);
+						return false;
+					};
+
+					if (!freeTime) {
+						myToast(that.txt.userListDetail.inputmf);
+						return false;
+					};
+					if (!price) {
+						myToast(that.txt.userListDetail.inputjf);
+						return false;
+					};
+					if (!cappedPrice) {
+						myToast(that.txt.userListDetail.inputfd);
+						return false;
+					};
+
+					if (+cappedPrice < +that.defaultValue.default_Price_Max) {
+						// myToast(that.txt.userListDetail.inputyj);
+
+						myToast(that.txt.device.maxPing + that.defaultValue.default_Price_Max);
+						return false;
+					};
+					if (+cappedPrice > +(price * 24)) {
+						// myToast(that.txt.userListDetail.inputyj);
+						myToast(that.txt.device.maxPing2 + (price * 24));
+						return false;
+					};
+					// if (!that.shopDetail.p_AgentID4) {
+					// 	myToast(that.txt.userListDetail.inputyw);
+					// 	return false;
+					// };
+					// if (!that.shopDetail.p_AgentID5) {
+					// 	myToast(that.txt.userListDetail.inputgl);
+					// 	return false;
+					// };
+					console.log(telNum)
+					postAjax("/appagent/shop/storeEditdb", {
+						// pId: shopID,
+						pId: shopID,
+						// pNewid: pNewid,
+						pShopname: shopName,
+						pNewid: that.shopDetail.p_newID,
+						pProv: that.shopDetail.p_Prov,
+						pCity: that.shopDetail.p_City,
+						pDist: that.shopDetail.p_Dist,
+						pTel: telNum,
+						pGeohash: location,
+						pAddress: desAddress,
+						pRemark: "",
+						pInfo: "",
+						pLogo: logoPath,
+						pAgentid4: that.shopDetail.p_AgentID4 || '',
+						pAgentid5: that.shopDetail.p_AgentID5 || '',
+						pFreetime: +freeTime,
+						pPrice: +price,
+						pPriceMax: +cappedPrice,
+						pAccount: +deposit,
+						// pPriceCny:
+						// pPriceMaxCny:
+						// pAccountCny:
+
+					}, function(ret) {
+						if (ret.code == 1) {
+							myToast(ret.msg || ret.message);
+							$api.send("refreshShopList");
+							setTimeout(function() {
+								api.closeWin({});
+							}, 1200);
+						}
+					})
+				}
+			}
+		});
+	};
+</script>
+
+</html>

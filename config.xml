@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?> <widget id="A6031476301193"  version="0.0.1">
+    <name>哥伦比亚代理商</name>
+    <description>
+        Example For APICloud.
+    </description>
+    <author email="developer@apicloud.com" href="http://www.apicloud.com">
+        Developer
+    </author>
+    <content src="html/login/login.html" />
+
+    <access origin="*" />
+    <preference name="pageBounce" value="false"/>
+	<preference name="appBackground" value="rgba(255,255,255,1)"/>
+	<preference name="windowBackground" value="rgba(255,255,255,1)"/>
+	<preference name="frameBackgroundColor" value="rgba(255,255,255,1)"/>
+	<preference name="hScrollBarEnabled" value="false"/>
+	<preference name="vScrollBarEnabled" value="false"/>
+	<preference name="autoLaunch" value="true"/>
+	<preference name="fullScreen" value="false"/>
+	<preference name="autoUpdate" value="true" />
+	<preference name="smartUpdate" value="false" />
+	<preference name="debug" value="true"/>
+	<preference name="statusBarAppearance" value="true"/>  <preference name="checkSslTrusted" value="true" />	<permission name="readPhoneState" />  <preference name="softInputMode" value="resize"/>
+	<permission name="camera" />
+	<permission name="record" />
+	<permission name="location" />
+	<permission name="fileSystem" />
+	<permission name="internet" />
+	<permission name="bootCompleted" />
+	<permission name="hardware" />  <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">    <solid android:color="#ff00ff00"/>    <size android:width="4dp"/>  </shape>  <feature name="UILoading"/>  <feature name="UIActionSelector"/>  <feature name="FNScanner"/>  <feature name="FNImageClip"/>  <feature name="ajpush">      <param name="app_key" value="1c65febf0c0e05bb10f76e6f" />      <param name="channel" value="f65c20c1a4b0a7d5b7d7e187" />  </feature>
+</widget>

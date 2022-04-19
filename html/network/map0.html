@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="" class="theme"/>
+		<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+	<script type="text/javascript" src="../../script/common.js"></script>
+	<script>
+	var theme = $api.getStorage("themeColor");
+	getTheme("../../"+theme);
+	</script>
+    <style>
+    	input::-webkit-input-placeholder{
+    		color:#DDD;
+    	}
+    	html,body{
+    		background:white;
+    	}
+    	#form{
+    		padding:8px 0.6rem;
+    		line-height:32px;
+    		display:flex;
+				box-sizing: border-box;
+    	}
+			.appBg {
+				color: #fff;
+			}
+    	#address{
+    		width: 100px;
+    		height:40px;
+    		padding:5px;
+    		box-sizing:border-box;
+    		border:1px solid #f1f1f1;
+    		border-radius:5px;
+    		flex:1 20%;
+    	}
+    	#btn_go,.chooseBtn{
+    		line-height:32px;
+    		padding:0 1rem;
+    		border-radius:5px;
+    		margin-left:0.4rem;
+				box-sizing: border-box;
+				flex: 0.5;
+    	}
+    	#info{
+    		height:42px;
+    		padding: 4px 0.6rem;
+				box-sizing: border-box;
+    	}
+			[v-cloak]{
+				display: none;
+			}
+    </style>
+</head>
+<body>
+	<div id="frame" v-cloak>
+
+		<div id="form">
+			{{ txt.mapTxt.address }}
+			<input id="address" value="" :placeholder="txt.mapTxt.inputaddress"/>
+			<button id="btn_go" class="appBg">
+				{{ txt.mapTxt.search }}
+			</button>
+			<button id="choose" class="chooseBtn appBg">
+				{{ txt.mapTxt.choose }}
+			</button>
+		</div>
+
+		<div id="info">
+		</div>
+		<div id="map" style="width:100%;">
+		</div>
+	</div>
+</body>
+<script src="http://ditu.google.cn/maps?file=api&v=2&key=AIzaSyASU1VYpdr15ooXwmFruaFZ-m8azZg7R34&sensor=true" type="text/javascript"></script>
+<script type="text/javascript" src="../../script/vue.min.js"></script>
+<!--<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyASU1VYpdr15ooXwmFruaFZ-m8azZg7R34&callback=initialize" async defer></script>-->
+<script type="text/javascript">
+	window.g = {};
+	window.$$ = function(id) {
+		return document.getElementById(id)
+	};
+	var isLoadOk = false;
+	apiready = function(){
+		var that;
+		new Vue({
+			el: "#frame",
+			data: {
+				txt: $api.getLanguage() || {},
+			},
+			mouted() {
+				that = this;
+
+				var lat,lon;
+				var h = api.winHeight - 90 - 82;
+				var lonLat = api.pageParam.data.latLon;
+				var city = api.pageParam.data.city || '';
+					$api.byId("map").style.height = h + "px";
+					if(GBrowserIsCompatible()) {
+						g.map = new GMap2($$("map"));
+						// map.centerAndZoom(new GMap2.Point(), 14); ...lonLat.split(','))
+						g.map.addControl(new GLargeMapControl());
+						g.map.addControl(new GMapTypeControl());
+						g.map.addControl(new GScaleControl());
+						g.geocoder = new GClientGeocoder();
+						if (!lonLat) lonLat = "39.90, 116.38";
+						// alert(lonLat)
+
+						g.map.setCenter(new GLatLng(lonLat.split(',')[0], lonLat.split(',')[1]), 14);
+
+						g.getCoordinates = function(address) {
+							g.geocoder.getLatLng(
+								address,
+								function(point) {
+									console.log("地址："+JSON.stringify(point));
+									if(point) {
+										lat = point.lat().toFixed(6);
+										lon = point.lng().toFixed(6);
+										g.map.setCenter(point, 15);
+										var marker = new GMarker(point);
+										g.map.addOverlay(marker);
+										var info = "<strong>" + address + "</strong><br / > " + that.txt.mapTxt.zuo +  ": " + that.txt.mapTxt.lat +  " = " + point.lat().toFixed(6) + ", " + that.txt.mapTxt.lon + " = " + point.lng().toFixed(6);
+										$$("info").innerHTML = info;
+										marker.openInfoWindowHtml(info);
+										marker.__address_info = info;
+										isLoadOk = true;
+										GEvent.addListener(marker, "click", function() {
+											g.map.setCenter(this.getLatLng());
+											this.openInfoWindowHtml(this.__address_info);
+											$$("info").innerHTML = info;
+										});
+									} else {
+										if($$("address").value == '') return;
+										alert(that.txt.mapTxt.noparse + ": " + address);
+									}
+								}
+							)
+						}
+
+						$$("btn_go").onclick = function() {
+							g.getCoordinates($$("address").value);
+						};
+						if (city) {
+							city = city == 'undefined' ? '' : city;
+
+							$$("address").value = city;
+							$$("btn_go").onclick();
+						}
+						// $$("btn_go").onclick();
+
+						$$("choose").onclick = function(){
+							if (!isLoadOk) return;
+							$api.send("chooseLocataionOk",{lat:lat,lon:lon,});
+							api.closeWin({});
+						};
+					} else {
+						alert(that.txt.mapTxt.noparse);
+					}
+
+			}
+		})
+
+
+	};
+
+</script>
+</html>

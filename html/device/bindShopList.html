@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/public.css"/>
+    <link rel="stylesheet" type="text/css" href="" class="theme"/>
+    <script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+	<script type="text/javascript" src="../../script/common.js"></script>
+	<script>
+		 getTheme();
+	</script>
+    <style>
+    	.searchBox{position:fixed;top:0;width:100%;padding:0.6rem;background:white;box-sizing: border-box;z-index: 11;}
+    	.flex-3{  -webkit-box-flex: 4; -webkit-flex: 4; flex: 4;margin-right:0.4rem;}
+    	.searchInput{height:2.6rem;line-height:2rem;padding:0.3rem 0.5rem;box-sizing:border-box;border:1px solid #f1f1f1;border-radius:5px;box-sizing: border-box;}
+    	.searchBtn{height:2.6rem;line-height:2rem;text-align:center;border-radius:5px;}
+
+    	.wechatList{margin-top:4.6rem;position:relative;}
+    	.item{padding:0.6rem;display:flex;background:white;margin-bottom:0.6rem;}
+    	.info{flex:5;margin-right:1rem;}
+    	.avatar{width:2.5rem;height:2.5rem;border-radius:5px;vertical-align: text-bottom;margin-bottom:-0.5rem;margin-right:0.6rem;}
+    	.userName{display:inline-block;width:13rem;line-height:2.5rem;}
+    	.btn{line-height:2.5rem;}
+    </style>
+</head>
+<body>
+	<div class="main" id="view" v-cloak>
+		<div class="searchBox flex-wrap flex-con">
+			<input type="search" :placeholder="txt.my.searchkey" class="searchInput flex-3 flex-wrap flex-vertical"/>
+			<button tapmode="hover" class="btn searchBtn appBg flex-con" @click="search()">{{txt.nearShop.searchBtn}}</button>
+		</div>
+
+		<div class="wechatList">
+			<div class="item" v-for="i in users">
+				<div class="info">
+					<img v-if="i.p_Logo" :src="i.p_Logo || '../../image/logo.png'" alt="" class="avatar"/>
+					<img v-else src="../../image/logo.png" alt="" class="avatar"/>
+					<span class="userName text-ov">{{i.p_ShopName}}</span>
+				</div>
+				<div class="choose">
+					<button class="btn appBg" tapmode="btnhover" @click="bind(i.p_NewID)">{{txt.my.selects}}</button>
+				</div>
+			</div>
+		</div>
+
+		<div class="nomore">
+			—— {{txt.device.showAll}} ——
+		</div>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/vue.min.js"></script>
+<script type="text/javascript" src="../../script/fastclick.js"></script>
+<script type="text/javascript" src="../../script/myJq.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		var that;
+		var agentinfo = JSON.parse(api.pageParam.data);
+		var bindUrl = agentinfo.url;//要绑定的路径，  密码线与机柜不一样
+		var page = 1,maxpage=0,pageSize=10,total=0,key = "",isloadOk = true;
+		api.setStatusBarStyle({
+				style: 'dark',
+		});
+		var txt = $api.getLanguage() || {};
+		var app = new Vue({
+			el:"#view",
+			data:{
+				txt: $api.getLanguage() || {},
+				users:[]
+			},
+			mounted() {FastClick.attach(document.body);
+				that = this;
+				that.getData();
+				$(".searchInput").on('keypress',function(e) {
+					var keycode = e.keyCode;
+		        if(keycode=='13') {
+		        	$(this).blur();
+		            e.preventDefault();
+		            that.search();
+		        }
+				});
+				myUpLoad(function(){
+					if(isloadOk){
+						if (maxpage == pageSize) {
+							page++;
+							that.getData();
+						}else{
+							$(".nomore").show();
+						}
+					}
+				});
+				myPullDown(function(){
+					page = 1;
+					key = "";
+					$(".searchInput").val("");
+					that.getData();
+				});
+			},
+			methods:{
+				getData:function(){
+					isloadOk = false;
+					postAjax("appagent/shop/shop_list",{
+						page: page,
+						key: key,
+						pageSize: pageSize
+					},function(ret){
+						if(ret.code == 1){
+							total = ret.data.length;
+							maxpage = total;
+							if(total > 0){
+								if(page == 1){
+									that.users = [];
+								};
+								that.users = that.users.concat(ret.data);
+								closeNoData();
+								if (maxpage == pageSize) {
+										$(".nomore").hide();
+								} else {
+										$(".nomore").show();
+								}
+							} else if (total == 0 && page != 1) {
+								$(".nomore").show();
+							} else {
+								that.users = [];
+								$(".wechatList").noData(that.txt.device.noShopData,"../../image/null.png");
+							}
+						};
+						isloadOk = true;
+						api.refreshHeaderLoadDone();
+					});
+				},
+				bind:function(shopid){
+					myConfirm(that.txt.device.isBindShop,function(){
+						var publicUrl = '';
+						if (bindUrl == 'Device/device_xian.asp') {
+							publicUrl = 'appagent/device/index/shopBanging2'
+						} else if (bindUrl == 'Device/index.asp') {
+							publicUrl = 'appagent/device/index/shopBanging'
+						} else {
+							myAlert('There is currently no such interface!');
+							return;
+						}
+
+						//Device/device_xian.asp  密码线
+						//Device/index.asp  	      机柜
+
+						postAjax(publicUrl,{
+							pid: agentinfo.id,
+							shopID: shopid
+						},function(ret){
+							if(ret.code == 1){
+								myAlert(that.txt.device.isBindOk,function(){
+									$api.send("refreshDeviceDetail");
+									$api.send("bindAgentOk");
+									api.closeWin({});
+								});
+							}
+						})
+					});
+				},
+				search: function(){
+					page = 1;
+					key = $(".searchInput").val();
+					if(!key){
+						myToast(that.txt.my.searchNull);
+						return false;
+					};
+					that.getData();
+				}
+			}
+		});
+	};
+</script>
+</html>

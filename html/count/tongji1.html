@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+	<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+	<title>分成统计</title>
+	<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/public.css" />
+	<link rel="stylesheet" type="text/css" href="" class="theme" />
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+	<script type="text/javascript" src="../../script/common.js"></script>
+	<script>
+		getTheme();
+	</script>
+	<style>
+		.sildeDown {
+			position: absolute;
+			width: 100%;
+			padding: 0.6rem;
+			top: 0;
+			left: 0;
+			background: white;
+			border-top: 1px solid #f1f1f1;
+			border-bottom: 1px solid #f1f1f1;
+			line-height: 2.2rem;
+			text-align: center;
+			box-sizing: border-box;
+			z-index: 10;
+		}
+
+		.sildeDown input {
+			height: 2.2rem;
+			line-height: 1.6rem;
+			padding: 0.3rem 0.5rem;
+			text-align: center;
+			border: 1px solid #f1f1f1;
+			border-radius: 5px;
+			width: 40%;
+			box-sizing: border-box;
+		}
+
+		.sildeDown input#beginTime {
+			float: left;
+			width: 36%;
+		}
+
+		.sildeDown input#endTime {
+			float: left;
+			width: 36%;
+		}
+
+		.timeMiddle {
+			float: left;
+			margin: 0 0.3rem;
+		}
+
+		.sureBtn {
+			float: right;
+		}
+
+		.list {
+			padding: 0.6rem;
+			margin-top: 3.8rem;
+		}
+
+		.list ul li {
+			display: inline-block;
+			float: left;
+			width: 48%;
+			height: 9rem;
+			box-sizing: border-box;
+			text-align: center;
+			border-radius: 5px;
+			padding: 1.2rem 0;
+			color: white;
+			margin-bottom: 0.6rem;
+		}
+
+		.list ul li:nth-child(2n) {
+			float: right;
+		}
+
+		.itemTitle {
+			font-size: 0.8rem;
+		}
+
+		.itemContent {
+			font-size: 1.1rem;
+			margin-top: 0.2rem;
+		}
+
+		.mgt {
+			margin-top: 8px;
+		}
+
+		.hover {
+			opacity: .6;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="main" id="view" v-cloak>
+		<div class="sildeDown">
+			<input type="text" :placeholder="txt.count.xuanzekaishi" id="beginTime" readonly="readonly" onclick="chooseTime('请选择开始时间',this)" />
+			<span class="timeMiddle">~</span>
+			<input type="text" :placeholder="txt.count.xuanzejieshu" id="endTime" readonly="readonly" onclick="chooseTime('请选择结束时间',this)" />
+			<button class="sureBtn btn appBg" @click="search()" tapmode="btnhover">{{txt.count.shaixuan}}</button>
+		</div>
+
+		<div class="list">
+			<ul>
+				<li style="background:#9571DB;" tapmode="hover">
+					<p class="itemTitle">{{txt.count.chengbenzheko}}</p>
+					<p class="itemContent">{{txt.symbol.moneySymbol}}{{data0.cdb || 0}}</p>
+					<p class="itemTitle mgt">{{txt.count.zhekoubili}}</p>
+					<p class="itemContent">{{data0.cdbPercent | nameChange}}</p>
+				</li>
+				<li style="background:#42bfc7;" tapmode="hover" v-if="data1.pt || data1.ptPercent == 0">
+					<p class="itemTitle">{{txt.count.feichengjine}}</p>
+					<p class="itemContent">{{txt.symbol.moneySymbol}}{{data1.pt || 0}}</p>
+					<p class="itemTitle mgt">{{txt.count.feichengbili}}</p>
+					<p class="itemContent">{{data1.ptPercent || 0}}%</p>
+				</li>
+
+				<li style="background:#fba456;" tapmode="hover" v-if="data2.sheng || data2.shengPercent == 0">
+					<p class="itemTitle">{{txt.count.shenfeicheng}}</p>
+					<p class="itemContent">{{txt.symbol.moneySymbol}}{{data2.sheng || 0}}</p>
+					<p class="itemTitle mgt">{{txt.count.shenfenchengbili}}</p>
+					<p class="itemContent">{{data2.shengPercent || 0}}%</p>
+				</li>
+				<li style="background: #9AD4C8;" tapmode="hover" v-if="data3.chengshi || data3.chengshiPercent == 0">
+					<p class="itemTitle">{{txt.count.shidaifeicheng}}</p>
+					<p class="itemContent">{{txt.symbol.moneySymbol}}{{data3.chengshi || 0}}</p>
+					<p class="itemTitle mgt">{{txt.count.shidaifeichengbili}}</p>
+					<p class="itemContent">{{data3.chengshiPercent || 0}}%</p>
+				</li>
+				<li style="background: #dac722;" tapmode="hover" v-if="data4.quyuPercent || data4.quyuPercent == 0">
+					<p class="itemTitle">{{txt.count.qudaifeicheng}}</p>
+					<p class="itemContent">{{txt.symbol.moneySymbol}}{{data4.quyu || 0}}</p>
+					<p class="itemTitle mgt">{{txt.count.qudaifeichengbili}}</p>
+					<p class="itemContent">{{data4.quyuPercent || 0}}%</p>
+				</li>
+				<li style="background: #D9BFDA;" tapmode="hover" v-if="data5.yewu || data5.yewuPercent == 0">
+					<p class="itemTitle">{{txt.count.yewufeicheng}}</p>
+					<p class="itemContent">{{txt.symbol.moneySymbol}}{{data5.yewu || 0}}</p>
+					<p class="itemTitle mgt">{{txt.count.yewufeichengbili}}</p>
+					<p class="itemContent">{{data5.yewuPercent || 0}}%</p>
+				</li>
+				<li style="background: #EF81F1;" tapmode="hover" v-if="data6.dianpu || data6.dianpuPercent == 0">
+					<p class="itemTitle">{{txt.count.dianpufencheng}}</p>
+					<p class="itemContent">{{txt.symbol.moneySymbol}}{{data6.dianpu || 0}}</p>
+					<p class="itemTitle mgt">{{txt.count.dianpufenchengbil}}</p>
+					<p class="itemContent">{{data6.dianpuPercent || 0}}%</p>
+				</li>
+			</ul>
+		</div>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/vue.min.js"></script>
+<script type="text/javascript" src="../../script/fastclick.js"></script>
+<script type="text/javascript" src="../../script/myJq.js"></script>
+<script type="text/javascript">
+	apiready = function() {
+		var that, sTime = "",
+			eTime = "";
+		var x = 0;
+		var app = new Vue({
+			el: "#view",
+			data: {
+				actArr: ["appagent/fencheng/statisticsCdbcb", "appagent/fencheng/statisticsPlatform", "appagent/fencheng/statisticsProvince", "appagent/fencheng/statisticsCity", "appagent/fencheng/statisticsRegion", "appagent/fencheng/statisticsbusIness",
+					"appagent/fencheng/statisticsShop"
+				],
+				data0: {},
+				data1: {},
+				data2: {},
+				data3: {},
+				data4: {},
+				data5: {},
+				data6: {},
+				txt: $api.getLanguage()
+			},
+			mounted() {
+				FastClick.attach(document.body);
+
+				that = this;
+				this.getData(that.actArr[x]);
+
+				api.addEventListener({
+					name: 'chooseColor'
+				}, function(ret, err) {
+					$(".theme").attr("href", "");
+					$(".theme").attr("href", "../../css/" + ret.value + ".css");
+				});
+
+				api.addEventListener({
+					name: 'changeLanguage'
+				}, function(ret, err) {
+					that.txt = $api.getLanguage();
+				});
+
+				myPullDown(function() {
+					key = "", sTime = "", eTime = "";
+					$("#beginTime,#endTime").val("");
+					that.getData(that.actArr[x]);
+				});
+			},
+			methods: {
+				getData: function(act) {
+					api.showProgress({
+							title: '',
+							text: 'Loading...',
+							modal: true
+					});
+					postAjax3(act, {
+						sTime: sTime,
+						eTime: eTime
+					}, function(ret) {
+						if (ret.code == 1) {
+							if (x == 0) {
+								that.data0 = ret.data;
+							} else if (x == 1) {
+								that.data1 = ret.data;
+							} else if (x == 2) {
+								that.data2 = ret.data;
+							} else if (x == 3) {
+								that.data3 = ret.data;
+							} else if (x == 4) {
+								that.data4 = ret.data;
+							} else if (x == 5) {
+								that.data5 = ret.data;
+							} else if (x == 6) {
+								that.data6 = ret.data;
+								api.hideProgress();
+							};
+							x++;
+							if (x >= that.actArr.length) {
+								x = 0;
+								api.refreshHeaderLoadDone();
+								return false;
+							};
+							that.getData(that.actArr[x]);
+						};
+					});
+				},
+
+				search: function() {
+					sTime = $("#beginTime").val();
+					eTime = $("#endTime").val();
+					if (!sTime) {
+						myToast(that.txt.count.xuanzekaishi + "！");
+						return false;
+					};
+					if (!eTime) {
+						myToast(that.txt.count.xuanzejieshu + "！");
+						return false;
+					};
+					that.getData(that.actArr[x]);
+				},
+			},
+			filters: {
+				nameChange(val) {
+					switch (val) {
+						case '按设定扣款':
+							return that.txt.count.setting;
+							break;
+						default:
+							return  val;
+					}
+				}
+			}
+		});
+	};
+
+	function chooseTime(title, e) {
+		api.openPicker({
+			type: 'date',
+			title: title
+		}, function(ret, err) {
+			if (ret) {
+				var str = ret.year+"-"+ (ret.month <= 9 ? '0' + ret.month.toString() : ret.month) + "-" + (ret.day <= 9 ? '0' + ret.day.toString() : ret.day);
+				$(e).val(str);
+			}
+		});
+	};
+</script>
+
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>分成明细</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/public.css"/>
+    <link rel="stylesheet" type="text/css" href="" class="theme"/>
+    <script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+	<script type="text/javascript" src="../../script/common.js"></script>
+	<script>
+		 getTheme();
+	</script>
+    <style>
+    	/*.searchbtnBox{position:fixed;top:0;width:100%;padding:0.6rem;background:white;box-sizing: border-box;z-index: 6;}
+    	.searchInput{height:2.4rem;line-height:1.8rem;width:50%;padding:0.3rem 0.5rem;box-sizing:border-box;border:1px solid #f1f1f1;border-radius:5px;box-sizing: border-box;text-align:center;}
+    	.totalMoney{display:inline-block;float:left;width:50%;line-height: 2.4rem;color:#787878;}*/
+
+
+/*    	.searchBox{position:fixed;top:0rem;width:100%;padding:0.4rem 0.6rem;background:white;box-sizing: border-box;z-index: 9999999;font-size:0.75rem;}
+    	.flex-3{  -webkit-box-flex: 4; -webkit-flex: 4; flex: 4;margin-right:0.4rem;}
+    	.searchInput{height:2.2rem;line-height:1.6rem;padding:0.3rem 0.5rem;box-sizing:border-box;border:1px solid #f1f1f1;border-radius:5px;box-sizing: border-box;}
+    	.searchBtn{height:2.2rem;line-height:2.2rem;text-align:center;border-radius:5px;}*/
+
+    	.searchBtn{position:fixed;width:2.5rem;height:2.5rem;top:0.4rem;right: 0;background:white;z-index: 50;text-align:center;line-height: 2.5rem;border-radius:5px;border:1px solid #f1f1f1;}
+    	.searchIcon{width:1.7rem;margin-top:0.4rem;}
+
+    	.record{margin-top:0.6rem;position:relative;}
+    	.rItem{background:white;font-size:0.9rem;margin-bottom:0.6rem;}
+    	.orderNum,.money{line-height:2.4rem;padding:0 0.6rem;border-bottom:1px solid #f1f1f1;display: flex;justify-content: space-between;}
+    	.orderNum{color:#787878;}
+    	.right{float:right;}
+    	.iTime{font-size:0.8rem;}
+    	.green{color:green;}
+
+
+    	.searchBoxAlert{position:fixed;width:100%;height:100%;background:rgba(0,0,0,.5);top:0;left:0;z-index: 10;display: none;z-index: 1000;}
+    	.searchContent{position:absolute;width:90%;height:24rem;top:50%;left:50%;background:white;border-radius:5px;margin-top:-12rem;margin-left:-45%;overflow:hidden;}
+    	.topPromise{background:#f1f1f1;padding: 0 0.6rem 0.6rem;}
+    	.searchTitle{font-size:1.1rem;font-weight:600;text-align:center;line-height:2.8rem;}
+    	.sm{margin-top:0.2rem;color:#787878;}
+    	.searchcondition{padding:0.6rem;}
+    	.condition{display:flex;margin-bottom:0.5rem;}
+    	.conditionTitle{flex:1;margin-right:0.5rem;line-height:2.8rem;}
+    	.inputBox{flex:1.8;border-bottom:1px solid #DDD;height:2.8rem;padding:0.6rem;line-height: 1.6rem;box-sizing:border-box;}
+    	.opearBtn{position:absolute;width:100%;bottom:0;left:0;border-top:1px solid #F1F1F1}
+    	.opearBtn>button{float:left;width:50%;line-height:2.8rem;color: white;}
+    	.cancelBtn{background:#DDD;}
+    </style>
+</head>
+<body>
+	<div class="main" id="view" v-cloak>
+		<!--<div class="searchbtnBox">
+
+			<span class="totalMoney">共分成： <span class="appTxt">{{allTotal}}</span>元</span>
+
+			<input type="search" value="点击进行搜索" readonly="readonly" class="searchInput appBg"/>
+		</div>-->
+<!--		<div class="searchBox flex-wrap flex-con">
+			<input type="search" placeholder="请输入关键字搜索" class="searchInput flex-3 flex-wrap flex-vertical"/>
+			<button tapmode="btnhover" class="btn searchBtn appBg flex-con" @click="search()">搜索</button>
+			<button tapmode="btnhover" class="btn searchBtn redBtn flex-con" style="margin-left:0.4rem;" @click="showSearchBox()">筛选</button>
+		</div>-->
+		<div class="searchBtn" @click="showSearchBox()"><img src="../../image/searchIcon.png" alt="" class="searchIcon"/></div>
+
+		<div class="record">
+			<div class="rItem" v-for="i in listData" @click="$api.openPage('../../publicWin.html','html/my/','devideDetail',txt.devide.detail,i.p_id)">
+				<p class="orderNum">
+					<span>{{txt.devide.order}}: {{i.p_OrderID}}</span>
+					<span class="iTime">{{i.p_AddTime}}</span></p>
+				<p class="money">
+					<span>{{i.p_UserType}}</span>
+					<span class="green">{{txt.symbol.moneySymbol}}{{i.p_FenCheng}}</span></p>
+			</div>
+		</div>
+
+		<!--搜索弹框-->
+		<div class="searchBoxAlert">
+			<div class="searchContent">
+				<p class="searchTitle">{{txt.devide.jilv}}</p>
+<!--				<div class="topPromise">
+					<p class="searchTitle">订单搜索</p>
+					<p class="sm">1.用户ID不支持模糊查询</p>
+					<p class="sm">2.商户名及设备支持模糊查询</p>
+					<p class="sm">3.设备及订单建议按尾号查询</p>
+				</div>-->
+				<div class="searchcondition">
+					<p class="condition">
+						<span class="conditionTitle">{{txt.devide.deviceId}}</span>
+						<input type="text" class="inputBox" id="deviceID" :placeholder="txt.devide.inputdeviceId"/>
+					</p>
+					<p class="condition">
+						<span class="conditionTitle">{{txt.devide.network}}</span>
+						<input type="text" class="inputBox" id="shopName" :placeholder="txt.devide.inputnetwork"/>
+					</p>
+					<p class="condition">
+						<span class="conditionTitle">{{txt.devide.startTime}}</span>
+						<input type="date" class="inputBox" id="beginTime" :placeholder="txt.devide.inputstartTime"/>
+					</p>
+
+					<p class="condition">
+						<span class="conditionTitle">{{txt.devide.endTime}}</span>
+						<input type="date" class="inputBox" id="endTime" :placeholder="txt.devide.inputendTime"/>
+					</p>
+
+					<p class="condition">
+						<span class="conditionTitle">{{txt.devide.key}}</span>
+						<input type="text" class="inputBox" id="key" :placeholder="txt.devide.inputkey"/>
+					</p>
+					<p class="opearBtn">
+						<button class="btns appBg" tapmode="btnhover" @click.stop="search()">{{txt.btnTxt.confirmBtn}}</button>
+						<button class="btns cancelBtn" tapmode="btnhover" @click.stop="hideSearchBox()">{{txt.btnTxt.cancel}}</button>
+					</p>
+				</div>
+			</div>
+		</div>
+
+		<div class="nomore">
+			—— {{txt.other.allData}} ——
+		</div>
+	</div>
+
+</body>
+<script type="text/javascript" src="../../script/vue.min.js"></script><script type="text/javascript" src="../../script/fastclick.js"></script>
+<script type="text/javascript" src="../../script/myJq.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		var that,page = 1,pageSize = 10,key = "",sTime = "",eTime = "",isloadOk = true, total = 0;
+		var deviceID = "",shopName = "";
+		var app = new Vue({
+			el:"#view",
+			data:{
+				txt: $api.getLanguage() || {},
+				listData:[],
+				allTotal:0
+			},
+			mounted() {
+				FastClick.attach(document.body);
+				that = this;
+				that.getData();
+				myUpLoad(function(){
+					if(isloadOk){
+						if (total == pageSize) {
+							page++;
+							that.getData();
+						}else{
+							$(".nomore").show();
+						}
+					}
+				});
+				myPullDown(function(){
+					page = 1;
+					key = "",sTime = "",eTime = "" ,deviceID = "",shopName = "";
+					$("#beginTime,#endTime,#key,#deviceID,#shopName").val("");
+					that.getData();
+				});
+			},
+			methods:{
+				getData:function(){
+					isloadOk = false;
+					postAjax("appagent/divide/list",{
+						key: key,
+						startTime: sTime,
+						endTime: eTime,
+						page: page,
+						pageSize: 15,
+						deviceID: deviceID,
+						shopName: shopName
+					},function(ret){
+						if(ret.code == 1){
+							total = ret.data.length;
+							if(total > 0){
+								if(page == 1){
+									that.listData = [];
+								};
+								that.listData = that.listData.concat(ret.data);
+								closeNoData();
+								if (total < pageSize) {
+										$(".nomore").show();
+								} else {
+										$(".nomore").hide();
+								}
+							} else if (total == 0 && page != 1) {
+								$(".nomore").show();
+							}  else {
+								that.listData = [];
+								$(".nomore").hide();
+								$(".record").noData(that.txt.other.zanwu,"../../image/null.png");
+							}
+						};
+						// that.getFengCtotal();
+						isloadOk = true;
+						api.refreshHeaderLoadDone();
+					}, 'isLoading');
+				},
+				//获取分成统计
+				getFengCtotal:function(){
+					// Fencheng/index.asp?act=count
+					postAjax("appagent/divide/fenchengCount",{
+						key: key,
+						sTime: sTime,
+						eTime: eTime,
+						page: page,
+						deviceID: deviceID,
+						shopName: shopName
+					},function(ret){
+						if(ret.code == 1){
+							that.allTotal = ret.total;
+						}
+						closeloading();
+					}, 'isLoading');
+				},
+				search: function(){
+					page = 1;
+					key = $("#key").val();
+					sTime = $("#beginTime").val();
+					eTime = $("#endTime").val();
+					deviceID = $("#deviceID").val();
+					shopName = $("#shopName").val();
+					if(!sTime && !eTime && !deviceID && !shopName && !key){
+						myToast(that.txt.other.zhishao);
+						return false;
+					};
+					that.getData();
+					that.hideSearchBox();
+				},
+
+				showSearchBox:function(){
+					$(".searchBoxAlert").show();
+				},
+				hideSearchBox:function(){
+					$(".searchBoxAlert").hide();
+				}
+//				screenTime:function(){//筛选
+//					sTime = $("#beginTime").val();
+//					eTime = $("#endTime").val();
+//					if(!sTime){
+//						myToast("请选择开始时间！");
+//						return false;
+//					};
+//					if(!eTime){
+//						myToast("请选择结束时间！");
+//						return false;
+//					}
+//					$(".sildeDown").slideUp();
+//					that.getData();
+//				}
+			}
+		});
+	};
+</script>
+</html>

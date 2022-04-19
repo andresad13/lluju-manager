@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>分成统计</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/public.css"/>
+    <link rel="stylesheet" type="text/css" href="" class="theme"/>
+    <script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+	<script type="text/javascript" src="../../script/common.js"></script>
+	<script>
+		 getTheme();
+	</script>
+    <style>
+        /*.searchBox{position:fixed;top:0rem;width:100%;padding:0.4rem 0.6rem;background:white;box-sizing: border-box;z-index: 9999999;font-size:0.75rem;}
+    	.flex-3{  -webkit-box-flex: 4; -webkit-flex: 4; flex: 4;margin-right:0.4rem;}
+    	.searchInput{height:2.2rem;line-height:1.6rem;padding:0.3rem 0.5rem;box-sizing:border-box;border:1px solid #f1f1f1;border-radius:5px;box-sizing: border-box;}
+    	.searchBtn{height:2.2rem;line-height:2.2rem;text-align:center;border-radius:5px;}*/
+
+    	.searchBtn{position:fixed;width:2.5rem;height:2.5rem;top:0.4rem;right: 0;background:white;z-index: 50;text-align:center;line-height: 2.5rem;border-radius:5px;border:1px solid #f1f1f1;}
+    	.searchIcon{width:1.7rem;margin-top:0.4rem;}
+
+    	.webDotList{margin-top:0.6rem;position:relative;}
+    	.orderList{margin-top:6.6rem;}
+    	.orderItem{margin:0.5rem 0.6rem;background:white;border-radius:5px;}
+    	.itemTitle{line-height:2.5rem;border-bottom:1px solid #f1f1f1;padding:0 0.6rem;}
+    	.itemTop{padding:0.6rem;}
+
+    	.opear{border-top:1px solid #f1f1f1;text-align:right;padding:0 0.6rem;line-height:2.4rem;}
+    	.redtxt{font-weight:600;color:red;}
+    	.gray{display:inline-block;float:left;width:50%;}
+
+    	.searchBoxAlert, .searchHelpAlert{position:fixed;width:100%;height:100%;background:rgba(0,0,0,.5);top:0;left:0;z-index: 10;display: none;z-index: 1000;}
+    	.searchContent{position:absolute;width:90%;height:20rem;top:50%;left:50%;background:white;border-radius:5px;margin-top:-10rem;margin-left:-45%;overflow:hidden;}
+    	.topPromise{background:#f1f1f1;padding: 0 0.6rem 0.6rem;}
+    	.searchTitle{font-size:1.1rem;font-weight:600;text-align:center;line-height:2.8rem;}
+    	.sm{margin-top:0.2rem;color:#787878;}
+    	.searchcondition{padding:0.6rem;}
+    	.condition{display:flex;margin-bottom:0.5rem;}
+    	.conditionTitle{flex:1;margin-right:0.5rem;line-height:2.8rem;}
+    	.inputBox{flex:2;border-bottom:1px solid #DDD;height:2.8rem;padding:0.6rem;line-height: 1.6rem;box-sizing:border-box;}
+    	.opearBtn{position:absolute;width:100%;bottom:0;left:0;border-top:1px solid #F1F1F1}
+    	.opearBtn>button{float:left;width:50%;line-height:2.8rem;color: white;}
+    	.cancelBtn{background:#DDD;}
+			.helpbtn{top:2.9rem;}
+			.close img {
+				float: right;
+				width: 25px;
+				height: 25px;
+			}
+    </style>
+</head>
+<body>
+	<div class="main" id="view" v-cloak>
+		<div class="searchBtn" @click="showSearchBox()"><img src="../../image/searchIcon.png" alt="" class="searchIcon"/></div>
+		<!-- <div class="searchBtn helpbtn" @click="showHelpBox()"><img src="../../image/helpBtn.png" alt="" class="searchIcon"/></div> -->
+			<!--<div class="searchBox flex-wrap flex-con">
+			<input type="search" placeholder="请输入关键字搜索" class="searchInput flex-3 flex-wrap flex-vertical"/>
+			<button tapmode="btnhover" class="btn searchBtn appBg flex-con" @click="search()">搜索</button>
+			<button tapmode="btnhover" class="btn searchBtn redBtn flex-con" style="margin-left:0.4rem;" onclick="$api.openPage('../publicWin.html','html/network/','webdotAdd','新增网点')">筛选</button>
+		</div>-->
+    	<div class="webDotList">
+    		<div class="orderItem" v-for="i in listData">
+    			<p class="itemTitle">
+    				{{i.p_GroupName | nameChange}}：{{i.p_PenName}}
+    			</p>
+    			<div class="itemTop">
+    				<p class="itemP clearfix">
+    					<span class="gray">{{txt.devide.chuzhang}}：{{i.upTC}}</span>
+    					<span class="gray">{{txt.devide.fencheng}}：{{i.tcPresent}}%</span>
+    				</p>
+    			</div>
+    			<p class="opear">
+    				{{txt.devide.jiesuan}}： <span style="font-weight:600;color:red;">{{txt.symbol.moneySymbol}}{{i.total}}</span>
+    			</p>
+    		</div>
+    	</div>
+
+    	<!--搜索弹框-->
+		<div class="searchBoxAlert">
+			<div class="searchContent">
+				<p class="searchTitle">{{txt.devide.jilv}}</p>
+<!--				<div class="topPromise">
+					<p class="searchTitle">订单搜索</p>
+					<p class="sm">1.用户ID不支持模糊查询</p>
+					<p class="sm">2.商户名及设备支持模糊查询</p>
+					<p class="sm">3.设备及订单建议按尾号查询</p>
+				</div>-->
+				<div class="searchcondition">
+					<p class="condition">
+						<span class="conditionTitle">{{txt.devide.startTime}}</span>
+						<input type="date" class="inputBox" id="beginTime" :placeholder="txt.devide.inputstartTime"/>
+					</p>
+
+					<p class="condition">
+						<span class="conditionTitle">{{txt.devide.endTime}}</span>
+						<input type="date" class="inputBox" id="endTime" :placeholder="txt.devide.inputendTime"/>
+					</p>
+
+					<p class="condition">
+						<span class="conditionTitle">{{txt.devide.key}}</span>
+						<input type="text" class="inputBox" id="key" :placeholder="txt.devide.inputkey"/>
+					</p>
+					<p class="opearBtn">
+						<button class="btns appBg" tapmode="btnhover" @click.stop="search()">{{txt.btnTxt.sure}}</button>
+						<button class="btns cancelBtn" tapmode="btnhover" @click.stop="hideSearchBox()">{{txt.btnTxt.cancel}}</button>
+					</p>
+				</div>
+			</div>
+		</div>
+
+		<!--帮助弹框-->
+		<!-- <div class="searchHelpAlert">
+			<div class="searchContent">
+					<div class="close"  @click.stop="hideHelpBox()">
+						<img src="../../image/closeBtn.png" alt="">
+					</div>
+					<p style="margin-top: 30px; padding: 0 30px;font-size: 16px;">{{txt.devide.reminder1}}</p>
+					<p style="padding: 0 30px;font-size: 16px;">{{txt.devide.reminder2}}</p>
+					<p style="padding: 0 30px;font-size: 16px;">{{txt.devide.reminder3}}</p>
+			</div>
+		</div> -->
+
+  	<div class="nomore">
+			—— {{txt.other.allData}} ——
+		</div>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/vue.min.js"></script>
+<script type="text/javascript" src="../../script/fastclick.js"></script>
+<script type="text/javascript" src="../../script/myJq.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		var that,page = 1, pageSize = 10,key = "",sTime = "",eTime = "",isloadOk = true, total = 0;
+
+		var app = new Vue({
+			el:"#view",
+			data:{
+				txt: $api.getLanguage() || {},
+				listData:[]
+			},
+			mounted() {
+				FastClick.attach(document.body);
+				that = this;
+				this.getData();
+
+				myPullDown(function(){
+					page = 1;
+					key = "",sTime = "",eTime = "" ,dlName = "";
+					$("#beginTime,#endTime,#key").val("");
+					that.getData();
+				});
+				myUpLoad(function(){
+					if(isloadOk){
+						if (total == pageSize) {
+							page++;
+							that.getData();
+						}else{
+							$(".nomore").show();
+						}
+					}
+				});
+			},
+			methods:{
+				getData:function(){
+					isloadOk = false;
+					// Fencheng/index.asp?act=agent
+					postAjax("appagent/divide/agentRank",{
+						key: key,
+						startTime: sTime,
+						endTime: eTime,
+						page: page,
+						pageSize: pageSize
+					},function(ret){
+						if(ret.code == 1){
+							total = ret.data.length;
+							if(total > 0){
+								if(page == 1){
+									that.listData = [];
+								};
+								that.listData = that.listData.concat(ret.data);
+								closeNoData();
+								if (total < pageSize) {
+										$(".nomore").show();
+								} else {
+										$(".nomore").hide();
+								}
+							} else if (total == 0 && page != 1) {
+								$(".nomore").show();
+							} else{
+								that.listData = [];
+								$(".nomore").hide();
+								$(".webDotList").noData(that.txt.other.zanwu,"../../image/null.png");
+							}
+						};
+						isloadOk = true;
+						api.refreshHeaderLoadDone();
+					});
+				},
+				search: function(){
+					page = 1;
+					key = $("#key").val();
+					sTime = $("#beginTime").val();
+					eTime = $("#endTime").val();
+					if(!sTime && !eTime && !key){
+						myToast(that.txt.other.zhishao);
+						return false;
+					};
+					that.getData();
+					that.hideSearchBox();
+				},
+				showSearchBox:function(){
+					$(".searchBoxAlert").show();
+				},
+				hideSearchBox:function(){
+					$(".searchBoxAlert").hide();
+				},
+				showHelpBox:function(){
+					$(".searchHelpAlert").show();
+				},
+				hideHelpBox:function(){
+					$(".searchHelpAlert").hide();
+				}
+			},
+			filters: {
+				nameChange(val) {
+					switch (val) {
+						case '省级代理':
+							return that.txt.count.shengjidaili;
+							break;
+						case '市级代理':
+							return that.txt.count.shijidaili;
+							break;
+						case '区域代理':
+							return that.txt.count.quyudaili;
+							break;
+						case '业务员':
+							return that.txt.count.yewuyuan;
+							break;
+						case '店铺管理':
+							return that.txt.orderDetail.dianpu;
+							break;
+						default:
+							return  val;
+					}
+				}
+			}
+		})
+	};
+</script>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>店铺统计</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/public.css"/>
+    <link rel="stylesheet" type="text/css" href="" class="theme"/>
+    <script type="text/javascript" src="../../script/api.js"></script>
+		<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+		<script type="text/javascript" src="../../script/common.js"></script>
+
+		<script>
+			getTheme();
+		</script>
+    <style>
+    	.sildeDown{position:absolute;width:100%;padding:0.6rem;top:0;left:0;background:white;border-top:1px solid #f1f1f1;border-bottom:1px solid #f1f1f1;line-height: 2.2rem;text-align:center;box-sizing:border-box;z-index: 10;}
+    	.sildeDown input{height:2.2rem;line-height:1.6rem;padding:0.3rem 0.5rem;text-align:center;border:1px solid #f1f1f1;border-radius:5px;width:38%;box-sizing:border-box;}
+    	.sildeDown input#beginTime{float:left;}
+    	.sildeDown input#endTime{float:left;}
+    	.timeMiddle{float:left;margin:0 0.3rem;}
+    	.sureBtn{float:right;}
+
+    	.list{padding:0.6rem;margin-top:3.8rem;}
+    	.list ul li{display: inline-block;float:left;width:48%;text-align:center;border-radius:5px;padding:1.2rem 0;color:white;margin-bottom:0.6rem;}
+    	.list ul li:nth-child(2n){float:right;}
+    	.itemTitle{font-size:0.8rem;}
+    	.itemContent{font-size:1.1rem;margin-top:0.2rem;}
+    	.mgt{margin-top:8px;}
+
+
+    	#chart{margin:0 0.6rem;border-radius:5px;overflow: hidden;box-shadow: 0 0 8px #DDD;}
+        .highcharts-credits,.highcharts-legend {display:none;}
+        .highcharts-container {height:200px !important;}
+    </style>
+</head>
+<body>
+	<div class="main" id="view" v-cloak>
+		<div class="sildeDown">
+			<input type="text" :placeholder="txt.count.xuanzekaishi" id="beginTime" readonly="readonly" @click="chooseTime(txt.count.xuanzekaishi,$event)"/>
+			<span class="timeMiddle">~</span>
+			<input type="text" :placeholder="txt.count.xuanzejieshu" id="endTime" readonly="readonly" @click="chooseTime(txt.count.xuanzejieshu,$event)"/>
+			<button class="sureBtn btn appBg" @click="search()" tapmode="btnhover">{{txt.nearShop.searchBtn}}</button>
+		</div>
+
+		<div class="list clearfix">
+			<ul>
+				<li style="background:#9571DB;" tapmode="hover">
+					<p class="itemTitle">{{txt.count.countLiase}}</p>
+					<p class="itemContent">{{data.zujie_count || 0}}{{txt.symbol.ci}}</p>
+				</li>
+				<li style="background:#42bfc7;" tapmode="hover">
+					<p class="itemTitle">{{txt.count.allMoney}}</p>
+					<p class="itemContent">{{txt.symbol.moneySymbol}}{{data.income_total || 0}}</p>
+				</li>
+			</ul>
+		</div>
+
+		<div id="chart" style="margin-top:1rem;"></div>
+
+	</div>
+</body>
+<script type="text/javascript" src="../../script/highcharts.js"></script>
+<script type="text/javascript" src="../../script/vue.min.js"></script>
+<script type="text/javascript" src="../../script/fastclick.js"></script>
+<script type="text/javascript" src="../../script/myJq.js"></script>
+<script type="text/javascript">
+
+	apiready = function(){
+		var shopid = api.pageParam.data;
+		var sTime = "",eTime = "";
+		var that;
+		var txt = $api.getLanguage() || {};
+		api.setStatusBarStyle({
+				style: 'dark',
+		});
+		var app = new Vue({
+			el:"#view",
+			data:{
+				txt: $api.getLanguage() || {},
+				data:{}
+			},
+			mounted() {
+				FastClick.attach(document.body);
+				that = this;
+				this.getData();
+
+				myPullDown(function(){
+					$("#beginTime,#endTime").val("");
+					sTime = "",eTime = "";
+					that.getData();
+				});
+
+			},
+			methods:{
+				getData:function(){
+					postAjax("appagent/shop/countProfit",{
+						shopId: shopid,
+						startTime: sTime,
+						endTime: eTime
+					},function(ret){
+						if(ret.code == 1){
+							var x = [],y = [],newY = [];
+							that.data = ret.data;
+							x = ret.data.data.order_7day;
+							y = ret.data.data.order_count.split(',');
+							setTimeout(function () {
+								y.forEach(item => {
+									newY.push(parseInt(item))
+								})
+							}, 100)
+							setTimeout(function () {
+								drawChart(x, newY, that);
+							}, 200)
+						};
+						api.refreshHeaderLoadDone();
+					});
+				},
+				chooseTime(title,e){
+					api.openPicker({
+					    type: 'date',
+					    title: title
+					}, function(ret, err) {
+					    if (ret) {
+					        var str = ret.year+"/"+ret.month+"/"+ret.day;
+					        $(e.target).val(str);
+					    }
+					});
+				},
+				search:function(){
+					sTime = $("#beginTime").val();
+					eTime = $("#endTime").val();
+
+					if(!sTime){
+						myToast(that.txt.count.xuanzekaishi);
+						return false;
+					};
+					if(!eTime){
+						myToast(that.txt.count.xuanzejieshu);
+						return false;
+					}
+					// postAjax("appagent/shop/countProfit",{
+					// 	shopId: shopid,
+					// 	sTime: sTime,
+					// 	eTime: eTime
+					// },function(ret){
+					// 	if(ret.code == 1){
+					// 		that.data = ret.data;
+					// 	}
+					// });
+					that.getData()
+				}
+			}
+		})
+
+			function drawChart(x, y, that){
+				var winwidth = $("#chart").width();
+				var chart = Highcharts.chart('chart', {
+					chart: {
+						type: 'line'
+					},
+					title: {
+						text: txt.count.recently
+					},
+					subtitle: {
+						text: txt.symbol.appName
+					},
+					xAxis: {
+						categories: x
+					},
+					yAxis: {
+						title: {
+							text: txt.symbol.ci
+						}
+					},
+					plotOptions: {
+						line: {
+							dataLabels: {
+								// 开启数据标签
+								enabled: true
+							},
+							// 关闭鼠标跟踪，对应的提示框、点击事件会失效
+							enableMouseTracking: true
+						}
+					},
+					series: [
+						{
+							name: txt.count.ToDay,
+							data: y
+						}
+					]
+				});
+				chart.setSize(winwidth, winwidth*(2/3));
+			};
+
+	};
+
+</script>
+</html>

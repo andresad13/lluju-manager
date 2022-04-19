@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>分成详情</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="" class="theme"/>
+    <script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+	<script type="text/javascript" src="../../script/common.js"></script>
+	<script>
+		 getTheme();
+	</script>
+    <style>
+    	html,body{font-size:16px;}
+    	.main{font-size:1rem;}
+    	.orderNum{line-height: 2.4rem;padding:0 0.6rem;text-align:center;font-weight:600;}
+
+    	.detail{margin:0;background:white;border-radius:0;padding:0.1rem 0.6rem 0.6rem;}
+    	.detail p{margin-top:1rem;}
+    	.ititle{color:#585858;}
+    	.icontent{float:right;}
+    </style>
+</head>
+<body>
+	<div class="main" id="view" v-cloak>
+		<div class="detail">
+			<p>
+				<span class="ititle">{{txt.devideDetail.danhao}}</span>
+				<span class="icontent">{{orderDetail.p_OrderID}}</span>
+			</p>
+			<p>
+				<span class="ititle">{{txt.devideDetail.jine}}</span>
+				<span class="icontent" style="color:red;">{{txt.symbol.moneySymbol}}{{orderDetail.p_FenCheng}}</span>
+			</p>
+
+			<p>
+				<span class="ititle">{{txt.devideDetail.type}}</span>
+				<span class="icontent">{{orderDetail.p_Type}}</span>
+			</p>
+
+			<p>
+				<span class="ititle">{{txt.devideDetail.shopName}}</span>
+				<span class="icontent">{{orderDetail.p_ShopName}}</span>
+			</p>
+
+			<p>
+				<span class="ititle">{{txt.devideDetail.device}}</span>
+				<span class="icontent">{{orderDetail.p_DeviceID}}</span>
+			</p>
+
+			<p>
+				<span class="ititle">{{txt.devideDetail.cell}}</span>
+				<span class="icontent">{{orderDetail.p_BatteryID}}</span>
+			</p>
+
+			<p>
+				<span class="ititle">{{txt.devideDetail.dengji}}</span>
+				<span class="icontent">{{orderDetail.p_Type}}</span>
+			</p>
+
+			<p>
+				<span class="ititle">{{txt.devideDetail.fengcheng}}</span>
+				<span class="icontent">{{orderDetail.p_WxName}}</span>
+			</p>
+
+			<p>
+				<span class="ititle">{{txt.devideDetail.time}}</span>
+				<span class="icontent">{{orderDetail.p_AddTime}}</span>
+			</p>
+		</div>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/vue.min.js"></script>
+<script type="text/javascript" src="../../script/fastclick.js"></script>
+<script type="text/javascript" src="../../script/myJq.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		var that;
+		var orderid = api.pageParam.data;
+		var app = new Vue({
+			el:"#view",
+			data:{
+				txt: $api.getLanguage() || {},
+				orderDetail: {},
+				myRoleName: $api.getStorage("p_GroupName")
+			},
+			mounted() {
+				FastClick.attach(document.body);
+				that = this;
+				that.getData();
+			},
+			methods:{
+				getData:function(){
+					postAjax("appagent/divide/fenchengDetail/" + orderid ,{
+						id: orderid
+					},function(ret){
+						if(ret.code == 1){
+							that.orderDetail = ret.data;
+						}
+					});
+				}
+			}
+		})
+	};
+</script>
+</html>

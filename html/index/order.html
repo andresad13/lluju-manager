@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>订单</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/public.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/defult.css" />
+    <link rel="stylesheet" class="theme" href="" />
+    <script type="text/javascript" src="../../script/api.js"></script>
+    <script type="text/javascript" src="../../script/common.js"></script>
+    <script>
+        getTheme()
+    </script>
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            background: #f2f2f2;
+        }
+
+        #view {
+            width: 100%;
+            height: 100%;
+        }
+
+        #view .navwrap {
+            width: 100%;
+            /*height: 45px;*/
+            padding-top: 5px;
+            background: white;
+        }
+
+        #view .nav {
+            width: 60%;
+            margin: 0 auto;
+            /*height: 100%;*/
+            background: white;
+            padding-bottom:10px;
+        }
+
+        #view .nav .item {
+            float: left;
+            width: 49%;
+            line-height: 30px;
+            text-align: center;
+            color: white;
+            background: white;
+        }
+
+        #view .nav .item.active {
+            color: white !important;
+        }
+
+        #view .nav .item.default {
+            background: white !important;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="view" v-cloak>
+        <!-- <div class="navwrap">
+            <div class="nav">
+                <div class="item appBg appBorder appTxt active" @click="tab(1)" ref="item1">{{txt.device.title1}}</div>
+                <div class="item appBg appBorder appTxt default" @click="tab(2)" ref="item2">{{txt.device.title2}}</div>
+            </div>
+        </div> -->
+    </div>
+    <script type="text/javascript" src="../../script/vue.min.js"></script>
+    <script type="text/javascript" src="../../script/fastclick.js"></script>
+    <script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+    <script type="text/javascript">
+        var that;
+        apiready = function () {
+          api.setStatusBarStyle({
+              style: 'dark',
+          });
+            new Vue({
+                el: '#view',
+                data: {
+                    txt: '',
+                },
+                created() {
+                    that = this;
+                    this.txt = $api.getLanguage();
+                },
+                mounted() {
+                    FastClick.attach(document.body);
+                    api.addEventListener({
+                        name: 'changeLanguage'
+                    }, function (ret, err) {
+                        that.txt = $api.getLanguage();
+                    });
+
+                    // 打开机柜跟密码线页面
+                    api.openFrameGroup({
+                        name: 'orderNav',
+                        background: '#fff',
+                        scrollEnabled: false,
+                        rect: {
+                            x: 0,
+                            y: parseInt($api.getStorage('headerHeight')),
+                            w: 'auto',
+                            h: api.winHeight - parseInt($api.getStorage("headerHeight")) - parseInt($api.getStorage("footerHeight"))
+                            // y: $api.dom('.nav').offsetHeight + parseInt($api.getStorage(
+                            //     'headerHeight')) + 40,
+                            // h: api.winHeight - (parseInt($api.getStorage("headerHeight")) +
+                            //     parseInt($api.dom('.nav').offsetHeight)) - parseInt($api
+                            //     .getStorage("footerHeight"))-40
+                        },
+                        index: 0,
+                        preload: 0,
+                        frames: [{
+                            name: 'jg',
+                            url: '../order/jg.html',
+                            bgColor: '#fff'
+                        }, {
+                            name: 'mmx',
+                            url: '../order/mmx.html',
+                            bgColor: '#fff'
+                        }]
+                    }, function (ret, err) {
+
+                    });
+
+                    // 颜色改变事件
+                    api.addEventListener({
+                	        name:'chooseColor'
+                    },function(ret,err){
+                        	$(".theme").attr("href","");
+                        	$(".theme").attr("href","../../css/"+ret.value+".css");
+                    });
+                },
+                methods: {
+                    // 点击导航切换样式
+                    tab(i) {
+                        if (i === 1) {
+                            this.$refs.item1.className = "item appBg appBorder appTxt active"
+                            this.$refs.item2.className = "item appBg appBorder appTxt default"
+                            api.setFrameGroupIndex({
+                                name: "orderNav",
+                                index: 0
+                            })
+                        } else {
+                            this.$refs.item1.className = "item appBg appBorder appTxt default"
+                            this.$refs.item2.className = "item appBg appBorder appTxt active"
+                            api.setFrameGroupIndex({
+                                name: "orderNav",
+                                index: 1
+                            })
+                        }
+                    },
+
+                    // 点击子菜单图片切换
+                    changeImg(e) {
+                        for (var i = 0; i < $('.items').length; i++) {
+                            $('.items')[i].src = "../../image/device-bj.png"
+                        }
+                        $('.items')[e].src = "../../image/device-bj-hover.png"
+                    },
+
+                }
+            })
+        }
+    </script>
+</body>
+
+</html>

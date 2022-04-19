@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>网点</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/public.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/defult.css" />
+    <link rel="stylesheet" class="theme" href="" />
+    <script type="text/javascript" src="../../script/api.js"></script>
+    <script type="text/javascript" src="../../script/common.js"></script>
+    <script>
+        getTheme()
+    </script>
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            background: #f2f2f2;
+        }
+
+        #view {
+            width: 100%;
+            height: 100%;
+        }
+
+        .tab {
+          width: 100%;
+          position: fixed;
+          top: 0;
+            display: flex;
+            padding-top: 10px;
+            background: white;
+            justify-content: space-between;
+            z-index: 999
+        }
+
+        .tab .item {
+            position: relative;
+            float: left;
+            width: 72px;
+            padding: 10px;
+            padding-top: 0;
+            box-sizing: border-box;
+        }
+
+        .tab .item img {
+            width: 100%;
+        }
+
+        .tab .item p {
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .tab .item:last-child p {
+            margin-top: 4px;
+        }
+
+        .tab .item .txt {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            line-height: 56px;
+            font-size: 8px;
+            text-align: center;
+        }
+
+        .lists {
+            position: relative;
+            width: 100%;
+            padding: 10px 0;
+            padding-top: 106px;
+            /* padding-bottom:0; */
+            background: #f2f2f2;
+        }
+
+        .list {
+            width: 100%;
+            background: white;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            box-sizing: border-box;
+        }
+
+        .list .list-title {
+            font-size: 14px;
+            padding-bottom: 8px;
+            padding-left: 10px;
+            border-bottom: 1px solid #eeeeee;
+        }
+
+        .list .list-title img {
+            float: right;
+            margin-right: 12px;
+            height: 15px;
+        }
+
+        .list .info {
+          display: flex;
+          align-items: center;
+        }
+
+        .list .info .img {
+          margin: 10px;
+          width: 60px;
+          height: 60px;
+          overflow: hidden;
+        }
+
+        .list .info .img img {
+            width: 100%;
+            border-radius: 5px;
+        }
+
+        .list .info .infoTXT {
+            padding: 10px 0;
+        }
+
+        .list .info .infoTXT p {
+            line-height: 22px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .list .info .infoTXT p span:nth-child(2) {
+            padding-left: 10px;
+        }
+
+        .list .deviceBtn {
+          display: flex;
+          justify-content: flex-end;
+          padding: 0 5px 0 10px;
+        }
+
+        .list .deviceBtn div {
+          flex: 1;
+          text-align: center;
+            float: left;
+            padding: 5px 0px;
+            color: white;
+            border-radius: 3px;
+            margin-right: 5px;
+        }
+
+        .list .deviceBtn div {
+            background: #fd4a13;
+        }
+
+
+        .list .deviceBtn div:nth-child(5) {
+            background: #ae000c;
+        }
+
+        .hoverBtn {
+            opacity: .8;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="view" v-cloak>
+
+      <div class="tab ab">
+          <div class="item" @click="changeImg(0)">
+              <img src="../../image/device-bj-hover.png" alt="" class="items">
+              <p class="txt">{{txt.network.sonTitle1}}</p>
+              <p>{{shopCount.total}}{{txt.symbol.ge}}</p>
+          </div>
+          <div class="item" @click="purvie('btn1')" v-if="myRoleName !='业务员' && myRoleName != '店铺管理'">
+              <img src="../../image/device-bj.png" alt="" class="items">
+              <p class="txt">{{txt.network.sonTitle2}}</p>
+              <p>{{shopCount.zhishu}}{{txt.symbol.ge}}</p>
+          </div>
+          <div class="item" @click="purvie('btn2')" v-if="myRoleName!='业务员' && myRoleName!='店铺管理'">
+              <img src="../../image/device-bj.png" alt="" class="items">
+              <p class="txt">{{txt.network.sonTitle3}}</p>
+              <p>{{shopCount.xiashu}}{{txt.symbol.ge}}</p>
+          </div>
+          <div class="item" @click="purvie('btn3')">
+              <img src="../../image/device-bj.png" alt="" class="items">
+              <p class="txt">{{txt.network.sonTitle4}}</p>
+              <p>{{txt.network.sonTitle6}}</p>
+          </div>
+          <div class="item" @click="openSearch">
+              <img style="display: block;" src="../../image/device-search.png" alt="">
+              <p>{{txt.network.sonTitle5}}</p>
+          </div>
+      </div>
+        <div class="lists">
+            <div class="list ab" v-for="(item, index) in shopList">
+                <p class="list-title">
+                    {{item.p_ShopName}}
+                    <img src="../../image/del.png" alt="" @click="delShop(item.p_NewID,index)" v-if="myRoleName=='平台' && item.del_tag==0">
+                </p>
+                <div class="info ab">
+                    <div class="img">
+                        <img :src="item.p_Logo || '../../image/logo.png'" alt="">
+                    </div>
+                    <div class="infoTXT">
+                        <p>
+                            <span>{{txt.network.deviceTxt1}}{{txt.symbol.moneySymbol}}{{item.day_income}}</span>
+                            <span>{{txt.network.deviceTxt2}}{{txt.symbol.moneySymbol}}{{item.month_income}}</span>
+                        </p>
+                        <p>
+                            <span>{{txt.network.deviceTxt3}}{{txt.symbol.moneySymbol}}{{item.total_income}}</span>
+                            <span>{{txt.network.deviceTxt4}}{{item.rent_count}}{{txt.symbol.ci}}</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="deviceBtn">
+                    <div tapmode="hoverBtn"
+                        @click="$api.openPage('../../publicWin.html','html/network/','shopTj',txt.network.newPage1,item.p_NewID)">
+                        {{txt.network.deviceBtn1}}
+                    </div>
+                    <div tapmode="hoverBtn"
+                        @click="$api.openPage('../../publicWin.html','html/network/','changePrice',txt.network.newPage2,item.p_NewID)">
+                        {{txt.network.deviceBtn2}}
+                    </div>
+                    <div tapmode="hoverBtn"
+                        @click="$api.openPage('../../publicWin.html','html/network/','deviceList',item.p_ShopName,item.p_NewID +','+ item.dailiState)">
+                        {{txt.network.deviceBtn3}}
+                    </div>
+                    <div tapmode="hoverBtn"
+                        @click="$api.openPage('../../publicWin.html','html/network/','webdotDetail',txt.network.shopDetail,item.p_id)">
+                        {{txt.network.deviceBtn4}}
+                    </div>
+                  <div class="appBg" tapmode="hoverBtn" @click="purvie('btn4', item.p_NewID, item.p_ShopName)" v-if="item.dailiState == 0 && myRoleName != '店铺管理'">{{txt.network.deviceBtn5}}</div>
+                </div>
+            </div>
+            <div class="nomore">
+      			—— {{txt.device.showAll}} ——
+      		  </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="../../script/vue.min.js"></script>
+    <script type="text/javascript" src="../../script/fastclick.js"></script>
+    <script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+    <script type="text/javascript" src="../../script/myJq.js"></script>
+    <script type="text/javascript">
+        var that;
+        var clickType = ""; // search
+        var isloadOk = false;
+
+        var styleColor;
+        var total = 0;
+        var pageSize = 10;
+        var page = 1;
+        apiready = function () {
+            new Vue({
+                el: '#view',
+                data: {
+                    txt: {},
+                    key: "",
+                    type: "",
+                    myRoleName: $api.getStorage("p_GroupName"),
+                    adminOpenid: $api.getStorage("adminOpenid"),
+                    shopList: [],
+                    shopCount: {}
+                },
+                created() {
+                    that = this;
+                    this.txt = $api.getLanguage();
+                    this.getData()
+                    that.getCount();
+                    console.log(that.myRoleName)
+                },
+                mounted() {
+                  FastClick.attach(document.body);
+                  // 根据颜色渲染不同的主题
+                  that.changeClorImg();
+
+                  api.addEventListener({
+                      name: 'changeLanguage'
+                  }, function (ret, err) {
+                      that.txt = $api.getLanguage();
+                  });
+
+                  myPullDown(function (ret) {
+                      page = 1;
+                      that.key = "";
+                      api.refreshHeaderLoadDone()
+                      that.getData();
+                      that.getCount();
+                  })
+
+                  //监听弹框相应事件
+                  api.addEventListener({
+                      name: "sendKey"
+                  }, function(ret,err){
+                      if(clickType == 'search'){
+                          //检测 detection
+                          that.key = ret.value.shopName;
+                          that.getData();
+                      }
+
+                  })
+
+                  api.addEventListener({
+                      name: "refreshShopList"
+                  }, function(ret,err){
+                      page = 1;
+                      that.getData();
+                      that.getCount();
+                  })
+
+                  // 上拉加载...
+                  myUpLoad(function(){
+                      if(total == pageSize){
+                        page++;
+                        that.getData();
+                      }else{
+                        $(".nomore").show();
+                      }
+          				});
+
+                  // 颜色改变事件
+                  api.addEventListener({
+            	        name:'chooseColor'
+                  },function(ret,err){
+                    	$(".theme").attr("href","");
+                    	$(".theme").attr("href","../../css/"+ret.value+".css");
+                      // 根据颜色渲染不同的主题
+                      setTimeout(function () {
+                          window.location.reload()
+                      }, 500)
+                      that.changeClorImg();
+                  });
+                },
+                methods: {
+                    getData() {
+                      var subData = {
+                        key: that.key,
+                        daili: that.type,
+                        admin_groupName: that.myRoleName,
+                        admin_openid: that.adminOpenid,
+                        page: page,
+                        pageSize: pageSize
+                      }
+                      isloadOk = false;
+                      postAjax("appagent/shop/shop_list", subData, function (ret) {
+                          if (ret.code == 1) {
+                              total = ret.data.length;
+                            if(total > 0){
+                              if(page == 1){
+                                that.shopList = [];
+                              };
+                              that.shopList = that.shopList.concat(ret.data);
+                              closeNoData();
+                              if(total < pageSize){
+                                $(".nomore").show();
+                              }else{
+                                $(".nomore").hide();
+                              }
+                            } else if (total == 0 && page != 1) {
+                              $(".nomore").show();
+                            } else{
+                              that.shopList = [];
+                              $(".nomore").hide();
+                              $("#view").noData(that.txt.my.noSHOP,"../../image/null.png");
+                            }
+                          }
+                          isloadOk = true;
+                          // api.hideProgress();
+                          // api.refreshHeaderLoadDone();
+                      });
+                    },
+                    // 删除店铺
+                    delShop:function(id,pos){
+            					myConfirm(that.txt.my.isCanfimDel,function(){
+            						postAjax("appagent/shop/storedel",{
+                          newID: id
+                        },function(ret){
+            							if(ret.code == 1){
+            								myAlert(ret.message);
+            								that.shopList.splice(pos,1);
+                            that.getCount();
+            							}
+            						})
+            					})
+            				},
+                    // 获取数量
+                    getCount:function(){
+            					postAjax("appagent/shop/count",{
+                      },function(ret){
+            						if(ret.code == 1){
+            							that.shopCount = ret.data;
+            						}
+            					});
+            				},
+
+                    // 根据颜色渲染不同的主题
+                    changeClorImg() {
+                      var color = $api.getStorage("themeColor");
+                      if (color == 'default.css') {
+                          styleColor = "../../image/red/device-bj-hover.png"
+                      } else if (color == 'green.css') {
+                          styleColor = "../../image/green/device-bj-hover.png"
+                      } else if (color == 'blue.css') {
+                          styleColor = "../../image/blue/device-bj-hover.png";
+                      } else {
+                          styleColor = "../../image/red/device-bj-hover.png";
+                      }
+                      $('.items')[0].src = styleColor;
+                    },
+
+                    // 点击子导航切换图片
+                    changeImg(e) {
+                      if(!isloadOk) return;
+                        for (var i = 0; i < $('.items').length; i++) {
+                            $('.items')[i].src = "../../image/device-bj.png"
+                        }
+                        page = 1;
+                        if(e == 0) {
+                          that.type = ''
+                        } else if(e == 1) {
+                          that.type = 0
+                        } else if(e == 2) {
+                          that.type = 1
+                        }
+                        that.getData();
+                        $('.items')[e].src = styleColor
+                    },
+
+                    // 打开搜索框页面
+                    openSearch() {
+                        clickType = "search"
+                        api.openFrame({
+                            name: 'search',
+                            url: '../index/search.html',
+                            bgColor: 'rgba(0, 0, 0, .6)',
+                            bounces: true,
+                            rect: {
+                                x: 0,
+                                y: 0,
+                                w: 'auto',
+                                h: 'auto'
+                            },
+                            pageParam: {
+                                eventName: "isAscertain",
+                                clickType: "network"
+                            }
+                        })
+                    },
+                    //扫码绑定
+            				scan:function(shopid,shopname){
+            					var FNScanner = api.require('FNScanner');
+            					FNScanner.open({
+            					    autorotation: false,
+                          hintText: that.txt.scan.text,
+                          albumText: that.txt.scan.xc,
+                          lightText: that.txt.scan.cq,
+                          closeText: that.txt.scan.gg
+            					}, function(ret, err) {
+            						if(ret.eventType == "success"){
+            							var qrcode = ret.content.split("/");
+            							var types = qrcode[qrcode.length-2];
+        					        qrcode = qrcode[qrcode.length-1];
+        					        var subUrl;
+        					        // if(types == "borrow"){
+        					        // 	//机柜
+        					        // 	subUrl = "appagent/shop/deviceBanging"
+        					        // }else if(types == "mmx"){
+        					        // 	//密码线
+        					        // 	// subUrl = "appagent/shop/xian_bangding"
+        					        // }
+                          subUrl = "appagent/shop/deviceBanging"
+        					        myConfirm(that.txt.my.isCanfimBind + "【"+shopname+"】?",function(){
+        					        	postAjax(subUrl,{
+        					        		  qrCode:qrcode,
+        					        		  shopID:shopid
+        					        	},function(ret){
+        					        		if(ret.code == 1){
+        					        			myAlert(ret.message);
+                                $api.send("bindAgentOk");
+        					        		}
+        					        	});
+        					        });
+            						}
+            					});
+            				},
+
+                    // 权限
+                    // "Btn1": "添加备注",
+                		// "Btn2": "获取卡号",
+                		// "Btn3": "清空商户",
+                		// "Btn4": "绑定商户",
+                    purvie: function (event, p_id, p_name) {
+                      if ($api.getStorage('p_GroupName') == '店铺管理') {
+                        myAlert(that.txt.alert.noPermissions);
+                      } else {
+                          switch (event) {
+                            case "btn1":
+                              that.changeImg(1);
+                              break;
+                            case "btn2":
+                              that.changeImg(2);
+                              break;
+                            case "btn3":
+                              $api.openPage('../../publicWin.html','html/network/','webdotAdd',that.txt.network.sonTitle6);
+                              break;
+                            case "btn4":
+                              that.scan(p_id, p_name);
+                              break;
+                          }
+                      }
+                    }
+                }
+            })
+        }
+    </script>
+</body>
+
+</html>

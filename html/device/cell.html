@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>电池</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/public.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/defult.css" />
+    <link rel="stylesheet" class="theme" href="" />
+    <script type="text/javascript" src="../../script/api.js"></script>
+    <script type="text/javascript" src="../../script/common.js"></script>
+    <script>
+        getTheme()
+    </script>
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            background: #f2f2f2;
+        }
+
+        .navWrap {
+            padding-bottom: 10px;
+            background: white;
+        }
+
+        .navWrap .title {
+            padding: 10px;
+        }
+
+        .title {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .title .nav {
+            padding: 8px 20px;
+            border-radius: 3px;
+            color: white;
+            font-size: 1.1rem;
+            box-sizing: border-box;
+        }
+
+        .title2 {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            padding: 0 10px;
+            padding-bottom: 4px;
+            background: white;
+        }
+
+        .title2 .nav {
+            float: left;
+            width: 15.66%;
+            margin-bottom: 4px;
+            text-align: center;
+            line-height: 35px;
+            border-radius: 4px;
+            color: white;
+
+        }
+
+        .item {
+            margin-top: 10px;
+            background: white;
+            padding: 4px 0;
+        }
+
+        .itemTitle {
+            padding: 10px 10px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .itemTitle span {
+            float: right;
+            color: #feb40c;
+        }
+
+        .item .itemInfo {
+            padding: 0 10px;
+            padding-top: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .itemInfo span span {
+            /*margin-left: 15px;*/
+        }
+
+        .itemInfo span:nth-child(2) {
+            position: relative;
+            top: -10px;
+            padding: 10px 15px;
+            color: white;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="view" v-cloak>
+        <div class="navWrap ab">
+            <div class="title">
+                <div class="nav appBg" tapmode="hoverBtn" @click="goToAlert(txt.alert.msg2, 'Reboot')">{{txt.cell.title1}}</div>
+                <div class="nav appBg" tapmode="hoverBtn" @click="goToAlert(txt.alert.msg, 'checkout')">{{txt.cell.title2}}</div>
+                <div class="nav appBg" tapmode="hoverBtn" @click="goToAlert(txt.device.alertMsg1s, 'allCell')">{{txt.cell.title3}}</div>
+            </div>
+            <div class="title2">
+                <div v-for="(item, i) in count" :key="i" class="nav appBg" tapmode="hoverBtn" @click="popOneBayonet(i)">{{txt.cell['tan' + i]}}</div>
+                <!-- <div class="nav appBg" tapmode="hoverBtn" @click="popOneBayonet(2)">{{txt.cell.tan2}}</div>
+                <div class="nav appBg" tapmode="hoverBtn" @click="popOneBayonet(3)">{{txt.cell.tan3}}</div>
+                <div class="nav appBg" tapmode="hoverBtn" @click="popOneBayonet(4)">{{txt.cell.tan4}}</div>
+                <div class="nav appBg" tapmode="hoverBtn" @click="popOneBayonet(5)">{{txt.cell.tan5}}</div>
+                <div class="nav appBg" tapmode="hoverBtn" @click="popOneBayonet(6)">{{txt.cell.tan6}}</div> -->
+            </div>
+            <!-- <div class="title2" v-if="count == 12">
+                <div class="nav appBg" @click="popOneBayonet(7)">{{txt.cell.tan7}}</div>
+                <div class="nav appBg" @click="popOneBayonet(8)">{{txt.cell.tan8}}</div>
+                <div class="nav appBg" @click="popOneBayonet(9)">{{txt.cell.tan9}}</div>
+                <div class="nav appBg" @click="popOneBayonet(10)">{{txt.cell.tan10}}</div>
+                <div class="nav appBg" @click="popOneBayonet(11)">{{txt.cell.tan11}}</div>
+                <div class="nav appBg" @click="popOneBayonet(12)">{{txt.cell.tan12}}</div>
+            </div> -->
+            <!-- <div class="title2" style='width: 100%;text-align: center;' v-if='!batteryList[0]'>
+                暂无电池！
+            </div> -->
+        </div>
+        <div class="wrapItem">
+            <div class="item" v-for="item in batteryList">
+                <p class="itemTitle">
+                    {{txt.device.deviceNumber}} {{item.p_BatteryID}}
+                    <span>{{item.p_Lisence | nameChange}}</span>
+                </p>
+                <p class="itemInfo">
+                    <span>
+                        {{txt.cell.itemTxt1}}
+                        {{item.p_Capacity}}%
+                        <span>
+                            {{txt.cell.itemTxt2}}
+                            {{item.p_BayonetInt}}
+                        </span>
+                    </span>
+                    <span class="appBg" @click="popup(item.p_id, item.p_BayonetInt)">
+                        {{txt.cell.itemBtn}}
+                    </span>
+                </p>
+
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="../../script/vue.min.js"></script>
+    <script type="text/javascript" src="../../script/fastclick.js"></script>
+    <script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+    <script type="text/javascript" src="../../script/myJq.js"></script>
+    <script type="text/javascript">
+        apiready = function() {
+            var deviceID = api.pageParam.data.deviceID;
+            var clickType = 'cellBtn'; // 弹出电池 cellBtn    重启设备 Reboot    检测设备 checkout  弹出所有电池allCell
+            var cellId = ''; // 电池id
+            var cellId2 = ''; // 电池id2
+            api.setStatusBarStyle({
+        				style: 'dark',
+        		});
+            var that;
+            new Vue({
+                el: '#view',
+                data: {
+                    txt: '',
+                    batteryList: {},
+                    Leaseable: [],
+                    count: 0
+                },
+                created() {
+                    that = this;
+                    this.txt = $api.getLanguage();
+                    this.getData();
+                    that.count = api.pageParam.data.count;
+
+                    $api.send('clearVal');
+
+                    api.addEventListener({
+                        name: 'sendAlertEvent'
+                    }, function(ret, err) {
+                        if (clickType == 'cellBtn') {
+                            // 弹出电池
+                            that.ejectBattery(cellId, cellId2);
+                            return;
+                        } else if (clickType == 'Reboot') {
+                            // 重启
+                            that.restartDevice();
+                            return;
+                        } else if (clickType == 'checkout') {
+                            // 检测
+                            that.testDevice();
+                            return;
+                        } else if (clickType == 'allCell') {
+                            that.alertAll(that.batteryList);
+                            return;
+                        }
+                    });
+
+                    api.addEventListener({
+                        name: 'clearVal'
+                    }, function(ret, err){
+                        clickType = null
+                    });
+                    myPullDown(function(ret) {
+                        that.getData()
+                    });
+                },
+                methods: {
+                    sortNumber(a, b) {
+                        return a.p_BayonetInt - b.p_BayonetInt
+                    },
+                    getData: function() {
+                        that.Leaseable = [];
+                        postAjax("appagent/device/batteryList", {
+                            id: deviceID
+                        }, function(ret) {
+                            if (ret.code == 1) {
+                                if (ret.data.data.length > 0) {
+                                    that.batteryList = ret.data.data.sort(that.sortNumber);
+                                    that.batteryList.map(function(item) {
+                                      that.Leaseable.push(item.p_BayonetInt)
+                                    })
+                                    closeNoData();
+                                } else if (ret.data.data.length <= 0) {
+                                    that.batteryList = [];
+                                    that.Leaseable = [];
+                                    $(".nomore").hide();
+                                    if ($('.null')) {
+                                        $('.null').remove()
+                                    }
+                                    $(".wrapItem").append('<div class="null" id="nodata" style="position: absolute;top: 30%">' +
+                                        '<img src="' + "../../image/null.png" + '" alt="" class="nullImg" />' +
+                                        '<p class="nullMsg">' + that.txt.cell.msg + '</p>' +
+                                        '</div>');
+                                }
+                            }
+                            api.refreshHeaderLoadDone();
+                        });
+                    },
+                    // 打开弹出成功或者失败框
+                    goToAlertStatus(status) {
+                        api.openFrame({
+                            name: 'alert',
+                            url: './alert.html',
+                            bgColor: 'rgba(0, 0, 0, .6)',
+                            bounces: true,
+                            rect: {
+                                x: 0,
+                                y: 0,
+                                w: 'auto',
+                                h: 'auto'
+                            },
+                            pageParam: {
+                                key: status
+                            }
+                        })
+                    },
+
+                    // 弹1、弹2、、、、
+                    popOneBayonet(i) {
+                      var index = Number(i) + 1;
+                      if(that.Leaseable.indexOf(index) == -1) {
+                        myAlert(that.txt.cell.noBattery);
+                        return;
+                      }
+                      const popOneData = that.batteryList.filter(item => item.p_BayonetInt == index);
+                      postAjax("appagent/device/popOneBayonet", {
+                              cabinetPort: that.count,
+                              // bayonet: popOneData[0].p_Bayonet,
+                              bayonet: index,
+                              id: deviceID,
+                              bayonetInt: popOneData[0].p_BayonetInt,
+                              batteryPid: popOneData[0].p_id
+                      }, function(ret) {
+                          if(ret.code == 1) {
+                            myAlert(that.txt.cell.chenggogn,function(ret){
+            									that.getData();
+            								});
+                          }
+                      })
+                    },
+
+                    // 默认弹框
+                    goToAlert(txt, type, id) {
+                        clickType = type;
+                        // deviceID = id;
+                        api.openFrame({
+                            name: 'alertConfim',
+                            url: '../index/confim.html',
+                            bgColor: 'rgba(0, 0, 0, .6)',
+                            bounces: true,
+                            rect: {
+                                x: 0,
+                                y: 0,
+                                w: 'auto',
+                                h: 'auto'
+                            },
+                            pageParam: {
+                                txt: txt
+                            }
+                        })
+                    },
+                    //重启
+                    restartDevice: function() {
+                        postAjax("appagent/device/restart", {
+                            id: deviceID
+                        }, function(ret) {
+                            if (ret.code == 1) {
+                                myAlert(that.txt.alert.sccuss);
+                            }
+                        });
+                    },
+                    //检测设备
+                    testDevice: function() {
+                        postAjax("appagent/device/check", {
+                            id: deviceID
+                        }, function(ret) {
+                            if (ret.code == 1) {
+                                myAlert(ret.msg || ret.message);
+                            }
+                        });
+                    },
+
+                    // 打开弹框
+                    popup(id, BayonetInt) {
+                        clickType = 'cellBtn';
+                        cellId = id;
+                        cellId2 = BayonetInt;
+                        api.openFrame({
+                            name: 'alertConfim',
+                            url: '../index/confim.html',
+                            bgColor: 'rgba(0, 0, 0, .6)',
+                            bounces: true,
+                            rect: {
+                                x: 0,
+                                y: 0,
+                                w: 'auto',
+                                h: 'auto'
+                            },
+                            pageParam: {
+                                txt: that.txt.device.alertMsg1,
+                            }
+                        })
+                    },
+
+                    // 弹出所有电池
+                    allByOne: function(serialNumber) {
+                        var bayonetCount = that.batteryList.length - 1;
+                        if(serialNumber > bayonetCount ){
+                          that.goToAlertStatus(1) // 弹框
+                          that.getData();
+                          return false;
+                        } else {
+                          postAjax("appagent/device/popOne", {
+                              id: deviceID,
+                              bayonetInt: that.batteryList[serialNumber].p_BayonetInt
+                          }, function(ret) {
+                                if (ret.code == 1) {
+                                  setTimeout(function() {
+                                    console.log(serialNumber + '次');
+                                    that.allByOne(serialNumber + 1);
+                                  }, 2000)
+                                } else {
+                                  that.goToAlertStatus(0); // 弹框
+                                  that.getData();
+                                  return false;
+                                }
+                            })
+                        }
+                    },
+
+                    alertAll:function(){
+                    	that.allByOne(0);
+                    },
+
+                    alertAll_backup(list) { //备份
+                        var ok = true;
+                        list.forEach((item, i) => {
+                            setTimeout(function () {
+                              postAjax("appagent/device/popOne", {
+                                  id: deviceID,
+                                  bayonetInt: item.p_BayonetInt
+                              }, function(ret) {
+                                if (ret.code != 1) {
+                                  ok = false;
+                                }
+                                if (i == list.length - 1) {
+                                  if (ok) {
+                                      that.goToAlertStatus(1)
+                                  } else {
+                                      that.goToAlertStatus(0)
+                                  }
+                                  that.getData();
+                                }
+                              })
+                            }, i * 2500)
+                        })
+                    },
+                    // 弹出电池
+                    ejectBattery: function(id, cellId2) {
+                        // console.log(id, cellId2)
+                        // myConfirm("是否确定弹出该电池？",function(){
+                        postAjax("appagent/device/popOne", {
+                                id: deviceID,
+                                bayonetInt: cellId2
+                            }, function(ret) {
+                                if (ret.code == 1) {
+                                    myAlert(that.txt.cell.chenggogn, function(ret) {
+                                        that.getData();
+                                    });
+                                }
+                            })
+                            // })
+                    }
+                },
+                filters: {
+          				nameChange(val) {
+          					switch (val) {
+          						case '正常授权':
+          							return that.txt.cell.itemTitle;
+          							break;
+          						case '正式授权':
+          							return that.txt.cell.itemTitle;
+          							break;
+                      case '非正常授权':
+          							return that.txt.cell.itemTitle2;
+          							break;
+                      case '非正式授权':
+          							return that.txt.cell.itemTitle2;
+          							break;
+          						default:
+          							return  val;
+          					}
+          				}
+          			}
+            })
+        }
+    </script>
+</body>
+
+</html>

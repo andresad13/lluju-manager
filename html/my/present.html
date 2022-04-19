@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>申请提现</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="" class="theme"/>
+    <script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+	<script type="text/javascript" src="../../script/common.js"></script>
+	<script>
+		 getTheme();
+	</script>
+    <style>
+    	.main{margin:0.6rem;background:white;border-radius:5px;box-shadow: 0 0 6px #999;padding:0.6rem;}
+    	.red{color:red;}
+    	.inpBox{margin:0.8rem 0;text-align:center;}
+    	.inpBox input{width:50%;text-align:center;border:1px solid #f1f1f1;padding:0.6rem 0;border-radius:5px;}
+    	.btn{width:100%;line-height:2.6rem;}
+    	.promise{padding:0.6rem;font-size:0.8rem;color:red;}
+    </style>
+</head>
+<body>
+	<div id="view">
+		<div class="main">
+			<p>{{txt.presentmoney.title}}： {{txt.symbol.moneySymbol}}<span class="red" id="balance"> </span></p>
+			<p class="inpBox"><input type="number" :placeholder="txt.presentmoney.inputMoney" id="money"/></p>
+			<button class="btn appBg" tapmode="btnhover" @click="application()">{{txt.presentmoney.tixian}}</button>
+		</div>
+		<div class="promise" style="display: none;">
+			{{txt.presentmoney.zhu}}：<span id="sm"></span>
+		</div>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/vue.min.js"></script>
+<script type="text/javascript">
+	var isTixian,bank_tag;
+	apiready = function(){
+				var that;
+				new Vue({
+					el: "#view",
+					data: {
+						txt: $api.getLanguage() || {}
+					},
+					created() {
+						that = this;
+						myPullDown(function(){
+							that.getData();
+						});
+						this.getData();
+
+						api.addEventListener({
+			        name:'addBankCardOk'
+		        },function(ret,err){
+		        	bank_tag = 0;
+		        	application();
+		        });
+					},
+					methods: {
+						getData(){
+							postAjax("appagent/withdraw/userInfo",{},function(ret){
+								if(ret.code == 1){
+									$api.byId("balance").innerHTML = ret.data.p_totalMoney;
+									$api.byId("sm").innerHTML = ret.data.sm;
+									isTixian = ret.data.p_IsTixian;
+									bank_tag = ret.data.bank_tag;
+								};
+								api.refreshHeaderLoadDone();
+							});
+						},
+
+						application(){
+							if(isTixian == 1){
+								myAlert(that.txt.presentmoney.lianxi);
+								return false;
+							}else if(isTixian == 0){
+								var tMoney = $api.byId("money").value;
+								if(!tMoney || tMoney <= 0){
+									myAlert(that.txt.presentmoney.zhengque);
+									return false;
+								};
+								if(bank_tag == 1){
+									// myConfirm(that.txt.presentmoney.yhk,function(){
+									// 	$api.openPage('../../publicWin.html','html/my/','addCard',that.txt.settingPg.setting0);
+									// });
+									myAlert(that.txt.presentmoney.lianxi);
+									return false;
+								};
+
+								postAjax("appagent/withdraw/deposit",{
+									money: tMoney
+								},function(ret){
+									if(ret.code == 1){
+										myToast(ret.data);
+										$api.byId("money").value = "";
+										that.getData();
+									}
+								});
+							};
+						}
+					}
+				})
+	};
+</script>
+</html>

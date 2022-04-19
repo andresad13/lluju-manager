@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>隐私协议</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" class="theme" href="" />
+    <script type="text/javascript" src="../../script/api.js"></script>
+    <script type="text/javascript" src="../../script/common.js"></script>
+    <script>
+    	getTheme();
+    </script>
+    <style>
+    	.main{padding:0 0.8rem 0.8rem;}
+    	.xTitle{line-height:2.8rem;font-size:1.4rem;font-weight:600;text-align:center;}
+    	.content{line-height:1.3rem;}
+    </style>
+</head>
+<body>
+	<div class="main" id="view" v-cloak>
+		<p class="xTitle">{{txt.pageTitle.agreement}}</p>
+
+		<div class="content" v-html="content">
+
+		</div>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/fastclick.js"></script>
+<script type="text/javascript" src="../../script/vue.min.js"></script><script type="text/javascript" src="../../script/fastclick.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		var that;
+		var app = new Vue({
+			el:"#view",
+			data:{
+				txt:'',
+				content:""
+			},
+			created() {
+				that = this;
+				this.txt = $api.getLanguage();
+			},
+			mounted() {FastClick.attach(document.body);
+				that = this;
+				FastClick.attach(document.body);
+				that.getData();
+			},
+			methods:{
+				getData:function(){
+					var types = 0;
+					if($api.getStorage("language") == "zh-CN"){
+						types = 0;
+                	}else if($api.getStorage("language") == "en-US"){
+                		types = 1;
+                	};
+                	postAjax("UserApp/Login/Explain.asp?act=privacy&language="+types,{},function(ret){
+                		if(ret.code == 1){
+                			that.content = ret.data;
+                		}
+                	});
+				}
+			}
+		});
+	};
+</script>
+</html>

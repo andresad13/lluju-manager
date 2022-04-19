@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>修改价格</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="" class="theme"/>
+    <script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+	<script type="text/javascript" src="../../script/common.js"></script>
+	<script>
+		var theme = $api.getStorage("themeColor");
+		getTheme("../../"+theme);
+	</script>
+    <style>
+    	.item{
+    		padding:0.5rem 0.6rem;
+    		background:white;
+    		border-bottom:1px solid #f1f1f1;
+    		font-size:0.8rem;
+    		line-height: 2rem;
+    	}
+    	.right{
+    		float:right;
+    	}
+
+    	.priceInput,.priceInput1{
+    		outline:none;
+    		text-align:center;
+    		padding:0.3rem;
+    		border:1px solid #f1f1f1;
+    		width:3rem;
+    		border-radius:5px;
+    	}
+    	.operaBtn{
+    		margin: 0.8rem;
+    	}
+    	.operaBtn span{
+    		display:inline-block;
+    		width:100%;
+    		line-height:2.6rem;
+    		color:white;
+    		font-size:0.8rem;
+    		text-align:center;
+    		border-radius:1.3rem;
+    	}
+    	.title{
+    		padding:0.5rem 0.6rem;
+    		font-weight: 600;
+    		line-height: 2.5rem;
+    		border-bottom:1px solid #f1f1f1;
+    		text-align:center;
+    	}
+    </style>
+</head>
+<body>
+	<div class="main" id="view" v-cloak>
+		<p class="title">{{txt.network.editPriceSet}}</p>
+		<p class="item">
+			<span class="time">{{txt.network.jifei}}({{txt.symbol.moneySymbol}})</span>  <span class="right"><input type="number" class="priceInput1" v-model="myData.p_Price"/> {{txt.symbol.yuan}}</span>
+		</p>
+		<p class="item">
+			<span class="time">{{txt.network.yajin}}({{txt.symbol.moneySymbol}})</span>  <span class="right"><input type="number" class="priceInput1" v-model="myData.p_Account"/> {{txt.symbol.yuan}}</span>
+		</p>
+		<p class="item">
+			<span class="time">{{txt.network.xinazhi}}({{txt.symbol.moneySymbol}})</span>  <span class="right"><input type="number" class="priceInput1" v-model="myData.p_Price_Max"/> {{txt.symbol.yuan}}</span>
+		</p>
+		<div class="operaBtn clearfix" v-if="nowRolesName != '店铺管理'">
+			<span class="save appBg" @click="save()">{{txt.network.save}}</span>
+		</div>
+	</div>
+</body>
+
+<script type="text/javascript" src="../../script/myJq.js"></script>
+<script type="text/javascript" src="../../script/vue.min.js"></script><script type="text/javascript" src="../../script/fastclick.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		var newID = api.pageParam.data;
+		var that;
+		api.setStatusBarStyle({
+				style: 'dark',
+		});
+		console.log($api.getStorage("p_GroupName") != '店铺管理')
+		var app = new Vue({
+			el:"#view",
+			data:{
+				txt: $api.getLanguage() || {},
+				list:[],
+				myData:{},
+				nowRolesName: $api.getStorage("p_GroupName")
+			},
+			mounted() {
+				FastClick.attach(document.body);
+				this.getData();
+				that =  this;
+			},
+			methods:{
+				getData:function(){
+
+					postAjaxPlus("/appagent/shop/xian/price_detail",{
+						id: newID
+					},function(ret){
+						if(ret.code == 1){
+							that.myData = ret.data;
+							that.list = ret.data.data;
+						}
+					});
+				},
+				save:function(){
+					var sunArr = [];
+					postAjax("/appagent/shop/priceEdit",{
+						newID: newID,
+						price:that.myData.p_Price,
+						priceMax:that.myData.p_Price_Max,
+						paccount:that.myData.p_Account
+					},function(ret){
+						if(ret.code == 1){
+							myAlert(that.txt.my.settingSucess,function(){
+								api.closeWin({});
+							});
+						}
+					});
+				},
+//				显示隐藏价格
+				hideShowPrice:function(type,id){
+					var tMsg = "";
+					if(type == 0){
+						//需要隐藏价格
+						tMsg = that.txt.userListDetail.isCanfom1
+					}else{
+						tMsg = that.txt.userListDetail.isCanfom2
+					};
+
+					myConfirm(tMsg,function(){
+						postAjax("/appagent/shop/xian/price_show?id=" + id,{
+							id: id,
+							isShow:type
+						},function(ret){
+							if(ret.code == 1){
+								that.getData();
+								myAlert(that.txt.userListDetail.changeSucess);
+							}
+						});
+					});
+				}
+			}
+		});
+	};
+</script>
+</html>

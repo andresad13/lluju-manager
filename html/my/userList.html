@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+	<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+	<title>用户管理</title>
+	<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/public.css" />
+	<link rel="stylesheet" type="text/css" href="" class="theme" />
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+	<script type="text/javascript" src="../../script/common.js"></script>
+	<script>
+		getTheme();
+	</script>
+	<style>
+		.navWarp {
+			position:fixed;
+			z-index: 9999999;
+			width:100%;
+			top:0;
+			background: #f1f1f1;
+		}
+		.nav {
+			display: flex;
+			font-size: 0.75rem;
+			background: white;
+			box-shadow: 0 0 8px #DDD;
+			width: 100%;
+		}
+
+		.nav .item {
+			flex: 1;
+			text-align: center;
+			line-height: 2.4rem;
+		}
+
+		.nav .item.active {
+			border-bottom: 2px solid;
+			font-weight: bold;
+		}
+
+		.searchBox {
+			width: 100%;
+			margin-top:0.62rem;
+			padding: 0.4rem 0.6rem;
+			background: white;
+			box-sizing: border-box;
+			font-size: 0.75rem;
+		}
+
+		.flex-3 {
+			-webkit-box-flex: 4;
+			-webkit-flex: 4;
+			flex: 4;
+			margin-right: 0.4rem;
+		}
+
+		.searchInput {
+			height: 2.2rem;
+			line-height: 1.6rem;
+			padding: 0.3rem 0.5rem;
+			box-sizing: border-box;
+			border: 1px solid #f1f1f1;
+			border-radius: 5px;
+			box-sizing: border-box;
+		}
+
+		.searchBtn {
+			height: 2.2rem;
+			line-height: 2.2rem;
+			text-align: center;
+			border-radius: 5px;
+		}
+
+		.userList {
+			/*margin-top: 6.6rem;*/
+			padding-top: 4.5rem;
+			position: relative;
+		}
+
+		.orderItem {
+			margin: 0 0.6rem 0.5rem;
+			background: white;
+			border-radius: 5px;
+			padding-bottom: 0.4rem;
+		}
+
+		.orderNum {
+			line-height: 2.8rem;
+			border-bottom: 1px solid #f1f1f1;
+			padding: 0 0.6rem;
+		}
+
+		.itemTop {
+			padding: 0.6rem;
+			/*height: 26vw;*/
+		}
+
+		.pics {
+			float: left;
+			width: 20vw;
+			height: 20vw;
+			margin-top: 3vw;
+		}
+
+		.userAvatar {
+			width: 100%;
+			height: 100%;
+			border-radius: 5px;
+			vertical-align: text-bottom;
+			margin-bottom: -0.9rem;
+			margin-right: 0.3rem;
+		}
+
+		.orderContent {
+			position: relative;
+			float: right;
+			padding: 0 0.6rem;
+			width: 65vw;
+		}
+
+		.mcontent {
+			position: absolute;
+			top: 50%;
+			transform: translate(0, 3%);
+		}
+
+		.itemP {
+			margin: 0.1rem 0rem;
+			width: 230px;
+			overflow: hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+		}
+
+		.opear {
+			border-top: 1px solid #f1f1f1;
+			text-align: right;
+			padding: 0.4rem 0.6rem 0;
+		}
+
+		.jiesuan {
+			float: right;
+			line-height: 2.8rem;
+			color: #787878;
+		}
+
+		.redtxt {
+			font-weight: 600;
+			color: red;
+		}
+
+		.gray {
+			color: #989898;
+		}
+
+		.btn {
+			margin-left: 0.6rem;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="main" id="view" v-cloak>
+		<div class="navWarp">
+			<!-- <div class="nav">
+	    		<div class="item active appBorderColor">{{txt.userList.all}}</div>
+	    		<div class="item">{{txt.userList.weChat}}</div>
+	    		<div class="item">{{txt.userList.zhifubao}}</div>
+	    	</div> -->
+			<div class="searchBox flex-wrap flex-con">
+				<input type="search" :placeholder="txt.my.searchkey" class="searchInput flex-3 flex-wrap flex-vertical" />
+				<button tapmode="btnhover" class="btn searchBtn appBg flex-con" @click="search()">{{txt.nearShop.searchBtn}}</button>
+			</div>
+		</div>
+
+		<div class="userList">
+			<div class="orderItem" v-for="i in userList">
+				<div class="itemTop clearfix">
+					<div class="pics">
+						<img v-if="i.p_WxPic" :src="i.p_WxPic" alt="" class="userAvatar" />
+						<img v-else src="../../image/logo.png" alt="" class="userAvatar"/>
+					</div>
+					<div class="orderContent">
+						<div class="mcontent">
+							<p class="itemP"><span class="gray">{{txt.userList.user}}：</p>
+							<p class="itemP">{{i.p_WxName}}</p>
+							<p class="itemP"><span class="gray">ID：</span>{{i.pNumber}}</p>
+							<p class="itemP"><span class="gray">{{txt.userList.useType}}：</span>{{i.pUsertype | nameChange}}</p>
+						</div>
+					</div>
+				</div>
+				<p class="opear">
+					<button class="btn appBg" tapmode="btnhover" @click="$api.openPage('../../publicWin.html','html/my/','userDetail',txt.userList.userDetail,i.pId)">{{txt.network.deviceBtn4}}</button>
+					<!--<button class="btn redBtn" tapmode="btnhover">删除</button>-->
+				</p>
+			</div>
+		</div>
+		<div class="nomore">
+			—— {{txt.other.allData}} ——
+		</div>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/vue.min.js"></script>
+<script type="text/javascript" src="../../script/fastclick.js"></script>
+<script type="text/javascript" src="../../script/myJq.js"></script>
+<script type="text/javascript">
+	apiready = function() {
+		var that, page = 1,pageSize = 10,
+			maxpage, total=0, key = "",
+			isloadOk = true,
+			userType = "";
+
+		if (api.systemType == 'ios') {
+			api.setStatusBarStyle({
+				style: 'dark',
+			});
+		}
+		var app = new Vue({
+			el: "#view",
+			data: {
+				txt: $api.getLanguage() || {},
+				userList: [],
+				myRoleName: $api.getStorage("p_GroupName")
+			},
+			mounted() {
+				FastClick.attach(document.body);
+				that = this;
+				that.getData();
+				$(".searchInput").on('keypress', function(e) {
+					var keycode = e.keyCode;
+					if (keycode == '13') {
+						$(this).blur();
+						e.preventDefault();
+						that.search();
+					}
+				});
+				myUpLoad(function() {
+					if (isloadOk) {
+						if (total == pageSize) {
+							page++;
+							that.getData();
+						} else {
+							$(".nomore").show();
+						}
+					}
+				});
+				myPullDown(function() {
+					page = 1;
+					key = "";
+					$(".searchInput").val("");
+					that.getData();
+				});
+
+				$(".item").each(function() {
+					$(this).click(function() {
+						$(this).addClass("active appBorderColor").siblings().removeClass("active appBorderColor");
+						var index = $(this).index();
+						if (index == 0) {
+							userType = "";
+						} else if (index == 1) {
+							userType = "微信小程序";
+						} else if (index == 2) {
+							userType = "支付宝生活号";
+						};
+						page = 1;
+						that.getData();
+					})
+				});
+
+				$(".searchBtn").click(function() {
+					$(".searchBox").show();
+				});
+
+				api.addEventListener({
+					name: 'changeColor'
+				}, function(ret, err) {
+					$(".theme").attr("href", "");
+					$(".theme").attr("href", "../../css/" + ret.value + ".css");
+				});
+			},
+			methods: {
+				getData: function() {
+					isloadOk = false;
+					postAjax("appagent/user/userList2", {
+						page: page,
+						key: key,
+						p_UserType: userType,
+						pageSize: pageSize
+					}, function(ret) {
+						if (ret.code == 1) {
+							total = ret.data.length;
+							if (total > 0) {
+								if (page == 1) {
+									that.userList = [];
+								};
+								that.userList = that.userList.concat(ret.data);
+								closeNoData();
+								if (total < pageSize) {
+									$(".nomore").show();
+								} else {
+									$(".nomore").hide();
+								}
+							} else if (total == 0 && page != 1) {
+								$(".nomore").show();
+							} else {
+								that.userList = [];
+								$(".nomore").hide();
+								$(".userList").noData(that.txt.userListDetail.nodata, "../../image/null.png");
+							}
+						};
+						isloadOk = true;
+						api.refreshHeaderLoadDone();
+					});
+				},
+				search: function() {
+					page = 1;
+					key = $(".searchInput").val();
+					if (!key) {
+						myToast(that.txt.my.searchNull);
+						return false;
+					};
+					that.getData();
+				},
+				hideSearchBox: function() {
+					$(".searchBox").hide();
+				}
+			},
+			filters: {
+				nameChange(val) {
+					switch (val) {
+						case '微信用户':
+							return that.txt.count.weixinyonghu;
+							break;
+						case '支付宝用户':
+							return that.txt.count.zhifubaoyonhu;
+							break;
+						case 'APP用户':
+							return that.txt.count.appyonghu;
+							break;
+						default:
+							return  val;
+					}
+				}
+			}
+		});
+	};
+</script>
+
+</html>

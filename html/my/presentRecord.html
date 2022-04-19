@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>提现记录</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/public.css"/>
+    <link rel="stylesheet" type="text/css" href="" class="theme"/>
+    <script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+	<script type="text/javascript" src="../../script/common.js"></script>
+	<script>
+		getTheme();
+	</script>
+    <style>
+    	.searchBox{position:fixed;top:37px;width:100%;padding:0.6rem;background:white;box-sizing: border-box;z-index: 11;}
+    	.flex-3{  -webkit-box-flex: 4; -webkit-flex: 4; flex: 4;margin-right:0.4rem;}
+    	.searchInput{height:2.6rem;line-height:2rem;padding:0.3rem 0.5rem;box-sizing:border-box;border:1px solid #f1f1f1;border-radius:5px;box-sizing: border-box;}
+    	.searchBtn{height:2.6rem;line-height:2rem;text-align:center;border-radius:5px;}
+
+    	.statistics{position:fixed;width:100%;top:5.6rem;left:0;padding:0.6rem;background:white;box-sizing:border-box;border-top:1px solid #f1f1f1;}
+    	.sitem{float:left;width:50%;line-height: 1.6rem;}
+
+    	.main{padding-top:6.4rem;}
+    	.item{background:white;font-size:0.9rem;margin-bottom:0.6rem;}
+    	.orderNum,.money{line-height:2.4rem;padding:0 0.6rem;border-bottom:1px solid #f1f1f1;}
+    	.orderNum{color:#787878;}
+    	.right{float:right;}
+    	.iTime{font-size:0.8rem;}
+		.green{color:green;}
+		.nav{display:flex;font-size: 0.75rem;background:white;box-shadow: 0 0 8px #DDD;position:fixed;width:100%;top:0;border-bottom:1px solid #f1f1f1;}
+			.nav .item{flex:1;text-align:center;line-height: 2.4rem;}
+			.nav .item.active{border-bottom:2px solid;font-weight:bold;}
+    </style>
+</head>
+<body>
+	<div class="main" id="view" v-cloak>
+		<div class="nav" id="header">
+			<div class="item active appBorderColor" tapmode>{{txt.persent.shenghe}}</div>
+			<div class="item" tapmode>{{txt.persent.noShenghe}}</div>
+		</div>
+		<div class="searchBox flex-wrap flex-con">
+			<input type="search" :placeholder="txt.my.searchkey" class="searchInput flex-3 flex-wrap flex-vertical"/>
+			<button tapmode="btnhover" class="btn searchBtn appBg flex-con" @click="search()">{{txt.persent.search}}</button>
+			<button tapmode="btnhover" class="btn searchBtn redBtn flex-con" style="margin-left:0.4rem;" @click="$api.openPage('../../publicWin.html','html/my/','present',txt.persent.shengqing)">{{txt.persent.tixian}}</button>
+		</div>
+
+		<div class="statistics clearfix" style="margin-top:0.6rem;z-index: 11;">
+			<div class="sitem">{{txt.my.userMoneyTxt}}：{{txt.symbol.moneySymbol}}{{userinfo.total_fencheng}}</div>
+			<div class="sitem">{{txt.persent.yiti}}：{{txt.symbol.moneySymbol}}{{userinfo.suc_fengcheng}}</div>
+			<div class="sitem">{{txt.persent.keti}}：{{txt.symbol.moneySymbol}}{{userinfo.tiCheng}}</div>
+			<div class="sitem">{{txt.persent.daishen}}：{{txt.symbol.moneySymbol}}{{userinfo.wait_fencheng}}</div>
+		</div>
+
+		<div class="list" style="position:relative;top:5rem;">
+			<div class="item" v-for="i in listData">
+				<p class="orderNum">{{txt.persent.odd}}: {{i.p_OrderID}} <span class="right iTime">{{i.p_AddTime}}</span></p>
+				<p class="money">{{txt.persent.tixianwx}}<span style="color:red;">({{i.p_Statu}})</span>  <span class="right green">{{txt.symbol.moneySymbol}}{{i.p_Tixian}}</span></p>
+			</div>
+
+			<div class="nomore">
+				—— {{txt.other.allData}} ——
+			</div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/vue.min.js"></script>
+<script type="text/javascript" src="../../script/fastclick.js"></script>
+<script type="text/javascript" src="../../script/myJq.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+
+		var that,page = 1,pageSize=10,total=0,isloadOk = true,type = 1,key = "", isOk = 1, status = "提交申请";
+		var app = new Vue({
+			el:"#view",
+			data:{
+				txt: $api.getLanguage() || {},
+				userinfo:{},
+				listData:[]
+			},
+			mounted() {
+				FastClick.attach(document.body);
+				that = this;
+
+				that.getAccount();
+				$(".searchInput").on('keypress',function(e) {
+					var keycode = e.keyCode;
+			        if(keycode=='13') {
+			        	$(this).blur();
+			            e.preventDefault();
+			            that.search();
+			        }
+				});
+
+				myUpLoad(function(){
+					if(isloadOk){
+						if (total == pageSize) {
+							page++;
+							that.getData();
+							$(".nomore").hide();
+						}else{
+							$(".nomore").show();
+						}
+					}
+				});
+
+				myPullDown(function(){
+					page = 1;
+					key="";
+					$(".searchInput").val("");
+					that.getAccount();
+				});
+
+				$(".item").each(function(){
+					$(this).click(function(){
+						$(this).addClass("active appBorderColor").siblings().removeClass("active appBorderColor");
+						var i = $(this).index();
+						if(i == 0) {
+							// 已审核
+							isOk = 1
+							status = "审核通过"
+						} else {
+							// 未审核
+							isOk = 0
+							status = "提交申请"
+						}
+						that.getData();
+					})
+				});
+			},
+			methods:{
+				getData:function(){
+					isloadOk = false;
+					postAjax("appagent/withdraw/list",{
+						key: key,
+						state: '',
+						page: page,
+						state: isOk,
+						pageSize: pageSize
+					},function(ret){
+						if(ret.code == 1){
+							// maxpage = ret.maxpage;
+							total = ret.data.length;
+							if(total > 0){
+								if(page == 1){
+									that.listData = [];
+								};
+								that.listData = that.listData.concat(ret.data);
+								closeNoData();
+								if (total < pageSize) {
+									$(".nomore").show();
+								} else {
+									$(".nomore").hide();
+								}
+							} else if (total == 0 && page != 1) {
+								$(".nomore").show();
+							} else {
+								that.listData = [];
+								$(".nomore").hide();
+								if ($('.null')) {
+									$('.null').remove()
+								}
+								$(".list").append('<div class="null" id="nodata" style="position: absolute;top: 30%">' +
+									'<img src="' + "../../image/null.png" + '" alt="" class="nullImg" />' +
+									'<p class="nullMsg">' + that.txt.alert.noDataJilu + '</p>' +
+									'</div>');
+							}
+						};
+						isloadOk = true;
+						api.refreshHeaderLoadDone();
+					});
+				},
+
+				getAccount:function(){
+					postAjax("appagent/user/index",{},function(ret){
+						if(ret.code == 1){
+							that.userinfo = ret.data;
+							that.getData();
+						}
+						api.refreshHeaderLoadDone();
+					});
+				},
+
+				search: function(){
+					page = 1;
+					key = $(".searchInput").val();
+					if(!key){
+						myToast(that.txt.my.searchNull);
+						return false;
+					};
+					that.getData();
+				}
+			}
+		});
+	};
+
+</script>
+</html>

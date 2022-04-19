@@ -1,0 +1,177 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>底部导航</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/public.css"/>
+    <link rel="stylesheet" type="text/css" href="" class="theme"/>
+    <link rel="stylesheet" type="text/css" href="../../fonts/iconfont.css"/>
+    <script type="text/javascript" src="../../script/api.js"></script>
+  	<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+  	<script type="text/javascript" src="../../script/common.js"></script>
+  	<script>
+		    getTheme();
+	  </script>
+    <style>
+    	html,body { height: 100%;}
+        header ul li { height: 40px; line-height: 40px; text-align: center; display: none; color: #fff; position: relative;font-size: 15px;  }
+        header ul li.active{ display: block; }
+        #footer2{  background-color: #fff; }
+        #footer2 ul li{  padding-top: 24px; padding-bottom: 0;text-align: center;font-size:12px;color: #bfbfbf; line-height: 18px;}
+        #footer2 ul li .iconfont{font-size:22px;}
+        .flex-con{
+        	overflow: auto
+        }
+    </style>
+</head>
+<body>
+<div id="wrap" class="flex-wrap flex-vertical">
+    <header class="appBg">
+        <ul>
+            <li class="appBg" >{{txt.count.home}}</li>
+            <li class="appBg active" >{{txt.count.feicheng}}</li>
+            <li class="appBg" >{{txt.count.yonghu}}</li>
+            <li class="appBg" >{{txt.count.zujie}}</li>
+            <li class="appBg" >{{txt.count.caiwu}}</li>
+        </ul>
+    </header>
+    <div id="main" class="flex-con">
+
+    </div>
+    <div id="footer2" class="border-t">
+        <ul class="flex-wrap" >
+
+            <li tapmode="hover" onclick="randomSwitchBtn( this );" class="flex-con" >
+            	<i class="icon iconfont icon-shouye1"></i>
+            	<p>{{txt.count.gerenzhongxin}}</p>
+            </li>
+            <li tapmode="hover" onclick="randomSwitchBtn( this );" class="flex-con active" >
+            	<i class="icon iconfont icon-02_dianpuguanli" style="font-size:26px;"></i>
+            	<p>{{txt.count.feicheng}}</p>
+            </li>
+            <li tapmode="hover" onclick="randomSwitchBtn( this );" class="flex-con" >
+            	<i class="icon iconfont icon-yonghuguanli" style="font-size:26px;"></i>
+           		<p>{{txt.count.yonghu}}</p>
+           	</li>
+            <li tapmode="hover" onclick="randomSwitchBtn( this );" class="flex-con" >
+            	<i class="icon iconfont icon-weibiaoti104" style="font-size:26px;"></i>
+            	<p>{{txt.count.zujie}}</p>
+            </li>
+            <li tapmode="hover" onclick="randomSwitchBtn( this );" class="flex-con" >
+            	<i class="icon iconfont icon-tongji"></i>
+            	<p>{{txt.count.caiwu}}</p>
+            </li>
+        </ul>
+    </div>
+</div>
+</body>
+</html>
+<script type="text/javascript" src="../../script/vue.min.js"></script>
+<script type="text/javascript" src="../../script/fastclick.js"></script>
+<script type="text/javascript">
+    apiready = function () {
+      var that;
+        $api.fixStatusBar($api.dom('header'));
+        $api.fixTabBar($api.byId('footer2'));
+        api.setStatusBarStyle({
+            style: 'light',
+        });
+        funIniGroup();
+        new Vue({
+          el: "#wrap",
+          data: {
+            txt:  $api.getLanguage()
+          },
+          created() {
+            that = this;
+          }
+        })
+
+        api.addEventListener({
+            name: 'changeLanguage'
+        }, function (ret, err) {
+            that.txt = $api.getLanguage();
+        });
+
+        // 颜色改变事件
+        api.addEventListener({
+              name:'chooseColor'
+        },function(ret,err){
+            console.log(ret.value);
+            $(".theme").attr("href","");
+            $(".theme").attr("href","../../css/"+ret.value+".css");
+        });
+    }
+
+    function funIniGroup(){
+        var eHeaderLis = $api.domAll('header li'),
+            frames = [];
+        for (var i = 0,len = eHeaderLis.length; i < len; i++) {
+                frames.push( {
+                    name: 'frame'+i,
+                    url: 'tongji'+i+'.html',
+                    bgColor : 'rgba(0,0,0,.2)',
+                    bounces:true
+                } )
+        }
+        api.openFrameGroup({
+            name: 'tjGroup',
+            scrollEnabled: false,
+            rect: {
+                x: 0,
+                y: $api.dom('header').offsetHeight,
+                w: api.winWidth,
+                h: $api.dom('#main').offsetHeight
+            },
+            index: 1,
+            preload:0,
+            frames: frames
+        }, function (ret, err) {
+
+        });
+    }
+
+    // 随意切换按钮
+    function randomSwitchBtn( tag ) {
+        if( tag == $api.dom('#footer2 li.active') )return;
+        var eFootLis = $api.domAll('#footer2 li'),
+            eHeaderLis = $api.domAll('header li'),
+            index = 0;
+        for (var i = 0,len = eFootLis.length; i < len; i++) {
+            if( tag == eFootLis[i] ){
+                index = i;
+            }else{
+                $api.removeCls(eFootLis[i], 'active');
+                $api.removeCls(eHeaderLis[i], 'active');
+            }
+        }
+
+        if(index == 0){
+        	api.openWin({
+	            name: 'index',
+	            url: '../index/index-nav.html',
+              animation: {
+                type: 'push',
+                subType: 'from_left'
+              }
+            });
+            $api.addCls( eFootLis[1], 'active');
+	        $api.addCls( eHeaderLis[1], 'active');
+	        api.setFrameGroupIndex({
+	            name: 'tjGroup',
+	            index: 1
+	        });
+        	return false;
+        };
+
+        $api.addCls( eFootLis[index], 'active');
+        $api.addCls( eHeaderLis[index], 'active');
+        api.setFrameGroupIndex({
+            name: 'tjGroup',
+            index: index
+        });
+    }
+</script>

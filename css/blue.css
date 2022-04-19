@@ -1,0 +1,71 @@
+
+.appBg {
+    background: #1763b3 !important;
+}
+.appTxt {
+    color: #1763b3 !important;
+}
+.appBorder {
+  border: 1px solid #1763b3 !important;
+}
+.appBorderColor {
+    border-color: #1763b3 !important;
+}
+
+
+/* 首页底部样式和图片 */
+#footer ul li.active {
+    color: #1763b3;
+}
+#footer2 ul li.active {
+    color: #1763b3;
+}
+
+
+/*導航欄圖標*/
+#footer ul li:nth-child(1).active {
+    background-image: url(../image/blue/device-red.png);
+}
+
+#footer ul li:nth-child(2).active {
+    background-image: url(../image/blue/network-red.png);
+}
+
+#footer ul li:nth-child(3).active {
+    background-image: url(../image/blue/my-red.png);
+}
+
+#footer ul li:nth-child(4).active {
+    background-image: url(../image/blue/order-red.png);
+}
+
+#footer ul li:nth-child(5).active {
+    background-image: url(../image/blue/count-red.png);
+}
+
+
+ /*個人中心圖標*/
+ .functions .item-menu:nth-child(1) .wrap_bg .img {
+     background-image: url(../image/blue/menu-icon01.png);
+ }
+ .functions .item-menu:nth-child(2) .wrap_bg .img {
+     background-image: url(../image/blue/menu-icon02.png);
+ }
+ .functions .item-menu:nth-child(3) .wrap_bg .img {
+     background-image: url(../image/blue/menu-icon03.png);
+ }
+ .functions .item-menu:nth-child(4) .wrap_bg .img {
+     background-image: url(../image/blue/menu-icon04.png);
+ }
+ .functions .item-menu:nth-child(5) .wrap_bg .img {
+     background-image: url(../image/blue/menu-icon05.png);
+ }
+ .functions .item-menu:nth-child(6) .wrap_bg .img {
+     background-image: url(../image/blue/menu-icon06.png);
+     background-size: 24px 24px;
+ }
+
+ /*個人中心已歸還圖標*/
+ .main .order div.userReturn .img {
+   background-image: url(../image/blue/userReturn.png);
+ }

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>用户统计</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+
+    <link rel="stylesheet" type="text/css" href="" class="theme"/>
+    <script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+	<script type="text/javascript" src="../../script/common.js"></script>
+	<script>
+		 getTheme();
+	</script>
+    <style>
+    	.list{padding:0.6rem;}
+    	.list ul li{display: inline-block;float:left;width:48%;text-align:center;border-radius:5px;padding:1.2rem 0;color:white;margin-bottom:0.6rem;}
+    	.list ul li:nth-child(2n){float:right;}
+    	.itemTitle{font-size:0.8rem;}
+    	.itemContent{font-size:1.1rem;margin-top:0.2rem;}
+    </style>
+</head>
+<body>
+	<div class="main" id="view" v-cloak>
+		<div class="list">
+			<ul>
+				<li style="background:#9571DB;" tapmode="hover" v-if="data.wxUser">
+					<p class="itemTitle">{{txt.count.weixinyonghu}}</p>
+					<p class="itemContent">{{data.wxUser}}{{txt.symbol.ge}}</p>
+				</li>
+				<li style="background:#42bfc7;" tapmode="hover" v-if="data.zfbUser">
+					<p class="itemTitle">{{txt.count.zhifubaoyonhu}}</p>
+					<p class="itemContent">{{data.zfbUser}}{{txt.symbol.ge}}</p>
+				</li>
+
+				<li style="background:#fba456;" tapmode="hover" v-if="data.sf >= 0">
+					<p class="itemTitle">{{txt.count.shengjidaili}}</p>
+					<p class="itemContent">{{data.sf}}{{txt.symbol.ge}}</p>
+				</li>
+				<li style="background: #9AD4C8;" tapmode="hover" v-if="data.cs >= 0">
+					<p class="itemTitle">{{txt.count.shijidaili}}</p>
+					<p class="itemContent">{{data.cs}}{{txt.symbol.ge}}</p>
+				</li>
+				<li style="background: #dac722;" tapmode="hover" v-if="data.qy >= 0">
+					<p class="itemTitle">{{txt.count.quyudaili}}</p>
+					<p class="itemContent">{{data.qy}}{{txt.symbol.ge}}</p>
+				</li>
+				<li style="background: #D9BFDA;" tapmode="hover" v-if="data.yw >= 0">
+					<p class="itemTitle">{{txt.count.yewuyuan}}</p>
+					<p class="itemContent">{{data.yw}}{{txt.symbol.ge}}</p>
+				</li>
+			</ul>
+		</div>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/vue.min.js"></script><script type="text/javascript" src="../../script/fastclick.js"></script>
+<script type="text/javascript" src="../../script/myJq.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		var app = new Vue({
+			el:"#view",
+			data:{
+				data:{},
+				txt: $api.getLanguage()
+			},
+			mounted() {
+				FastClick.attach(document.body);
+				that = this;
+
+				this.getData();
+
+				api.addEventListener({
+		        name:'chooseColor'
+	        },function(ret,err){
+	        	$(".theme").attr("href","");
+	        	$(".theme").attr("href","../../css/"+ret.value+".css");
+				});
+
+				api.addEventListener({
+					name: 'changeLanguage'
+				}, function (ret, err) {
+					that.txt = $api.getLanguage();
+				});
+
+		    myPullDown(function(){
+					that.getData();
+				});
+			},
+			methods:{
+				getData: function() {
+						postAjax("appagent/userCount/allCount",{
+						},function(ret) {
+								if (ret.code == 1) {
+										that.data = ret.data;
+								};
+								api.refreshHeaderLoadDone();
+						});
+				}
+			}
+		});
+	};
+</script>
+</html>

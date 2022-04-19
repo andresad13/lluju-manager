@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>用户详情</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="" class="theme"/>
+    <script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+	<script type="text/javascript" src="../../script/common.js"></script>
+	<script>
+		 getTheme();
+	</script>
+    <style>
+    	.userAvatar_name{padding:0.6rem;background:white;}
+    	.userAvatar{float:left;width:4rem;height:4rem;border-radius:50%;border: 1px solid #ccc;}
+    	.userName{float:left;font-size:1.1rem;line-height: 4rem;font-weight:600;margin-left: 1rem}
+
+    	.userInfo{margin-top:0.6rem;background:white;border-radius:0;padding:0.1rem 0.6rem 0.6rem;}
+    	.userInfo p{margin-top:0.5rem;line-height:2.4rem;}
+    	.ititle{color:#787878; display:inline-block;width:12rem;}
+    	.icontent{float:right;}
+    	.selectBox{border:1px solid;padding:0.3rem 0.5rem;border-radius:5px;outline:none;background:white;}
+    	.inputbox{border:1px solid;padding:0.3rem 0.5rem;border-radius:5px;outline:none;width: 5rem;}
+
+    	.btns{width:94%;margin:1rem auto;}
+    	.btn{width:100%;line-height: 2.6rem;}
+    </style>
+</head>
+<body>
+	<div class="main" id="view" v-cloak>
+		<div class="userAvatar_name ab">
+			<img v-if="detail.p_WxPic" :src="detail.p_WxPic" alt="" class="userAvatar"/>
+			<img v-else src="../../image/logo.png" alt="" class="userAvatar"/>
+			<span class="userName">{{detail.p_WxName}}</span>
+		</div>
+		<div class="userInfo">
+			<p>
+				<span class="ititle">{{txt.userListDetail.userType}}:</span>
+				<span class="icontent">{{detail.p_UserType | nameChange}}</span>
+			</p>
+
+			<p>
+				<span class="ititle">{{txt.userListDetail.userDJ}}:</span>
+				<span class="icontent">
+					<select name="grade" class="selectBox appBorder" id="grade">
+						<option v-for="i in groupArr" :value="i.p_NewID" :selected="detail.p_GroupID == i.p_NewID">{{i.p_GroupName | nameChange}}</option>
+					</select>
+				</span>
+			</p>
+
+			<p>
+				<span class="ititle">{{txt.userListDetail.userType}}:</span>
+				<span class="icontent">
+					<select name="userType" class="selectBox appBorder" id="userType">
+						<option value="0" :selected="detail.p_UserClass == 0">{{txt.userListDetail.zc}}</option>
+						<option value="1" :selected="detail.p_UserClass == 1">{{txt.userListDetail.mf}}</option>
+					</select>
+				</span>
+			</p>
+			<p>
+				<span class="ititle">{{txt.userListDetail.tx}}:</span>
+				<span class="icontent">
+					<select name="txStatu" class="selectBox appBorder" id="txStatu">
+						<option value="允许" :selected="detail.p_Tixian=='允许'">{{txt.userListDetail.yx}}</option>
+						<option value="禁止" :selected="detail.p_Tixian=='禁止'">{{txt.userListDetail.stop}}</option>
+					</select>
+				</span>
+			</p>
+			<p>
+				<span class="ititle">{{txt.userListDetail.yj}}:</span>
+				<span class="icontent">
+					<input type="number" class="inputbox appBorder" id="yj" :value="detail.p_Account_YaJin"/>
+				</span>
+			</p>
+
+			<p>
+				<span class="ititle">{{txt.userListDetail.ye}}:</span>
+				<span class="icontent">
+					<input type="number" class="inputbox appBorder" id="ye" :value="detail.p_Account_My"/>
+				</span>
+			</p>
+<!--			<p>
+				<span class="ititle">联系电话:</span>
+				<span class="icontent">
+					<input type="number" class="inputbox appBorder" style="width:10rem;"/>
+				</span>
+			</p>-->
+<!--			<p>
+				<span class="ititle">已使用:</span>
+				<span class="icontent">100.00 元</span>
+			</p>
+
+			<p>
+				<span class="ititle">待退款:</span>
+				<span class="icontent">99.00 元</span>
+			</p>-->
+
+
+		</div>
+
+		<div class="btns">
+			<button class="btn appBg" tapmode="btnhover" @click="edit()">{{txt.userListDetail.save}}</button>
+		</div>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/vue.min.js"></script><script type="text/javascript" src="../../script/fastclick.js"></script>
+<script type="text/javascript" src="../../script/myJq.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		var pid = api.pageParam.data;
+		var that;
+		var app = new Vue({
+			el:"#view",
+			data:{
+				txt: $api.getLanguage() || {},
+				groupArr:[],
+				detail:{}
+			},
+			mounted() {
+				FastClick.attach(document.body);
+				that = this;
+				this.getGroup();
+//				this.getData();
+			},
+			methods:{
+				getGroup:function(){
+					postAjax("appagent/user/userGroup",{},function(ret){
+						if(ret.code == 1){
+							that.groupArr = ret.data.data;
+							that.getData();
+						}
+					});
+				},
+				getData:function(){
+					postAjax("appagent/user/userDetail",{
+						id: pid
+					},function(ret){
+						if(ret.code == 1){
+							that.detail = ret.data;
+						}
+					});
+				},
+
+				edit:function(){
+					var p_GroupID = $("#grade option:selected").val();
+					var p_UserClass = $("#userType option:selected").val();
+					var p_Tixian = $("#txStatu option:selected").val();
+					postAjax("appagent/user/userEdit",{
+						id:pid,
+						pgroupID:p_GroupID,
+						puserClass:p_UserClass,
+						accountMy: $("#ye").val(),
+						accountYaJin: $("#yj").val(),
+						tixian:p_Tixian
+					},function(ret){
+						if(ret.code == 1){
+							myAlert(ret.message,function(){
+								api.closeWin({});
+							});
+						}
+					});
+				}
+			},
+			filters: {
+				nameChange(val) {
+					switch (val) {
+						case '微信用户':
+							return that.txt.count.weixinyonghu;
+							break;
+						case '支付宝用户':
+							return that.txt.count.zhifubaoyonhu;
+							break;
+						case 'APP用户':
+							return that.txt.count.appyonghu;
+							break;
+						case '普通用户':
+							return that.txt.count.normalyonghu;
+							break;
+						default:
+							return  val;
+					}
+				}
+			}
+		})
+	};
+</script>
+</html>

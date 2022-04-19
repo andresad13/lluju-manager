@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>预授权详情</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="" class="theme"/>
+    <script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+	<script type="text/javascript" src="../../script/common.js"></script>
+	<script>
+		 getTheme();
+	</script>
+    <style>
+    	html,body{font-size:16px;}
+    	.main{font-size:1rem;}
+    	.userAvatar_name{padding:0.6rem;background:white;}
+    	.userAvatar{width:4rem;border-radius:50%;}
+    	.userName{float:right;font-size:1.1rem;line-height: 4rem;font-weight:600;}
+
+    	.userInfo{margin-top:0.6rem;background:white;border-radius:0;padding:0.1rem 0.6rem 0.6rem;}
+    	.userInfo p{margin-top:0.4rem;line-height:2.4rem;}
+    	.ititle{color:#585858; font-size: 13px;}
+    	.icontent{float:right; font-size: 13px;}
+    	.selectBox{border:1px solid;padding:0.3rem 0.5rem;border-radius:5px;outline:none;background:white;}
+    	.inputbox{border:1px solid;padding:0.3rem 0.5rem;border-radius:5px;outline:none;width: 5rem;}
+
+    	.btn{width:100%;line-height: 2.4rem;}
+
+    	/*弹框*/
+		.prompt{position:fixed;width:100%;height:100%;top:0;left:0;background:rgba(0,0,0,.5);z-index: 10;display:none;}
+		.pContent{position:absolute;width:86%;height:8.6rem;top:50%;left:50%;margin-top:-5rem;margin-left:-43%;background:white;border-radius:5px;font-size:0.9rem;overflow:hidden;}
+		.pTitle{height:2.4rem;line-height:2.4rem;border-bottom:1px solid;text-align:center;box-sizing: border-box;}
+		.txtArea{height:3.8rem;padding:0.6rem;border-bottom:2px solid;box-sizing: border-box;text-align:center;}
+		#settleSum{width:40%;padding:0.3rem 0.5rem;border:1px solid #f1f1f1;padding:0.6rem;border-radius:5px;box-sizing:border-box;}
+		.pSure,.pCancel{float:left;width:50%;height:2.4rem;line-height:2.4rem;}
+		.pSure{border-right:1px solid #f1f1f1;}
+    </style>
+</head>
+<body>
+	<div class="main" id="view" v-cloak>
+		<div class="userAvatar_name">
+			<img v-if="showUser == 1" :src="detail.p_WxPic" alt="" class="userAvatar"/>
+			<img v-if="showUser == 0" src="../../image/alipay.png" alt="" class="userAvatar"/>
+			<span class="userName">{{showUser == 1 ? detail.p_WxName : txt.my.zhifubaoyonhu}}</span>
+		</div>
+		<div class="userInfo">
+			<p v-if="detail.p_Status=='成功' && detail.p_PayPrice > 0">
+				<span class="ititle">: {{detail.p_PayPrice}}</span>
+				<span class="icontent">
+					<button class="btn appBg" tapmode="btnhover" @click="settle()">{{txt.ysqRecord.jiesuan}}</button><!--onclick="$('.prompt').show();"-->
+				</span>
+			</p>
+
+			<p>
+				<span class="ititle">{{txt.ysqRecord.liji}}:</span>
+				<span class="icontent">{{detail.p_DeviceID}}</span>
+			</p>
+			<p>
+				<span class="ititle">{{txt.ysqRecord.dan}}:</span>
+				<span class="icontent">{{detail.p_out_order_no}}</span>
+			</p>
+
+			<p>
+				<span class="ititle">{{txt.ysqRecord.qinqiu}}:</span>
+				<span class="icontent">{{detail.p_out_request_no}}</span>
+			</p>
+			<p>
+				<span class="ititle">{{txt.ysqRecord.dongjie}}:</span>
+				<span class="icontent">{{detail.p_amount}}</span>
+			</p>
+			<p>
+				<span class="ititle">{{txt.ysqRecord.zuiwan}}:</span>
+				<span class="icontent">{{detail.p_pay_timeout}}</span>
+			</p>
+			<p>
+				<span class="ititle">{{txt.ysqRecord.tijiao}}:</span>
+				<span class="icontent">{{detail.p_Addtime}}</span>
+			</p>
+<!--			<p>
+				<span class="ititle">操作者IP:</span>
+				<span class="icontent">117.136.85.65</span>
+			</p>-->
+<!--			<p>
+				<span class="ititle">资金操作流水号:</span>
+				<span class="icontent">201985656566</span>
+			</p>
+			<p>
+				<span class="ititle">资金授权单号:</span>
+				<span class="icontent">201985656566</span>
+			</p>
+			<p>
+				<span class="ititle">回传金额:</span>
+				<span class="icontent">99.00</span>
+			</p>
+
+			<p>
+				<span class="ititle">二维码编号:</span>
+				<span class="icontent">201985656566</span>
+			</p>-->
+			<p>
+				<span class="ititle">{{txt.ysqRecord.stat}}:</span>
+				<span class="icontent">{{detail.p_Status}}</span>
+			</p>
+			<p>
+				<span class="ititle">{{txt.ysqRecord.tongzhi}}:</span>
+				<span class="icontent">{{detail.p_notify_type}}</span>
+			</p>
+		</div>
+
+		<div class="prompt">
+			<div class="pContent">
+				<h4 class="pTitle appBorder">{{txt.ysqRecord.jiesuanjine}}</h4>
+				<p class="txtArea appBorder">
+					<input type="number" name="mark" id="settleSum" :placeholder="txt.ysqRecord.jiesuanjine" /> {{txt.ysqRecord.yuan}}
+				</p>
+				<p class="pBtn clearfix">
+					<button class="pSure" @click="settle()">{{txt.btnTxt.btnTxt}}</button>
+					<button class="pCancel" onclick="hideMark()">{{txt.btnTxt.cancel}}</button>
+				</p>
+			</div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/vue.min.js"></script><script type="text/javascript" src="../../script/fastclick.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		var that;
+		var orderid = api.pageParam.data;
+		var app = new Vue({
+			el:"#view",
+			data:{
+				txt: $api.getLanguage() || {},
+				detail:{},
+				showUser:"",
+				myRoleName:$api.getStorage("p_GroupName")
+			},
+			mounted() {FastClick.attach(document.body);
+				that = this;
+				that.getData();
+				myPullDown(function(){
+					that.getData();
+				});
+			},
+			methods:{
+				getData:function(){
+					postAjax("appagent/order/ysq_detail",{
+						id:orderid
+					},function(ret){
+						console.log("预授权记录："+JSON.stringify(ret));
+						if(ret.code == 1){
+							that.showUser = ret.IsAvatar;
+							that.detail = ret;
+						};
+						api.refreshHeaderLoadDone();
+					});
+				},
+
+				//结算
+				settle:function(){
+//					var settleSum = $("#settleSum").val();
+					var settleSum = that.detail.p_PayPrice;
+//					if(!settleSum || settleSum < 0){
+//						myAlert("请输入正确的结算金额！");
+//						return false;
+//					};
+//					hideMark();
+					postAjax("Order/control.asp?act=ysqPay&p_out_request_no="+that.detail.p_out_request_no+"&money="+settleSum,{},function(ret){
+						if(ret.code == 1){
+							myToast(ret.msg||ret.message);
+							that.getData();
+						}
+					});
+
+				}
+
+			}
+		});
+	};
+	function hideMark(){
+		$(".prompt").hide();
+	}
+</script>
+</html>

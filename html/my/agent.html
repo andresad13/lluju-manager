@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>代理列表</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/public.css"/>
+    <link rel="stylesheet" type="text/css" href="" class="theme"/>
+    <script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+	<script type="text/javascript" src="../../script/common.js"></script>
+	<script>
+		 getTheme();
+	</script>
+    <style>
+			.navWarp {position:fixed;z-index: 9999999;width:100%;top:0; background: #f1f1f1;}
+    	.nav{display:flex;font-size: 0.75rem;background:white;box-shadow: 0 0 8px #DDD;width: 100%;}
+      .nav .item{flex:1;text-align:center;line-height: 2.4rem;}
+      .nav .item.active{border-bottom:2px solid;font-weight:bold;}
+      .searchBox{margin-top:0.62rem;width:100%;padding:0.4rem 0.6rem;background:white;box-sizing: border-box;font-size:0.75rem;}
+    	.flex-3{  -webkit-box-flex: 4; -webkit-flex: 4; flex: 4;margin-right:0.4rem;}
+    	.searchInput{height:2.2rem;line-height:1.6rem;padding:0.3rem 0.5rem;box-sizing:border-box;border:1px solid #f1f1f1;border-radius:5px;box-sizing: border-box;}
+    	.searchBtn{height:2.2rem;line-height:2.2rem;text-align:center;border-radius:5px;}
+
+    	.aList{padding-top:6.6rem;position:relative;}
+    	.aItem{background:white;margin-bottom:0.6rem;padding:0.6rem;}
+    	.agentInfo{display:flex;line-height: 2.5rem;padding-bottom:0.6rem;}
+    	.agentAvatar{width:2.5rem;height:2.5rem;}
+    	.agentName{flex:3;margin-left:0.5rem;}
+    	.royalty{flex:2;text-align:right;}
+    	.arrowright{width:1rem;height:1rem;margin-top:0.75rem;margin-left:0.4rem;}
+    	.agentAvatar img{width:100%;border-radius:50%;vertical-align: text-bottom;}
+
+    	.opear{border-top:1px solid #f1f1f1;text-align:right;padding:0.4rem 0.6rem 0;}
+    	.btn{margin-left:0.2rem;font-size: 0.8rem;}
+    </style>
+</head>
+<body>
+	<div class="main" id="view" v-cloak>
+		<div class="navWarp">
+			<div class="nav">
+	    		<div v-for="(i,index) in navBarList" :class="index==0 ? 'item active appBorderColor' : 'item'" :data-grounID="i.groupID">{{i.groupName | nameChange}}({{i.count}})</div>
+	  	</div>
+	  	<div class="searchBox flex-wrap flex-con">
+				<input type="search" :placeholder="txt.my.searchkey" class="searchInput flex-3 flex-wrap flex-vertical"/>
+				<button tapmode="btnhover" class="btn searchBtn appBg flex-con" @click="search()">{{txt.nearShop.searchBtn}}</button>
+				<button tapmode="btnhover" class="btn searchBtn redBtn flex-con" style="margin-left:0.4rem;" @click="$api.openPage('../../publicWin.html','html/my/','agentAdd',txt.my.newAddAgent)">{{txt.my.newAdd}}</button>
+			</div>
+		</div>
+
+		<div class="aList">
+			<div class="aItem" v-for="i in listData">
+				<div class="agentInfo">
+					<div class="agentAvatar">
+						<img v-if="i.p_WxPic" :src="imgUrl + i.p_WxPic" alt="" />
+						<img v-else src="../../image/logo.png" alt="" class="userAvatar"/>
+					</div>
+					<div class="agentName text-ov">{{i.p_PenName}}</div>
+					<div class="royalty">{{txt.symbol.moneySymbol}}{{i.p_sum}}({{i.p_tc}}%)</div>
+					<img src="../../image/arrowRight.png" alt="" class="arrowright"/>
+				</div>
+				<div class="opear">
+					<!-- <button v-for="(x,yy) in i.list" :class="yy==0?'btn orangeBtn' : yy==1 ? 'btn greenBtn' : 'btn redBtn'" @click="clickAgent(x.groupID,i.p_AdminName)" tapmode="btnhover">{{x.groupName}}({{x.count}})</button> -->
+					<button class="btn appBg" tapmode="btnhover" @click="$api.openPage('../../publicWin.html','html/my/','agentEdit',txt.my.agentDetail,i.p_id)">{{txt.my.edit}}</button>
+  				<button class="btn redBtn" tapmode="btnhover" @click="del(i.p_id)">{{txt.my.del}}</button>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</body>
+<script type="text/javascript" src="../../script/vue.min.js"></script><script type="text/javascript" src="../../script/fastclick.js"></script>
+<script type="text/javascript" src="../../script/myJq.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		var that,key = "";//搜索内容
+		var navbar = [],myAdminName,myGroupID;//头部对应的菜单数据
+		if(api.systemType == 'ios') {
+			api.setStatusBarStyle({
+					style: 'dark',
+			});
+		}
+		var app = new Vue({
+			el:"#view",
+			data:{
+				txt: $api.getLanguage() || {},
+				listData:[],
+				navBarList:[]
+			},
+			mounted() {
+				FastClick.attach(document.body);
+				that = this;
+				that.getNavbar();
+				$(".searchInput").on('keypress',function(e) {
+					var keycode = e.keyCode;
+			        if(keycode=='13') {
+			        	$(this).blur();
+			            e.preventDefault();
+			            that.search();
+			        }
+				});
+				myPullDown(function(){
+					key = "";
+					$(".searchInput").val("");
+					that.getData();
+				});
+
+				api.addEventListener({
+	          name:'refreshAgent'
+        },function(ret,err){
+						$('.item').eq(0).addClass("active appBorderColor").siblings().removeClass("active appBorderColor");
+            that.getNavbar();
+        });
+				api.addEventListener({
+	          name:'reloadAgent'
+        },function(ret,err){
+						window.location.reload();
+        });
+			},
+			methods:{
+				getNavbar:function(){
+					postAjax("appagent/user/groupList",{},function(ret){
+						if(ret.code == 1){
+							var items = [];
+							navbar = ret.data;
+							that.navBarList = ret.data.list;
+							myAdminName = ret.data.myAdminName;
+							myGroupID = ret.data.list[0] ? ret.data.list[0].groupID : '';
+							that.getData();
+						}
+					})
+				},
+
+				getData:function(){ //获取代理列表
+					postAjax("appagent/user/agentList",{
+						key: key,
+						groupID:myGroupID,
+						adminName:myAdminName
+					},function(ret){
+						if(ret.code == 1){
+							if (ret.data.length > 0){
+								that.listData = ret.data;
+								closeNoData();
+							} else if(ret.data.length <= 0){
+								that.listData = [];
+								$(".aList").noData(that.txt.my.nodataAgent,"../../image/null.png");
+							}
+						};
+						api.refreshHeaderLoadDone();
+					});
+				},
+				search: function(){ //搜索
+					key = $(".searchInput").val();
+					if(!key){
+						myToast(that.txt.my.searchNull);
+						return false;
+					};
+					that.getData();
+				},
+
+				//代理点击事件
+				clickAgent:function(p_groupId,p_adminname){
+					var transmit = {
+						p_groupId: p_groupId,
+						p_adminname: p_adminname
+					};
+					openNewPage('../../publicWin.html','html/my/','unAgent',that.txt.my.agentList,transmit);
+
+//					postAjax("agent/index.asp?act=groupCount",{
+//						p_GroupID:p_groupId,
+//						p_AdminName:p_adminname
+//					},function(ret){
+//						if(ret.code == 1){
+//							var buttons = [];
+//							var clickAgent = ret.List;
+//							for(var i=0;i<clickAgent.length;i++){Agent/index.asp?act=group
+//								buttons.push(clickAgent[i].p_GroupName+"("+ clickAgent[i].count +")");
+//							}
+//							api.actionSheet({
+//							    title: '当前账户：'+$api.getStorage("myUserName"),
+//							    buttons: buttons
+//							}, function(ret, err) {
+//								console.log(JSON.stringify(ret));
+//							    var index = ret.buttonIndex;
+//							    if(index > 0 && index <= clickAgent.length){
+//								    var sub = index - 1;//点击按钮的下标
+//								    var transmit = {
+//								    	groupID:clickAgent[sub].p_GroupID,
+//								    	myAdminName:clickAgent[sub].p_AdminName
+//								    };
+//								    $api.openPage('../../publicWin.html','html/User/','onlyAgentList',clickAgent[sub].p_GroupName+'列表',transmit);
+//							    };
+//							});
+//						}else{
+//							myAlert(ret.msg);
+//						}
+//					});
+				},
+				//删除
+				del:function(id){
+					myConfirm(that.txt.my.delAgent,function(){
+						postAjax("appagent/user/del/" + id,{
+							id: id
+						},function(ret){
+							if(ret.code == 1){
+								myToast(that.txt.my.delOk);
+								$api.send('refreshAgent');
+							}
+						});
+					});
+				}
+			},
+			updated:function(){
+				$(".item").each(function(){
+					$(this).unbind("click").click(function(){
+
+						$(this).addClass("active appBorderColor").siblings().removeClass("active appBorderColor");
+						var index = $(this).index();
+						myGroupID = that.navBarList[index].groupID;
+						// that.getNavbar();
+						that.getData();
+					})
+				});
+			},
+			filters: {
+				// nameChange(val) {
+				// 	return val;
+				// 	console.log(val)
+				// 	if (val == '平台') {
+				// 		return "總公司"
+				// 	} else if(val == '省级代理') {
+				// 		return "加盟商"
+				// 	} else if (val == '业务员') {
+				// 		return "業務員";
+				// 	} else if (val == '店铺管理') {
+				// 		return "店鋪管理";
+				// 	} else {
+				// 		return val
+				// 	}
+				// }
+				nameChange(val) {
+					switch (val) {
+						case '省级代理':
+							return that.txt.count.shengjidaili;
+							break;
+						case '市级代理':
+							return that.txt.count.shijidaili;
+							break;
+						case '区域代理':
+							return that.txt.count.quyudaili;
+							break;
+						case '业务员':
+							return that.txt.count.yewuyuan;
+							break;
+						case '店铺管理':
+							return that.txt.orderDetail.dianpu;
+							break;
+						default:
+							return  val;
+					}
+				}
+			}
+		});
+	}
+</script>
+</html>

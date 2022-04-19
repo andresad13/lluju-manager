@@ -1,0 +1,239 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>底部导航</title>
+    <link rel="stylesheet" type="text/css" href="./css/api.css" />
+    <link rel="stylesheet" type="text/css" href="./css/public.css" />
+    <link rel="stylesheet" type="text/css" href="" class="theme" />
+    <link rel="stylesheet" type="text/css" href="./fonts/iconfont.css" />
+    <style>
+        html,
+        body {
+            height: 100%;
+        }
+
+        header ul li {
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            display: none;
+            color: #fff;
+            position: relative;
+            font-size: 15px;
+        }
+
+        header ul li.active {
+            display: block;
+        }
+
+        #footer {
+            background-color: #fff;
+        }
+
+        #footer ul li {
+            padding-top: 10px;
+            padding-bottom: 0;
+            text-align: center;
+            font-size: 12px;
+            color: #bfbfbf;
+            line-height: 18px;
+        }
+
+        #footer ul li .iconfont {
+            font-size: 22px;
+        }
+        /*#footer ul li{  padding-top: 32px; padding-bottom: 4px; background: url() no-repeat center 6px; background-size: auto 22px; text-align: center;font-size:12px;color: #bfbfbf; }*/
+        /*#footer ul li:nth-child(1){ background-image: url(./image/footerBar/ftb0.png); }
+        #footer ul li:nth-child(2){ background-image: url(./image/footerBar/ftb1.png); }
+        #footer ul li:nth-child(3){ background-image: url(./image/footerBar/ftb2.png); }
+        #footer ul li:nth-child(4){ background-image: url(./image/footerBar/ftb3.png); }
+        #footer ul li:nth-child(5){ background-image: url(./image/footerBar/ftb4.png); }
+        #footer ul li:nth-child(1).active{ background-image: url(./image/footerBar/ftb0a.png); }
+        #footer ul li:nth-child(2).active{ background-image: url(./image/footerBar/ftb1a.png); }
+        #footer ul li:nth-child(3).active{ background-image: url(./image/footerBar/ftb2a.png); }
+        #footer ul li:nth-child(4).active{ background-image: url(./image/footerBar/ftb3a.png); }
+        #footer ul li:nth-child(5).active{ background-image: url(./image/footerBar/ftb4a.png); }*/
+
+        .flex-con {
+            overflow: auto
+        }
+    </style>
+</head>
+
+<body>
+    <div id="wrap" class="flex-wrap flex-vertical">
+        <header class="appBg">
+            <ul>
+                <li class="appBg">我的設備</li>
+                <li class="appBg">我的網點</li>
+                <li class="appBg active">用戶中心</li>
+                <li class="appBg">我的訂單</li>
+                <li class="appBg">數據統計</li>
+            </ul>
+        </header>
+        <div id="main" class="flex-con">
+
+        </div>
+        <div id="footer" class="border-t">
+            <ul class="flex-wrap">
+                <li tapmode="hover" onclick="randomSwitchBtn( this );" class="flex-con">
+                    <i class="icon iconfont icon-shebeiguanli"></i>
+                    <p>設備</p>
+                </li>
+                <li tapmode="hover" onclick="randomSwitchBtn( this );" class="flex-con">
+                    <i class="icon iconfont icon-02_dianpuguanli" style="font-size:26px;"></i>
+                    <p>網點</p>
+                </li>
+                <li tapmode="hover" onclick="randomSwitchBtn( this );" class="flex-con active">
+                    <i class="icon iconfont icon-shouye1" style="font-size:26px;"></i>
+                    <p>我的</p>
+                </li>
+                <li tapmode="hover" onclick="randomSwitchBtn( this );" class="flex-con">
+                    <i class="icon iconfont icon-weibiaoti104" style="font-size:26px;"></i>
+                    <p>訂單</p>
+                </li>
+                <li tapmode="hover" onclick="randomSwitchBtn( this );" class="flex-con">
+                    <i class="icon iconfont icon-tongji"></i>
+                    <p>統計</p>
+                </li>
+            </ul>
+        </div>
+    </div>
+</body>
+
+</html>
+<script type="text/javascript" src="script/api.js"></script>
+<script type="text/javascript" src="script/jquery-2.1.0.js"></script>
+<script type="text/javascript" src="script/common.js"></script>
+<script type="text/javascript">
+    apiready = function() {
+        //  	$api.setStorage("themeColor","css/blue.css");
+        $api.fixStatusBar($api.dom('header'));
+        $api.fixTabBar($api.byId("footer"));
+        //      api.setStatusBarStyle({
+        //          style: 'dark',
+        //          color: '#6ab494'
+        //      });
+        var theme = $api.getStorage("themeColor");
+        getThemeColor("./" + theme);
+        funIniGroup();
+
+        api.addEventListener({
+            name: 'changeColor'
+        }, function(ret, err) {
+            $(".theme").attr("href", "");
+            $(".theme").attr("href", "css/" + ret.value + ".css");
+        });
+
+        api.addEventListener({
+            name: 'keyback'
+        }, function(ret, err) {
+            closeApp();
+        });
+    }
+
+    function funIniGroup() {
+        var eHeaderLis = $api.domAll('header li'),
+            frames = [];
+        for (var i = 0, len = eHeaderLis.length; i < len; i++) {
+            frames.push({
+                name: 'frame' + i,
+                url: './html/frame' + i + '.html',
+                bgColor: 'rgba(0,0,0,.2)',
+                bounces: true
+            })
+        };
+        $api.setStorage("headerHeight", $api.dom('header').offsetHeight);
+        $api.setStorage("footerHeight", $api.byId("footer").offsetHeight);
+        api.openFrameGroup({
+            name: 'group',
+            scrollEnabled: false,
+            rect: {
+                x: 0,
+                y: $api.dom('header').offsetHeight,
+                w: api.winWidth,
+                h: $api.dom('#main').offsetHeight
+            },
+            index: 2,
+            preload: 0,
+            frames: frames
+        }, function(ret, err) {
+
+        });
+    }
+
+    // 随意切换按钮
+    function randomSwitchBtn(tag) {
+        if (tag == $api.dom('#footer li.active')) return;
+        var eFootLis = $api.domAll('#footer li'),
+            eHeaderLis = $api.domAll('header li'),
+            index = 0;
+        for (var i = 0, len = eFootLis.length; i < len; i++) {
+            if (tag == eFootLis[i]) {
+                index = i;
+            } else {
+                $api.removeCls(eFootLis[i], 'active');
+                $api.removeCls(eHeaderLis[i], 'active');
+            }
+        };
+
+
+        if (index == 0) {
+            api.setFrameGroupAttr({
+                name: 'deviceGroup',
+                hidden: false
+            });
+        } else {
+            api.setFrameGroupAttr({
+                name: 'deviceGroup',
+                hidden: true
+            });
+        };
+        if (index == 3) {
+            api.setFrameGroupAttr({
+                name: 'orderGroup',
+                hidden: false
+            });
+        } else {
+            api.setFrameGroupAttr({
+                name: 'orderGroup',
+                hidden: true
+            });
+        };
+
+        if (index == 4) {
+            var roleName = $api.getStorage("p_GroupName");
+            if (roleName == '平台') {
+                api.openWin({
+                    name: 'tj',
+                    url: 'html/frame4/index.html'
+                });
+                $api.addCls(eFootLis[2], 'active');
+                $api.addCls(eHeaderLis[2], 'active');
+                api.setFrameGroupIndex({
+                    name: 'group',
+                    index: 2
+                });
+                return false;
+            } else {
+                $api.addCls(eFootLis[index], 'active');
+                $api.addCls(eHeaderLis[index], 'active');
+                api.setFrameGroupIndex({
+                    name: 'group',
+                    index: index
+                });
+            }
+        };
+
+        $api.addCls(eFootLis[index], 'active');
+        $api.addCls(eHeaderLis[index], 'active');
+        api.setFrameGroupIndex({
+            name: 'group',
+            index: index
+        });
+    }
+</script>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>title</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <style>
+    	html,body{
+    		background:#000;
+    		position: fixed;
+    		width:100%;
+    		height:100%;
+    		top:0;
+    		left:0;
+    	}
+    	.clipTop{
+    		position:fixed;
+    		background:#787878;
+    		width:100%;
+    		height:50px;
+    		line-height:50px;
+    		color:red;
+    		font-size:15px;
+    		top:0;
+    		left:0;
+    		text-align:center;
+    		z-index:6666655;
+    	}
+    	.clipBottom{
+    		position: fixed;
+    		width:100%;
+    		bottom:0;
+			left:0;
+    	}
+    	.clipBottom button{
+    		background:#787878;
+			color:white;
+			height:50px;
+			line-height:50px;
+			font-size:15px;
+    		float:left;
+    		width:33.333%;
+    		z-index:6666655;
+    	}
+    </style>
+</head>
+<body>
+	<div class="clipTop" id="clipTop">
+
+	</div>
+	<div class="clipBottom clearfix">
+		<button onclick="fnClose()" id="b1"></button>
+		<button onclick="fnReset()" id="b2"></button>
+		<button onclick="fnSave()" id="b3"></button>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/api.js"></script>
+<script type="text/javascript" src="../../script/common.js"></script>
+<script type="text/javascript">
+	var FNImageClip;
+
+    apiready = function() {
+			var txt = $api.getLanguage() || {};
+			$api.byId('clipTop').innerText=txt.userListDetail.caijian;
+			$api.byId('b1').innerText=txt.userListDetail.b1;
+			$api.byId('b2').innerText=txt.userListDetail.b2;
+			$api.byId('b3').innerText=txt.userListDetail.b3;
+    	$api.fixStatusBar($api.byId("clipTop"));
+        FNImageClip = api.require('FNImageClip');
+        var url = api.pageParam.url;					//裁剪路径
+        var appearance = api.pageParam.appearance || "rectangle";		//裁剪形状
+        var clipWidth = api.pageParam.clipWidth || api.winWidth;		//裁剪区域宽度
+        var clipHeight = api.pageParam.clipHeight || api.winWidth;		//裁剪区域高度
+	   	fnOpen(url,appearance,clipWidth,clipHeight);
+    };
+
+    function fnOpen(url,appearance,clipWidth,clipHeight){
+        FNImageClip.open({
+            rect: {
+                x: 0,
+                y: 75,
+                w: api.winWidth,
+                h: api.frameHeight-125
+            },
+            srcPath: url,
+            highDefinition: true,
+            style: {
+                mask: 'rgba(55,55,55,0.3)',
+                clip: {
+                    w: clipWidth-1,
+                    h: clipHeight,
+                    x: (api.winWidth - clipWidth) / 2,
+                    y: 150,
+                    borderColor: '#0f0',
+                    borderWidth: 1,
+                    appearance: appearance
+                }
+            },
+            mode:"image",
+            fixedOn: api.frameName
+        }, function(ret, err){
+            if( ret ){
+//              alert( JSON.stringify( ret ) );
+            }else{
+//              alert( JSON.stringify( err ) );
+            }
+        });
+    };
+
+    function fnSave(){
+        FNImageClip.save({
+            destPath: 'fs://imageClip/result'+Math.random()+'.png',
+            copyToAlbum: false,
+            quality: 1
+        },function(ret, err){
+            if(ret) {
+                api.sendEvent({
+		           name:'clip',
+		           extra: {
+				      url: ret['destPath']
+				   }
+	            });
+	            api.closeWin({
+        		});
+            } else{
+              myAlert(txt.userListDetail.fail +JSON.stringify(err));
+            }
+        });
+    }
+    function fnClose(){
+        FNImageClip.close();
+        api.closeWin({
+        });
+    }
+    function fnReset(){
+        FNImageClip.reset();
+    }
+</script>
+</html>

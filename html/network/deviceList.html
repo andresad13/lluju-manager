@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>设备列表</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/public.css"/>
+    <link rel="stylesheet" type="text/css" href="" class="theme"/>
+    <script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+	<script type="text/javascript" src="../../script/common.js"></script>
+	<script>
+		getTheme();
+	</script>
+    <style>
+    	.nav{display:flex;font-size: 0.75rem;background:white;box-shadow: 0 0 8px #DDD;position:fixed;width:100%;top:0;z-index:10;}
+      .nav .item{flex:1;text-align:center;line-height: 2.4rem;}
+      .nav .item.active{border-bottom:2px solid;font-weight:bold;box-sizing: border-box;}
+
+      .searchBox{position:fixed;top:3rem;width:100%;padding:0.4rem 0.6rem;background:white;box-sizing: border-box;z-index: 9999999;font-size:0.75rem;}
+    	.flex-3{  -webkit-box-flex: 4; -webkit-flex: 4; flex: 4;margin-right:0.4rem;}
+    	.searchInput{height:2.2rem;line-height:1.6rem;padding:0.3rem 0.5rem;box-sizing:border-box;border:1px solid #f1f1f1;border-radius:5px;box-sizing: border-box;}
+    	.searchBtn{height:2.2rem;line-height:2.2rem;text-align:center;border-radius:5px;}
+
+    	.list{margin-top:0.4rem;position:relative;}
+    	.list .item{margin:0.5rem 0.6rem;background:white;border-radius:5px;padding-bottom:0.4rem;}
+    	.itemOne{padding:0.6rem;border-bottom:1px solid #f1f1f1;line-height: 1.8rem;}
+    	.delBtn{float:right;width: 2rem;margin-top:0.5rem;}
+    	.userAvatar{width:3rem;height:3rem;border-radius:5px;vertical-align: text-bottom;margin-bottom:-0.9rem;margin-right:0.3rem;}
+    	.orderContent{padding:0 0.6rem;}
+    	.itemP{display: flex;flex-wrap: wrap;box-sizing: border-box;}
+    	.itemP>span{display:inline-block;flex: 1;width: 50%;min-width: 50%;max-width: 50%; padding:0.2rem 0;}
+    	.opear{border-top:1px solid #f1f1f1;margin-top:0.4rem;text-align:right;padding:0.4rem 0.6rem 0;}
+    	.jiesuan{float:left;line-height: 2.2rem;color:#787878;}
+    	.redtxt{font-weight:600;color:red;}
+
+    	.deviceLists{margin-top:3.2rem;position:relative;}
+    	.deviceItem{background:white;margin-top:0.6rem;padding:0.6rem;}
+    	.item_title{padding-bottom:0.6rem;border-bottom:1px solid #f1f1f1;}
+    	.item_child{margin-top:0.6rem;}
+    	.opera{padding-top:0.6rem;border-top:1px solid #f1f1f1;text-align:right;}
+    </style>
+</head>
+<body>
+	<div class="main" id="view" v-cloak>
+		<!-- <div class="nav">
+			<div class="item active appBorderColor">{{txt.device.title1}}</div>
+			<div class="item">{{txt.device.title2}}</div>
+		</div> -->
+<!--		<div class="searchBox flex-wrap flex-con">
+			<input type="search" placeholder="请输入关键字搜索" class="searchInput flex-3 flex-wrap flex-vertical"/>
+			<button tapmode="btnhover" class="btn searchBtn appBg flex-con">搜索</button>
+		</div>-->
+
+		<div class="list" v-show="!showXian">
+			<div class="item" v-for="i in deviceList">
+    		<p class="itemOne">
+					{{txt.device.deviceNumber}}{{i.p_DeviceID}}
+				</p>
+
+  			<div class="orderContent">
+  				<p class="itemP clearfix">
+  					<span>{{txt.device.deviceTxt1}}{{i.p_CanBorrow}}</span>
+						<span>{{txt.device.deviceTxt2}}{{i.p_CanReturn}}</span>
+						<span>{{txt.device.deviceTxt3}}{{i.p_BatteryCount}}</span>
+  				</p>
+
+  				<p class="itemP clearfix" v-if="i.p_sm">
+  					{{txt.device.beizhu}}{{i.p_sm}}
+  				</p>
+  			</div>
+  			<p class="opear">
+  				<button class="btn orangeBtn" tapmode="btnhover" v-if="canEdit == 0" @click="restartDevice(i.p_DeviceID)">{{txt.device.deviceBtn2}}</button>
+  				<button class="btn appBg" tapmode="btnhover" @click="$api.openPage('../../publicWin.html','html/device/','batteryList',i.p_DeviceID,i.p_DeviceID)">{{txt.device.deviceBtn3}}</button>
+  				<button class="btn greenBtn" tapmode="btnhover" v-if="canEdit == 0" @click="$api.openPage('../../publicWin.html','html/device/','jgDetail',i.p_DeviceID,i.p_DeviceID)">{{txt.device.deviceBtn4}}</button>
+  			</p>
+  		</div>
+		</div>
+
+		<div class="deviceLists" v-show="showXian">
+			<div class="deviceItem" v-for="i in deviceList">
+				<p class="item_title">{{txt.alert.query}}{{i.p_shebeiid}}</p>
+				<p class="item_child">{{txt.alert.query3}}：{{i.p_QRCode == '' ? txt.alert.query4 : i.p_QRCode}}</p>
+				<p class="item_child opera">
+					<button tapmode="btnhover" class="btn orangeBtn" v-if="canEdit == 0" @click="$api.openPage('../../publicWin.html','html/device/','mmxDetail',txt.device.deviceDetails ,{id:i.p_id})">{{txt.device.look}}</button>
+				</p>
+			</div>
+		</div>
+
+		<div class="nomore">
+			—— {{txt.device.showAll}} ——
+		</div>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/vue.min.js"></script><script type="text/javascript" src="../../script/fastclick.js"></script>
+<script type="text/javascript" src="../../script/myJq.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		var shopNewID = api.pageParam.data.split(",")[0];
+		var isEdit = api.pageParam.data.split(",")[1];//判断是否可以编辑 0为可编辑
+		var that,total=0,pageSize=10,page=1,isloadOk = true,key="";
+		api.setStatusBarStyle({
+				style: 'dark',
+		});
+		var app = new Vue({
+			el:"#view",
+			data:{
+				txt: $api.getLanguage() || {},
+				deviceList:[],
+				canEdit:isEdit,
+				showXian: false
+			},
+			mounted() {
+				FastClick.attach(document.body);
+				that = this;
+				that.getData();
+
+				myUpLoad(function(){
+					if(isloadOk){
+						if(total == pageSize){
+							page++;
+							if(that.showXian){
+								that.getData2();
+							}else{
+								that.getData();
+							}
+						}else{
+							$(".nomore").show();
+						}
+					}
+				});
+				myPullDown(function(){
+					page = 1;
+					key = "";
+					if(that.showXian){
+						that.getData2();
+					}else{
+						that.getData();
+					}
+				});
+
+				api.addEventListener({
+						name:'bindAgentOk'
+				},function(ret,err){
+					that.getData();
+				});
+
+        $(".item").each(function(){
+					$(this).click(function(){
+						$(this).addClass("active appBorderColor").siblings().removeClass("active appBorderColor");
+						var index = $(this).index();
+						that.deviceList = [];
+						if(index == 0){
+							page = 1;
+							that.showXian = false;
+							that.getData();
+						}else if(index == 1){
+							page = 1;
+							that.showXian = true;
+							that.getData2();
+						}
+					})
+				});
+			},
+			methods:{
+				getData:function(){
+					isloadOk = false;
+					postAjax("/appagent/shop/device_list",{
+						shopID: shopNewID,
+						key: key
+					},function(ret){
+						if(ret.code == 1){
+							total = ret.data.length;
+							if(total > 0){
+								if(page == 1){
+									that.deviceList = [];
+								};
+								that.deviceList = that.deviceList.concat(ret.data);
+								closeNoData();
+								if(total < pageSize){
+									$(".nomore").show();
+								}else{
+									$(".nomore").hide();
+								}
+							} else if (total == 0 && page != 1) {
+								$(".nomore").show();
+							} else{
+								closeNoData();
+								that.deviceList = [];
+								$(".nomore").hide();
+								$(".list").noData(that.txt.device.showAll,"../../image/null.png");
+							}
+						};
+						isloadOk = true;
+						api.refreshHeaderLoadDone();
+					});
+				},
+				//密码线
+
+				getData2:function(){
+					isloadOk = false;
+					postAjax("/appagent/shop/xian/xian_list",{
+						types: 0,
+						key: key,
+						shopID: shopNewID,
+						// shopID: "4CXRQP8RAN",
+						page: page,
+						pageSize: 10
+					},function(ret){
+						if(ret.code == 1){
+							if(ret.total > 0){
+								maxpage = ret.maxpage;
+								if(page == 1){
+									that.deviceList = [];
+								};
+								that.deviceList = that.deviceList.concat(ret.data);
+								closeNoData();
+								if(page == maxpage){
+									$(".nomore").show();
+								}else{
+									$(".nomore").hide();
+								}
+							}else{
+								closeNoData();
+								that.deviceList = [];
+								$(".nomore").hide();
+								$(".deviceLists").noData(that.txt.alert.noDataDevice,"../../image/null.png");
+							}
+						};
+						isloadOk = true;
+						api.refreshHeaderLoadDone();
+					});
+				},
+
+				//重启
+				restartDevice:function(id){
+					myConfirm(that.txt.network.ischongqi,function(){
+						postAjax("appagent/device/restart",{
+							id: id
+						},function(ret){
+							if(ret.code == 1){
+								myAlert(that.txt.network.isOk);
+							}
+						});
+					});
+				}
+			}
+		});
+	};
+
+</script>
+</html>

@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>统计</title>
+    <link rel="stylesheet" type="text/css" href="../../css/default.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/public.css" />
+    <link rel="stylesheet" class="theme" href="" />
+    <script type="text/javascript" src="../../script/api.js"></script>
+    <script type="text/javascript" src="../../script/common.js"></script>
+    <script>
+        getTheme()
+    </script>
+    <style>
+        .snavBox {
+            font-size: 0.75rem;
+            position: fixed;
+            width: 100%;
+            top: 0.25rem;
+            z-index: 11;
+        }
+
+        .snav {
+            margin: 0.3rem 0.6rem;
+            display: flex;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 0 8px #DDD;
+            color: #999;
+            overflow: hidden;
+        }
+
+        .snavBar {
+            flex: 1;
+            text-align: center;
+            line-height: 2.2rem;
+        }
+
+        .list {
+            padding: 0.6rem;
+            margin-top: 0.2rem; /**/
+        }
+
+        .list ul li {
+            display: inline-block;
+            float: left;
+            width: 48%;
+            text-align: center;
+            border-radius: 5px;
+            padding: 1.2rem 0;
+            color: white;
+            margin-bottom: 0.6rem;
+        }
+
+        .list ul li:nth-child(2n) {
+            float: right;
+        }
+
+        .itemTitle {
+            font-size: 0.8rem;
+        }
+
+        .itemContent {
+            font-size: 1.1rem;
+            margin-top: 0.2rem;
+        }
+
+
+        /*#chart{width:100%;height:300px;transform: rotate(90deg);margin-top:20rem;}*/
+
+        #chart {
+            margin: 0 0.6rem;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 0 8px #DDD;
+        }
+
+        .highcharts-credits,
+        .highcharts-legend {
+            display: none;
+        }
+
+        .highcharts-container {
+            height: 200px !important;
+        }
+        .white {
+          color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main" id="view" v-cloak>
+        <!-- <div class="snavBox">
+            <div class="snav">
+                <div class="snavBar appBg white">{{txt.device.title1}}</div>
+                <div class="snavBar">{{txt.device.title2}}</div>
+            </div>
+        </div> -->
+
+        <div class="list clearfix" v-if="showJg">
+            <ul>
+                <li style="background:#9571DB;" tapmode="hover" v-if="data0.order_total >= 0">
+                    <p class="itemTitle">{{txt.count.dindanzongshu}}</p>
+                    <p class="itemContent">{{data0.order_total}}{{txt.symbol.dan}}</p>
+                </li>
+                <li style="background:#42bfc7;" tapmode="hover" v-if="data1.device_total >= 0">
+                    <p class="itemTitle">{{txt.count.shebeizongshu}}</p>
+                    <p class="itemContent">{{data1.device_total}}{{txt.symbol.tai}}</p>
+                </li>
+
+                <li style="background:#fba456;" tapmode="hover" v-if="data2.device_total >= 0">
+                    <p class="itemTitle">{{txt.count.yiwangchengdindan}}</p>
+                    <p class="itemContent">{{data2.device_total}}{{txt.symbol.dan}}</p>
+                </li>
+                <li style="background: #9AD4C8;" tapmode="hover" v-if="data3.zujieOrder >= 0">
+                    <p class="itemTitle">{{txt.count.zujiezhongdindan}}</p>
+                    <p class="itemContent">{{data3.zujieOrder}}{{txt.symbol.dan}}</p>
+                </li>
+                <li style="background: #dac722;" tapmode="hover" v-if="data4.online_device >= 0">
+                    <p class="itemTitle">{{txt.count.zaixianshebei}}</p>
+                    <p class="itemContent">{{data4.online_device}}{{txt.symbol.tai}}</p>
+                </li>
+                <li style="background: #D9BFDA;" tapmode="hover" v-if="data5.unbound_device >= 0">
+                    <p class="itemTitle">{{txt.count.leaseDevice}}</p>
+                    <p class="itemContent">{{data5.unbound_device}}{{txt.symbol.tai}}</p>
+                </li>
+            </ul>
+        </div>
+
+        <div class="list clearfix" v-if="!showJg">
+            <ul>
+                <li style="background:#9571DB;" tapmode="hover" v-if="data7.order_total >= 0">
+                    <p class="itemTitle">{{txt.count.dindanzongshu}}</p>
+                    <p class="itemContent">{{data7.order_total}}{{txt.symbol.dan}}</p>
+                </li>
+                <li style="background:#42bfc7;" tapmode="hover" v-if="data8.device_total >= 0">
+                    <p class="itemTitle">{{txt.count.shebeizongshu}}</p>
+                    <p class="itemContent">{{data8.device_total}}{{txt.symbol.tiao}}</p>
+                </li>
+
+                <li style="background:#fba456;" tapmode="hover" v-if="data9.finish_order >= 0">
+                    <p class="itemTitle">{{txt.count.yiwangchengdindan}}</p>
+                    <p class="itemContent">{{data9.finish_order}}{{txt.symbol.dan}}</p>
+                </li>
+                <li style="background: #9AD4C8;" tapmode="hover" v-if="data10.zujie_order >= 0">
+                    <p class="itemTitle">{{txt.count.zujiezhongdindan}}</p>
+                    <p class="itemContent">{{data10.zujie_order}}{{txt.symbol.dan}}</p>
+                </li>
+                <li style="background: #dac722;" tapmode="hover" v-if="data11.waitAudit_device >= 0">
+                    <p class="itemTitle">{{txt.count.daishenheshebei}}</p>
+                    <p class="itemContent">{{data11.waitAudit_device}}{{txt.symbol.tiao}}</p>
+                </li>
+                <li style="background: #D9BFDA;" tapmode="hover" v-if="data12.unbound_device >= 0">
+                    <p class="itemTitle">{{txt.count.weibangdinshebei}}</p>
+                    <p class="itemContent">{{data12.unbound_device}}{{txt.symbol.tiao}}</p>
+                </li>
+            </ul>
+        </div>
+
+
+        <div id="chart">
+
+        </div>
+    </div>
+    <script type="text/javascript" src="../../script/vue.min.js"></script>
+    <script type="text/javascript" src="../../script/fastclick.js"></script>
+    <script type="text/javascript" src="../../script/myJq.js"></script>
+    <script type="text/javascript" src="../../script/highcharts.js"></script>
+    <script type="text/javascript">
+        var txt;
+        apiready = function () {
+            var x = 0;
+            var tt = 0;
+            txt = $api.getLanguage() || {};
+            var chartX = [];
+            var chartY = [];
+            var app = new Vue({
+                el: "#view",
+                data: {
+                    txt: {},
+                    actArr: ["appagent/OrderController/deviceOrderTotal", "appagent/OrderController/deviceDeviceTotal", "appagent/OrderController/deviceFinishOrder",
+                        "appagent/OrderController/deviceZujieOrder", "appagent/OrderController/deviceOnlineDevice", "appagent/OrderController/deviceUnboundDevice",
+                        "appagent/OrderController/device7day"
+                    ],
+                    actArr1: ["appagent/OrderController/deviceXianOrderTotal", "appagent/OrderController/deviceXianDeviceTotal",
+                        "appagent/OrderController/deviceXianFinishOrder", "appagent/OrderController/deviceXianZujieOrder",
+                        "appagent/OrderController/deviceXianWaitAuditDevice", "appagent/OrderController/deviceXianUnboundDevice", "appagent/OrderController/deviceXian7day"
+                    ],
+                    data0: {},
+                    data1: {},
+                    data2: {},
+                    data3: {},
+                    data4: {},
+                    data5: {},
+                    data6: {},
+
+                    data7: {},
+                    data8: {},
+                    data9: {},
+                    data10: {},
+                    data11: {},
+                    data12: {},
+                    data13: {},
+                    showJg: true
+                },
+                created() {
+                  that = this;
+                  this.txt = $api.getLanguage();
+                },
+                mounted: function () {
+                    this.getData(that.actArr[x]);
+                    api.addEventListener({
+                        name: 'chooseColor'
+                    }, function (ret, err) {
+                        $(".theme").attr("href", "");
+                        $(".theme").attr("href", "../../css/" + ret.value + ".css");
+                    });
+
+                    $(".snavBar").each(function () {
+                        $(this).click(function () {
+                            $(this).addClass("appBg white").siblings().removeClass("appBg white");
+                            tt = $(this).index();
+                            if (tt == 0) {
+                                that.showJg = true;
+                                that.getData(that.actArr[x]);
+                            } else {
+                                that.showJg = false;
+                                that.getData1(that.actArr1[x]);
+                            }
+                        });
+                    })
+
+                    // 下拉事件
+                    myPullDown(function () {
+                        if (tt == 0) {
+                            that.getData(that.actArr[x]);
+                        } else {
+                            that.getData1(that.actArr1[x]);
+                        }
+                    });
+                },
+                methods: {
+                    //机柜
+                    getData: function (act) {
+                        // console.log(act)
+                        postAjax3(act, {}, function (ret) {
+                            if (ret.code == 1) {
+                                if (x == 0) {
+                                    that.data0 = ret.data;
+                                } else if (x == 1) {
+                                    that.data1 = ret.data;
+                                } else if (x == 2) {
+                                    that.data2 = ret.data;
+                                } else if (x == 3) {
+                                    that.data3 = ret.data;
+                                } else if (x == 4) {
+                                    that.data4 = ret.data;
+                                } else if (x == 5) {
+                                    that.data5 = ret.data;
+                                } else if (x == 6) {
+                                    var newchartX = [], newchartY = [];
+                                    if (ret.data.order_7day instanceof Array) {
+                                      chartX = ret.data.order_7day.split(',');
+                                    }
+                                    chartY = ret.data.order_count;
+                                    if (chartY instanceof Array) {
+                                      chartY.forEach(item => {
+                                        newchartY.push(parseInt(item))
+                                      })
+                                    }
+                                    drawChart(chartX, newchartY);
+                                };
+                                x++;
+                                if (x >= that.actArr.length) {
+                                    x = 0;
+                                    return false;
+                                };
+                                that.getData(that.actArr[x]);
+                            };
+                            api.refreshHeaderLoadDone();
+                        })
+                    },
+
+                    // 密码线
+                    getData1: function (act) {
+                        postAjax3(act, {}, function (ret) {
+                            if (ret.code == 1) {
+                                if (x == 0) {
+                                    that.data7 = ret.data;
+                                } else if (x == 1) {
+                                    that.data8 = ret.data;
+                                } else if (x == 2) {
+                                    that.data9 = ret.data;
+                                } else if (x == 3) {
+                                    that.data10 = ret.data;
+                                } else if (x == 4) {
+                                    that.data11 = ret.data;
+                                } else if (x == 5) {
+                                    that.data12 = ret.data;
+                                } else if (x == 6) {
+                                    var newchartY2= [];
+                                    if (ret.data.order_7day instanceof Array) {
+                                      chartX = ret.data.order_7day.split(',');
+                                    }
+                                    if (ret.data.order_count) {
+                                        chartY = ret.data.order_count.split(',');
+                                        console.log(JSON.stringify(chartY))
+                                        setTimeout(function () {
+                                          chartY.forEach(item => {
+                                            newchartY2.push(parseInt(item))
+                                          })
+                                        }, 100)
+                                    }
+
+                                    setTimeout(function () {
+                                        drawChart(chartX, newchartY2);
+                                        console.log(JSON.stringify(newchartY2))
+                                    }, 200)
+                                };
+                                x++;
+                                if (x >= that.actArr1.length) {
+                                    x = 0;
+                                    return false;
+                                };
+                                that.getData1(that.actArr1[x]);
+                            };
+                            api.refreshHeaderLoadDone();
+                        })
+                    },
+                }
+            });
+        };
+
+        function drawChart(xz, yz) {
+            var winwidth = $("#chart").width();
+            var chart = Highcharts.chart('chart', {
+                chart: {
+                    type: 'line'
+                },
+                title: {
+                    text: txt.count.jinqitiantongji
+                },
+                subtitle: {
+                    text: publicAppName
+                },
+                xAxis: {
+                    categories: xz
+                },
+                yAxis: {
+                    title: {
+                        text: txt.symbol.ci
+                    }
+                },
+                plotOptions: {
+                    line: {
+                        dataLabels: {
+                            // 开启数据标签
+                            enabled: true
+                        },
+                        // 关闭鼠标跟踪，对应的提示框、点击事件会失效
+                        enableMouseTracking: true
+                    }
+                },
+                series: [{
+                    name: txt.count.TODAY,
+                    data: yz
+                }]
+            });
+
+            chart.setSize(winwidth, winwidth * (2 / 3));
+        }
+    </script>
+</body>
+
+</html>

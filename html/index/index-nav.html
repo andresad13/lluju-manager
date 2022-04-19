@@ -1,0 +1,316 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>底部导航</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/public.css" />
+    <!-- <link rel="stylesheet" type="text/css" href="../../css/defult.css" /> -->
+    <link rel="stylesheet" class="theme" href="" />
+    <script type="text/javascript" src="../../script/api.js"></script>
+    <script type="text/javascript" src="../../script/common.js"></script>
+    <script>
+        getTheme();
+    </script>
+    <style>
+        header {
+            background-color: #ffffff;
+        }
+
+        header ul li {
+            height: 50px;
+            line-height: 50px;
+            text-align: center;
+            display: none;
+            color: #323237;
+            position: relative;
+            font-size: 18px;
+        }
+
+        header ul li.active {
+            display: block;
+        }
+
+        #footer {
+            background-color: #ffffff;
+        }
+
+        #footer ul {
+            padding-top: 5px;
+        }
+
+        #footer ul li {
+            color: #bfbfbf;
+            padding-top: 30px;
+            padding-bottom: 5px;
+            background: url() no-repeat center 2px;
+            background-size: auto 25px;
+            text-align: center;
+        }
+
+        .flex-con {
+            overflow: auto
+        }
+
+        #footer ul li:nth-child(1) {
+            background-image: url(../../image/home/device.png);
+        }
+
+        #footer ul li:nth-child(2) {
+            background-image: url(../../image/home/network.png);
+        }
+
+        #footer ul li:nth-child(3) {
+            background-image: url(../../image/home/my.png);
+        }
+
+        #footer ul li:nth-child(4) {
+            background-image: url(../../image/home/order.png);
+        }
+
+        #footer ul li:nth-child(5) {
+            background-image: url(../../image/home/count.png);
+        }
+
+    </style>
+</head>
+
+<body>
+    <div id="wrap" class="flex-wrap flex-vertical">
+        <header>
+            <ul>
+                <li class="titles">{{txt.pageTitle.deviceTitle}}</li>
+                <li class="titles">{{txt.pageTitle.networkTitle}}</li>
+                <li class="titles active">{{txt.pageTitle.myTitle}}</li>
+                <li class="titles">{{txt.pageTitle.orderTitle}}</li>
+                <li class="titles">{{txt.pageTitle.countTitle}}</li>
+            </ul>
+        </header>
+        <div id="main" class="flex-con">
+
+        </div>
+        <div id="footer" class="border-t ab">
+            <ul class="flex-wrap">
+                <li tapmode="hover" onclick="randomSwitchBtn( this );" class="list flex-con">{{txt.pageTitle.device}}</li>
+                <li tapmode="hover" onclick="randomSwitchBtn( this );" class="list flex-con">{{txt.pageTitle.network}}</li>
+                <li tapmode="hover" onclick="randomSwitchBtn( this );" class="list flex-con active">{{txt.pageTitle.my}}</li>
+                <li tapmode="hover" onclick="randomSwitchBtn( this );" class="list flex-con">{{txt.pageTitle.order}}</li>
+                <li tapmode="hover" onclick="randomSwitchBtn( this );" class="list flex-con">{{txt.pageTitle.count}}</li>
+            </ul>
+        </div>
+    </div>
+</body>
+
+</html>
+<script type="text/javascript" src="../../script/vue.min.js"></script>
+<script type="text/javascript" src="../../script/fastclick.js"></script>
+<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+<script type="text/javascript">
+    apiready = function () {
+
+        $api.fixStatusBar($api.dom('header'));
+        $api.fixTabBar($api.byId('footer'));
+        // 存头部和尾部方便后面设置Frame宽高
+        $api.setStorage("headerHeight", $api.dom('header').offsetHeight);
+        $api.setStorage("footerHeight", $api.dom('#footer').offsetHeight);
+
+        api.setStatusBarStyle({
+            style: 'dark',
+        });
+
+
+        funIniGroup();
+        var that;
+        new Vue({
+            el: '#wrap',
+            data: {
+                txt: '',
+            },
+            created() {
+                that = this;
+                this.txt = $api.getLanguage();
+                fnInitListener();
+            },
+            mounted() {
+              FastClick.attach(document.body);
+                // 语言改变事件
+                api.addEventListener({
+                    name: 'changeLanguage'
+                }, function (ret, err) {
+                    window.location.reload();
+                    that.txt = $api.getLanguage();
+                });
+
+                // 颜色改变事件
+                api.addEventListener({
+            	        name:'chooseColor'
+                },function(ret,err){
+                    	$(".theme").attr("href","");
+                    	$(".theme").attr("href","../../css/"+ret.value+".css");
+                });
+
+                // 改变事件
+                api.addEventListener({
+            	      name:'changeTitle'
+                },function(ret,err){
+                    var list = document.getElementsByClassName('list');
+                    var titles = document.getElementsByClassName('titles');
+                    for (var i = 0; i < list.length; i ++) {
+                        $api.removeCls(list[i], 'active');
+                        $api.removeCls(titles[i], 'active');
+                    }
+                    $api.addCls(list[3], 'active');
+                    $api.addCls(titles[3], 'active');
+                    console.log(ret.value)
+                    $api.setStorage('orderType', ret.value);
+                    api.setFrameGroupIndex({
+                        name: "indexNav",
+                        index: 3,
+                        reload: true
+                    })
+                    setTimeout(function () {
+                        $api.send('changeClass', ret.value);
+                    }, 100)
+                });
+
+            },
+            methods: {
+
+            }
+        })
+    }
+
+    // 菜单列表
+    function funIniGroup() {
+        var eHeaderLis = $api.domAll('header li');
+
+        api.openFrameGroup({
+            name: 'indexNav',
+            scrollEnabled: false,
+            rect: {
+                x: 0,
+                y: $api.dom('header').offsetHeight,
+                w: api.winWidth,
+                h: $api.dom('#main').offsetHeight
+            },
+            index: 2,
+            preload: 0,
+            frames: [{
+                    name: 'device',
+                    url: './device.html',
+                    bgColor: 'rgba(0,0,0, .2)',
+                    bounces: false
+                },
+                {
+                    name: 'network',
+                    url: './network.html',
+                    bgColor: 'rgba(0,0,0,.2)',
+                    bounces: true
+                },
+                {
+                    name: 'my',
+                    url: './my.html',
+                    bgColor: 'rgba(0,0,0, .2)',
+                    bounces: true
+                },
+                {
+                    name: 'order',
+                    url: './order.html',
+                    bgColor: 'rgba(0,0,0,.2)',
+                    bounces: false
+                },
+                {
+                    name: 'count',
+                    url: './count.html',
+                    bgColor: 'rgba(0,0,0,.2)',
+                    bounces: true
+                },
+            ]
+
+        }, function (ret, err) {
+
+
+        });
+    }
+
+
+    // 随意切换按钮
+    function randomSwitchBtn(tag) {
+        if (tag == $api.dom('#footer li.active')) return;
+
+        var eFootLis = $api.domAll('#footer li'),
+            eHeaderLis = $api.domAll('header li'),
+            index = 0;
+
+        for (var i = 0, len = eFootLis.length; i < len; i++) {
+            if (tag == eFootLis[i]) {
+                index = i;
+            } else {
+                $api.removeCls(eFootLis[i], 'active');
+                $api.removeCls(eHeaderLis[i], 'active');
+            }
+        }
+
+        if (index == 0) {
+            api.setFrameGroupAttr({
+                name: 'deviceNav',
+                hidden: false
+            });
+        } else {
+            api.setFrameGroupAttr({
+                name: 'deviceNav',
+                hidden: true
+            });
+        };
+
+        if (index == 3) {
+            api.setFrameGroupAttr({
+                name: 'orderNav',
+                hidden: false
+            });
+        } else {
+            api.setFrameGroupAttr({
+                name: 'orderNav',
+                hidden: true
+            });
+        };
+
+        if (index == 4) {
+            var roleName = $api.getStorage("p_GroupName");
+            console.log(roleName)
+            if (roleName == '平台') {
+                api.openWin({
+                    name: 'tj',
+                    url: '../count/index.html'
+                });
+                $api.addCls(eFootLis[2], 'active');
+                $api.addCls(eHeaderLis[2], 'active');
+                api.setFrameGroupIndex({
+                    name: 'indexNav',
+                    index: 2
+                });
+                return false;
+            } else {
+                $api.addCls(eFootLis[index], 'active');
+                $api.addCls(eHeaderLis[index], 'active');
+                api.setFrameGroupIndex({
+                    name: 'indexNav',
+                    index: index
+                });
+            }
+            return false;
+        };
+
+        $api.addCls(eFootLis[index], 'active');
+        $api.addCls(eHeaderLis[index], 'active');
+        api.setFrameGroupIndex({
+            name: 'indexNav',
+            index: index
+        });
+
+    }
+</script>

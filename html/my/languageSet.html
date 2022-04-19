@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>语言设置</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" class="theme" href="" />
+    <script type="text/javascript" src="../../script/api.js"></script>
+    <script type="text/javascript" src="../../script/common.js"></script>
+    <script>
+    	getTheme();
+    </script>
+    <style>
+    	.mian{padding:0 0.8rem;}
+    	.languageItem{position:relative;padding: 12px 0 10px;border-bottom:1px solid #E1E1E1;}
+    	.language{font-size:1.2rem;font-weight:600;line-height:30px;}
+    	.chinese{font-size:0.9rem;color:#686868;margin-top:6px;line-height: 16px;}
+    	.chooseBtn{position:absolute;width:24px;height:24px;right:0;bottom:24px;background:url(../../image/chooseEmpty.png) no-repeat;background-size:cover;}
+    	.chooseBtn.active{background:url(../../image/chooseSolid.png) no-repeat;background-size:cover;}
+
+    	.confirmBtnBox{position:fixed;width:94%;bottom:1.5rem;left:3%;}
+    	.confirmBtn{width:100%;line-height:2.8rem;border-radius:5px;}
+    </style>
+</head>
+<body>
+	<div class="mian" id="view" >
+		<div class="languageItem" data-langulae="zh-CN">
+			<p class="language">简体中文</p>
+			<p class="chinese">{{txt.languagePg.language1}}</p>
+			<span :class="nowLg == 'zh-CN' ? 'chooseBtn active' : 'chooseBtn'"></span>
+		</div>
+<!--		<div class="languageItem">
+			<p class="language">繁體中文</p>
+			<p class="chinese">{{txt.languagePg.language2}}</p>
+			<span :class="nowLg == 'zh-CNF' ? 'chooseBtn active' : 'chooseBtn'" data-langulae="zh-CNF"></span>
+		</div>-->
+		<div class="languageItem" data-langulae="en-US">
+			<p class="language">English</p>
+			<p class="chinese">{{txt.languagePg.language3}}</p>
+			<span :class="nowLg == 'en-US' ? 'chooseBtn active' : 'chooseBtn'"></span>
+		</div>
+<!--		<div class="languageItem">
+			<p class="language">Español</p>
+			<p class="chinese">{{txt.languagePg.language4}}</p>
+			<span :class="nowLg == '' ? 'chooseBtn active' : 'chooseBtn'" data-langulae=""></span>
+		</div>-->
+
+
+		<!--<div class="confirmBtnBox" @click="changeLanguage()">
+			<button tapmode="hoverBtn" class="confirmBtn appBg">
+				{{txt.btnTxt.confirmBtn}}
+			</button>
+		</div>-->
+	</div>
+</body>
+<script type="text/javascript" src="../../script/vue.min.js"></script><script type="text/javascript" src="../../script/fastclick.js"></script>
+<script type="text/javascript" src="../../script/fastclick.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		var lg = $api.getStorage("language"),that;
+		var app = new Vue({
+			el:"#view",
+			data:{
+				txt:'',
+				nowLg: lg
+			},
+			created() {
+				that = this;
+				this.txt = $api.getLanguage();
+			},
+			mounted() {FastClick.attach(document.body);
+				that = this;
+				FastClick.attach(document.body);
+				$(".languageItem").each(function(){
+					$(this).on("click",function(){
+						$(this).find("span").addClass("active");
+//						$(".chooseBtn").not(this).removeClass("active");
+						$(this).siblings().find("span").removeClass("active");
+						if (lg != $(this).attr("data-langulae")) {
+							lg = $(this).attr("data-langulae");
+							that.changeLanguage();
+						}
+						console.log($api.getStorage("language"))
+					});
+				})
+			},
+			methods:{
+				changeLanguage:function(){
+					$api.setStorage("language",lg);
+					$api.send("changeLanguage");
+					myAlert(that.txt.tips.success,function(){
+						api.openWin({
+								name: 'index',
+								url: '../index/index-nav.html',
+								bounces: false,
+								vScrollBarEnabled: false,
+								hScrollBarEnabled: false,
+								slidBackEnabled: false,
+								reload: true,
+								animation: {
+										type: 'fade'
+								}
+						});
+					});
+				}
+			}
+		});
+	};
+</script>
+</html>

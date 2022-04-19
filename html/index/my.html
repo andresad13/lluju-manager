@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>我的</title>
+    <link rel="stylesheet" type="text/css" href="../../css/default.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/public.css" />
+    <link rel="stylesheet" type="text/css" href="" class="theme"/>
+    <script type="text/javascript" src="../../script/api.js"></script>
+    <script type="text/javascript" src="../../script/common.js"></script>
+    <script>
+        getTheme()
+    </script>
+    <style>
+        body,html {
+            padding: 10px;
+            box-sizing: border-box;
+            background: white;
+        }
+        body {
+          padding: 0;
+        }
+
+        #view {
+            width: 99%;
+            margin: 0 auto;
+            background: #fff;
+        }
+
+        .header {
+            position: relative;
+            height: 150px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 10px;
+            border-radius: 7px;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .header > img {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+        }
+
+        .user {
+            display: flex;
+            height: 50%;
+        }
+
+        .money-info {
+            display: flex;
+            height: 50%;
+            padding: 10px 0;
+            box-sizing: border-box;
+        }
+
+        .user-img {
+            flex: 2;
+            display: flex;
+            align-items: center;
+            margin: auto;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .user-img img {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: #fff;
+
+        }
+
+        .user-txt {
+            flex: 6;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+            height: 100%;
+            margin-left: -10px;
+            color: white;
+        }
+
+        .user-setting {
+            flex: 1;
+            height: 100%;
+        }
+
+        .user-setting img {
+            float: right;
+        }
+
+        .user-titles {
+            width: 200px;
+            font-size: 18px;
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow:ellipsis;
+            white-space: nowrap;
+        }
+
+        .user-txts {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .user-txts span {
+            margin: 0 3px;
+            font-size: 22px;
+        }
+
+        .deposit {
+            flex: 3;
+            height: 100%;
+        }
+
+        .has-deposit {
+            flex: 3;
+            height: 100%;
+        }
+
+        .audit {
+            flex: 3;
+            height: 100%;
+        }
+
+        .money-public {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+            font-size: 16px;
+        }
+
+        .money-public p {
+            color: white;
+            text-align: center;
+        }
+
+        .main {
+            width: 100%;
+            margin: 5px auto;
+            overflow: hidden;
+            padding: 10px 0;
+            box-sizing: border-box;
+        }
+
+        .main .order {
+            display: flex;
+        }
+
+        .main .order div {
+            flex: 1;
+
+        }
+        .main .order div.userReturn .img {
+          display: block;
+          margin: 10px auto;
+          width: 38px;
+          height: 48px;
+          margin-top: 20px;
+          background-size: 40px 50px;
+          background-repeat: no-repeat;
+          background-position: center center;
+
+          border-radius: 7px;
+        }
+
+        .main .order div span {
+            position: relative;
+            float: right;
+            min-width: 20px;
+            padding: 2px 4px;
+            background: #e32323;
+            border-radius: 4px;
+            color: white;
+            font-size: 10px;
+            margin-right: 5px;
+            text-align: center;
+        }
+
+        .main .order div span::before {
+            position: absolute;
+            bottom: -9px;
+            content: '';
+            display: block;
+            width: 5px;
+            height: 5px;
+            border: 5px solid #e32323;
+            border-bottom-color: transparent;
+            border-right-color: transparent;
+            box-sizing: border-box;
+        }
+
+        .main .order div p {
+            text-align: center;
+        }
+
+        .main .order div img {
+            display: block;
+            margin: 10px auto;
+            width: 38px;
+            height: 48px;
+            margin-top: 20px;
+            border-radius: 7px;
+        }
+
+        .main .order div:nth-child(3) img {
+            width: 51%;
+        }
+
+        .administration {
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .administration .left {
+            position: relative;
+            display: flex;
+            float: left;
+            width: 48%;
+            height: 70px;
+            border-radius: 5px;
+        }
+
+        .administration .left>img {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .administration .left {
+            display: flex;
+            justify-content: center;
+        }
+
+        .administration .left .top-left {
+            position: absolute;
+            left: 5px;
+            top: 0;
+            padding: 3px 5px;
+            background: #f52a2a;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            font-size: 9px;
+            color: white;
+        }
+
+        .administration .left .content-left {
+            flex: 4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .administration .left .content-left img {
+            width: 30px;
+        }
+
+        .administration .left .content-right {
+            flex: 6;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .administration .left .content-right .txt {
+            font-size: 14px;
+            color: white;
+        }
+
+        .administration .left .content-right .txtinfo {
+            font-size: 12px;
+            color: white;
+            margin-top: 2px;
+        }
+
+        .administration .right {
+            float: right;
+            width: 48%;
+            height: 70px;
+            background: #f2b828;
+            border-radius: 8px;
+        }
+
+        .functionsTitle {
+            font-weight: 500;
+            text-align: center;
+            margin-top: 28px;
+            font-size: 18px;
+            background: #fff;
+        }
+
+        .functions {
+            margin-top: 5px;
+        }
+
+        .functions .item-menu {
+            float: left;
+            width: 33.33%;
+            text-align: center;
+            background: #fff;
+            padding-bottom: 10px;
+            box-sizing: border-box;
+        }
+        .functions .item-menu p {
+          height: 25px;
+        }
+
+        .functions .item-menu .wrap_bg {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 5px auto;
+            width: 50px;
+            height: 50px;
+            background: #f4f4f4;
+            border-radius: 50%;
+        }
+
+        .functions .item-menu .wrap_bg .img {
+            display: flex;
+            width: 30px;
+            height: 30px;
+            background-size: 24px;
+            background-repeat: no-repeat;
+            background-position: center center;
+        }
+
+
+        [v-cloak] {
+            display: none;
+        }
+        .none {
+          display: none;
+          opacity: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="view" class="ab" v-cloak>
+        <div class="header appBg">
+            <img src="../../image/headerBg.png" alt="">
+            <div class="user">
+                <div class="user-public user-img">
+                    <img v-if="userinfo.p_WxPic" :src="public + 'img' + userinfo.p_WxPic" alt="">
+                    <img v-else src="../../image/logo.png" alt="">
+                </div>
+                <div class="user-public user-txt">
+                    <p class="user-titles">{{userinfo.penName}}({{userinfo.groupName | nameChange}})</p>
+                    <p class="user-txts">
+                        {{txt.my.userMoneyTxt}}<span>{{txt.symbol.moneySymbol}}{{userinfo.total_fencheng || 0}}</span>
+                    </p>
+                </div>
+                <div class="user-public user-setting" @click="goToSetting">
+                    <img width="75%" src="../../image/setting.png" alt="">
+                </div>
+            </div>
+            <div class="money-info">
+                <div class="money-public deposit">
+                    <p>{{txt.symbol.moneySymbol}}{{userinfo.tiCheng || 0}}</p>
+                    <p>{{txt.my.userMoney1}}</p>
+                </div>
+                <div class="money-public has-deposit">
+                    <p>{{txt.symbol.moneySymbol}}{{userinfo.suc_fengcheng || 0}}</p>
+                    <p>{{txt.my.userMoney2}}</p>
+                </div>
+                <div class="money-public audit">
+                    <p>{{txt.symbol.moneySymbol}}{{userinfo.wait_fencheng || 0}}</p>
+                    <p>{{txt.my.userMoney3}}</p>
+                </div>
+            </div>
+        </div>
+        <div class="main">
+            <div class="order">
+                <div class="userLease" @click="GoTo('租借中')">
+                    <span>{{userinfo.order_zujie || 0}}</span>
+                    <img src="../../image/userLease.png" alt="">
+                    <p>{{txt.my.userLease}}</p>
+                </div>
+                <div class="userReturn" @click="GoTo('已归还')">
+                    <span>{{userinfo.order_ruturn || 0}}</span>
+                    <div class="img"></div>
+                    <!-- <img src="../../image/red/userReturn.png" alt=""> -->
+                    <p>{{txt.my.userReturn}}</p>
+                </div>
+                <div class="userOrder" @click="GoTo('超时单')">
+                    <span>{{userCount.orderOvertime}}</span>
+                    <img src="../../image/userOrder.png" alt="">
+                    <p>{{txt.my.userOrder}}</p>
+                </div>
+                <div class="userToDay" @click="GoTo('今日单')">
+                    <span>{{userCount.OrderToday}}</span>
+                    <img src="../../image/userToDay.png" alt="">
+                    <p>{{txt.my.userToDay}}</p>
+                </div>
+            </div>
+        </div>
+        <div class="administration ab">
+            <div class="left appBg" @click="groupName == '店铺管理' ? '' : $api.openPage('../../publicWin.html','html/my/','agent',txt.my.administration1)">
+                <span :class="groupName == '店铺管理' ? 'top-left none' : 'top-left'">
+                    {{userCount.agentCount}}
+                </span>
+                <img src="../../image/administration1.png" alt="">
+                <div class="content-left">
+                    <img src="../../image/administration2.png" alt="">
+                </div>
+                <div class="content-right">
+                    <p class="txt">{{txt.my.administration1}}</p>
+                    <p class="txtinfo">{{txt.my.administration3}}</p>
+                </div>
+            </div>
+            <div class="left right" @click="goToUesr">
+                <span :class="groupName === '平台' ? 'top-left' : 'top-left none'">
+                  {{userCount.userCount}}
+                </span>
+                <img src="../../image/administration4.png" alt="">
+                <div class="content-left">
+                    <img src="../../image/administration2.png" alt="">
+                </div>
+                <div class="content-right">
+                    <p class="txt">{{txt.my.administration2}}</p>
+                    <p class="txtinfo">{{txt.my.administration4}}</p>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="functionsTitle">{{txt.my.functionTitle}}</h2>
+
+        <div class="functions ab">
+            <div class="item-menu"
+                 @click="$api.openPage('../../publicWin.html','html/my/','presentRecord',txt.my.menu1)">
+                <div class="wrap_bg">
+                    <div class="img"></div>
+                </div>
+                <p>{{txt.my.menu1}}</p>
+            </div>
+            <div class="item-menu" @click="$api.openPage('../../publicWin.html','html/my/','devideFrame',txt.my.menu7)">
+                <div class="wrap_bg">
+                  <div class="img"></div>
+                </div>
+                <p>{{txt.my.menu2}}</p>
+            </div>
+            <div class="item-menu" @click="$api.openPage('../../publicWin.html','html/my/','paihang',txt.my.menu3)">
+                <div class="wrap_bg">
+                  <div class="img"></div>
+                </div>
+                <p>{{txt.my.menu3}}</p>
+            </div>
+            <div class="item-menu" @click="$api.openPage('../../publicWin.html','html/my/','devicePh',txt.my.menu4)">
+                <div class="wrap_bg">
+                  <div class="img"></div>
+                </div>
+                <p>{{txt.my.menu4}}</p>
+            </div>
+            <div class="item-menu" @click="logOut()">
+                <div class="wrap_bg">
+                  <div class="img"></div>
+                </div>
+                <p>{{txt.my.menu6}}</p>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script type="text/javascript" src="../../script/vue.min.js"></script>
+<script type="text/javascript" src="../../script/fastclick.js"></script>
+<script type="text/javascript" src="../../script/jqeruy-2.1.0.js"></script>
+<script type="text/javascript">
+    apiready = function () {
+      var that;
+
+        if(api.systemType == 'ios') {
+          api.setStatusBarStyle({
+              style: 'dark',
+          });
+        }
+
+        var that;
+        new Vue({
+            el: '#view',
+            data: {
+                txt: {},
+                userinfo: {},
+                userCount: {},
+                groupName: "",
+                public: publicurl
+            },
+            created() {
+                that = this;
+                that.txt = $api.getLanguage();
+            },
+            mounted() {
+                FastClick.attach(document.body);
+                api.addEventListener({
+                    name: 'changeLanguage'
+                }, function (ret, err) {
+                    that.txt = $api.getLanguage();
+                    api.closeWin({})
+                });
+
+                // 颜色改变事件
+                api.addEventListener({
+                      name:'chooseColor'
+                },function(ret,err){
+                    console.log(ret.value);
+                    $(".theme").attr("href","");
+                    $(".theme").attr("href","../../css/"+ret.value+".css");
+                });
+
+                // 代理改变事件
+                api.addEventListener({
+                    name:'refreshAgent'
+                },function(ret,err){
+                    that.getData();
+                });
+
+                api.addEventListener({
+                    name: 'changeOrder'
+                }, function(ret, err) {
+                    that.getData();
+                });
+
+                // 下拉事件
+                myPullDown(function (ret) {
+                    that.getData();
+                });
+
+                that.getData();
+            },
+            methods: {
+              goToUesr() {
+                if (that.groupName === '平台') {
+                   $api.openPage('../../publicWin.html','html/my/','userList',that.txt.my.administration2);
+                }
+              },
+
+              // 退出
+              logOut() {
+                  myConfirm(that.txt.login.logOut, function () {
+                    myToast(that.txt.login.outOk);
+                    setTimeout(function () {
+                      $api.send("changeYcode");
+                      api.closeToWin({
+                          name: 'root'
+                      });
+                    }, 500)
+                  });
+              },
+
+              // 跳转页面
+              GoTo(key) {
+                $api.send('changeTitle', key);
+              },
+
+              // 打开设置页面
+              goToSetting() {
+                  $api.openPage("../../publicWin.html", "html/my/", "set", that.txt.pageTitle.settingTitle);
+              },
+
+              getData: function () {
+                  postAjax("appagent/user/index2", {
+                  }, function (ret) {
+                      if (ret.code == 1) {
+                          that.userinfo = ret.data.returnIndex;
+                          that.userCount = ret.data;
+                          that.groupName = ret.data.returnIndex.groupName;
+                          $api.setStorage("p_GroupName", ret.data.returnIndex.groupName); //登录账户的角色
+                      }
+                      api.refreshHeaderLoadDone();
+                  });
+              }
+            },
+            filters: {
+              nameChange(val) {
+      					switch (val) {
+                  case '平台':
+      							return that.txt.orderDetail.pintai;
+      							break;
+      						case '省级代理':
+      							return that.txt.count.shengjidaili;
+      							break;
+      						case '市级代理':
+      							return that.txt.count.shijidaili;
+      							break;
+      						case '区域代理':
+      							return that.txt.count.quyudaili;
+      							break;
+      						case '业务员':
+      							return that.txt.count.yewuyuan;
+      							break;
+      						case '店铺管理':
+      							return that.txt.orderDetail.dianpu;
+      							break;
+      						default:
+      							return  val;
+      					}
+      				}
+            }
+        })
+    }
+</script>
+
+</html>

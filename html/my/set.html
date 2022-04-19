@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>设置</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="" class="theme"/>
+    <script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+	<script type="text/javascript" src="../../script/common.js"></script>
+	<script>
+		 getTheme();
+	</script>
+    <style>
+    	.item{background:white;padding: 0.3rem 0.6rem;line-height: 2.4rem;margin-bottom:0.5rem;}
+    	.arrow{float:right;width:1.8rem;margin-top:0.3rem;}
+    	.bottom{position:fixed;width: 100%;line-height:2.6rem;font-size:0.8rem;color:#989898;bottom:0;text-align:center;}
+    </style>
+</head>
+<body>
+	<div class="main" id="view">
+		<div class="item" style="display:none;" @click="$api.openPage('../../publicWin.html','html/my/','addCard',txt.settingPg.setting0)">
+			{{txt.settingPg.setting0}} <img src="../../image/arrowRight.png" alt="" class="arrow"/>
+		</div>
+		<div class="item" @click="$api.openPage('../../publicWin.html','html/my/','changePasd',txt.settingPg.setting1)">
+			{{txt.settingPg.setting1}} <img src="../../image/arrowRight.png" alt="" class="arrow"/>
+		</div>
+		<div class="item" @click="$api.openPage('../../publicWin.html','html/my/','changeColor',txt.settingPg.setting2)">
+			{{txt.settingPg.setting2}} <img src="../../image/arrowRight.png" alt="" class="arrow"/>
+		</div>
+		<div class="item" style="display:none;" @click="$api.openPage('../../publicWin.html','html/my/','languageSet',txt.settingPg.setting3)">
+			{{txt.settingPg.setting3}} <img src="../../image/arrowRight.png" alt="" class="arrow" />
+		</div>
+
+		<p class="bottom">
+			{{txt.settingPg.setting35}}：v1.0.1
+		</p>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/vue.min.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		api.setStatusBarStyle({
+				style: 'dark',
+		});
+		new Vue({
+			el: "#view",
+			data: {
+				txt: $api.getLanguage() || {},
+			}
+		})
+
+	};
+</script>
+</html>

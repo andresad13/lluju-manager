@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+	<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+	<title>编辑代理</title>
+	<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/public.css" />
+	<link rel="stylesheet" type="text/css" href="" class="theme" />
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+	<script type="text/javascript" src="../../script/common.js"></script>
+	<script>
+		getTheme();
+	</script>
+	<style>
+		html,
+		body {
+			font-size: 16px;
+		}
+
+		.main {
+			font-size: 1rem;
+		}
+
+		.detail {
+			background: white;
+			padding: 0.8rem 0.6rem 0;
+		}
+
+		.detail p {
+			height: 2.4rem;
+			line-height: 2.4rem;
+			margin-bottom: 0.6rem;
+		}
+
+		.ititle {
+			color: #101010;
+			font-size: 14px
+		}
+
+		.icontent {
+			float: right;
+			width: 10rem;
+			height: 2.4rem;
+			text-align: right;
+			border-bottom: 1px solid #f1f1f1;
+			padding: 0.4rem 0.8rem 0 0.4rem;
+			box-sizing: border-box;
+			font-size: 14px
+		}
+
+		.selectSpan {
+			float: right;
+			width: 10rem;
+			height: 2.4rem;
+			border-bottom: 1px solid #f1f1f1;
+			text-align: right;
+		}
+
+		.selectBox {
+			padding: 0.4rem;
+			border-radius: 5px;
+			outline: none;
+			border: 0;
+			background: white;
+		}
+
+		.careful {
+			font-size: 0.8rem;
+			color: red;
+			margin-top: 0.8rem;
+			text-align: center;
+		}
+
+		.btn {
+			width: 94%;
+			margin: 1rem 3%;
+		}
+		[v-cloak] {
+			display: none;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="main" id="view" v-cloak>
+		<div class="detail">
+			<p>
+				<span class="ititle">{{txt.agentAdd.agent}}</span>
+				<span class="selectSpan" style="padding-right:0.4rem;">
+					{{agentInfo.p_GroupName | nameChange}}
+				</span>
+			</p>
+			<p>
+				<span class="ititle">{{txt.agentAdd.login}}</span>
+				<span class="selectSpan" style="padding-right:0.4rem;">{{agentInfo.p_AdminName}}</span>
+			</p>
+			<p>
+				<span class="ititle">{{txt.agentAdd.nicheng}}</span>
+				<input type="text" class="icontent" :placeholder="txt.agentAdd.inputnicheng" id="nickName" v-model="agentInfo.p_PenName" />
+			</p>
+			<!-- <p>
+				<span class="ititle">{{txt.agentAdd.quyu}}</span>
+				<input type="text" class="icontent" :placeholder="txt.agentAdd.inputquyu" readonly="readonly" id="area" v-model="agentInfo.p_Prov+'-'+agentInfo.p_City+'-'+agentInfo.p_Dist" />
+			</p> -->
+			<p>
+				<span class="ititle">{{txt.agentAdd.loginPsd}}</span>
+				<input type="password" class="icontent" :placeholder="txt.agentAdd.inputloginPsd" id="pasd" />
+			</p>
+			<p>
+				<span class="ititle">{{txt.agentAdd.lianxi}}</span>
+				<input type="number" class="icontent" :placeholder="txt.agentAdd.inputlianxi" id="phone" v-model="agentInfo.p_Tel" />
+			</p>
+			<p>
+				<span class="ititle">{{txt.agentAdd.ticheng}}</span>
+				<input type="number" class="icontent" :placeholder="txt.agentAdd.inputticheng" id="proportion" v-model="agentInfo.p_tc"/>
+			</p>
+
+			<p>
+				<span class="ititle">{{txt.agentAdd.weChat}}</span>
+				<input type="text" class="icontent" :placeholder="txt.agentAdd.inputweChat" id="wechat" v-model="agentInfo.p_WxName" readonly="readonly" @click="$api.openPage('../../publicWin.html','html/my/','wechatList',txt.agentAdd.selectUse)" />
+			</p>
+
+			<p>
+				<span class="ititle">{{txt.agentAdd.lease}}</span>
+				<span class="selectSpan">
+					<select name="freeLease" id="freeLease" class="selectBox">
+						<option value="1" :selected="agentInfo.p_IsMian==1 ? 'selected' : ''">{{txt.agentAdd.yes}}</option>
+						<option value="0" :selected="agentInfo.p_IsMian==0 ? 'selected' : ''">{{txt.agentAdd.no}}</option>
+					</select>
+				</span>
+			</p>
+			<p>
+				<span class="ititle">{{txt.agentAdd.teyue}}</span>
+				<span class="selectSpan">
+					<select name="specialShop" id="specialShop" class="selectBox">
+						<option value="1" :selected="agentInfo.p_type==1 ? 'selected' : ''">{{txt.agentAdd.yes}}</option>
+						<option value="0" :selected="agentInfo.p_type==0 ? 'selected' : ''">{{txt.agentAdd.no}}</option>
+					</select>
+				</span>
+			</p>
+			<p>
+				<span class="ititle">{{txt.agentAdd.tan}}</span>
+				<span class="selectSpan">
+					<select name="yTanchu" id="yTanchu" class="selectBox">
+						<option value="1" :selected="agentInfo.p_IsTan==1 ? 'selected' : ''">{{txt.agentAdd.yes}}</option>
+						<option value="0" :selected="agentInfo.p_IsTan==0 ? 'selected' : ''">{{txt.agentAdd.no}}</option>
+					</select>
+				</span>
+			</p>
+			<p>
+				<span class="ititle">{{txt.agentAdd.ti}}</span>
+				<span class="selectSpan">
+					<select name="yTixian" id="yTixian" class="selectBox">
+						<option value="1" :selected="agentInfo.p_IsTixian==1 ? 'selected' : ''">{{txt.agentAdd.yes}}</option>
+						<option value="0" :selected="agentInfo.p_IsTixian==0 ? 'selected' : ''">{{txt.agentAdd.no}}</option>
+					</select>
+				</span>
+			</p>
+
+
+			<p>
+				<span class="ititle">{{txt.agentAdd.status}}</span>
+				<span class="selectSpan">
+					<select name="acountStatus" id="acountStatus" class="selectBox">
+						<option value="1" :selected="agentInfo.p_IsLock==1 ? 'selected' : ''">{{txt.agentAdd.zhengchang}}</option>
+						<option value="0" :selected="agentInfo.p_IsLock==0 ? 'selected' : ''">{{txt.agentAdd.souding}}</option>
+					</select>
+				</span>
+			</p>
+		</div>
+		<p class="careful">{{txt.agentAdd.zhu}}</p>
+		<div>
+			<button class="btn appBg" id="subBtn" tapmode="btnhover" @click="editAgent()">{{txt.agentAdd.edits}}</button>
+		</div>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/vue.min.js"></script>
+<script type="text/javascript" src="../../script/fastclick.js"></script>
+<script type="text/javascript">
+	apiready = function() {
+		var that, groupID, prov, city, dist, wechatID;
+		var agentID = api.pageParam.data;
+		var app = new Vue({
+			el: "#view",
+			data: {
+				txt: $api.getLanguage() || {},
+				agentInfo: []
+			},
+			mounted: function() {
+				that = this;
+				that.getData();
+
+				// $api.byId("area").onclick = function() { //地址
+				// 	var _this = this;
+				// 	selectArea(function(ret, err) {
+				// 		if (ret.eventType == "ok") {
+				// 			var str;
+				// 			if (ret["level1"] && ret["level2"] && ret["level3"]) {
+				// 				str = ret["level1"] + "-" + ret["level2"] + "-" + ret["level3"];
+				// 				prov = ret["level1"];
+				// 				city = ret["level2"];
+				// 				dist = ret["level3"];
+				// 			} else if (ret["level1"] && ret["level2"]) {
+				// 				str = ret["level1"] + "-" + ret["level2"];
+				// 				prov = ret["level1"];
+				// 				city = ret["level2"];
+				// 				dist = "";
+				// 			}
+				// 			_this.value = str;
+				// 		}
+				// 	});
+				// };
+
+				api.addEventListener({
+					name: 'chooseWechatUser'
+				}, function(ret, err) {
+					$api.byId("wechat").value = ret.value.username;
+					wechatID = ret.value.userid;
+				});
+
+			},
+			methods: {
+				getData: function() {
+					postAjax("appagent/agent_detail", {
+						id: agentID
+					}, function(ret) {
+						if (ret.code == 1) {
+							that.agentInfo = ret.data;
+							wechatID = ret.data.p_Admin_OpenID;
+							prov = ret.data.p_Prov;
+							city = ret.data.p_City;
+							dist = ret.data.p_Dist;
+						}
+					});
+				},
+
+
+				editAgent: function() {
+					var nickName = $api.byId("nickName").value;
+					var pasd = $api.byId("pasd").value;
+					var phone = $api.byId("phone").value;
+					var proportion = $api.byId("proportion").value;
+					var islock = $api.byId("acountStatus").value;
+					var freeLease = $api.byId("freeLease").value;
+					var specialShop = $api.byId("specialShop").value;
+					var yTanchu = $api.byId("yTanchu").value;
+					var yTixian = $api.byId("yTixian").value;
+
+					if (!nickName) {
+						myToast(that.txt.my.inputnicheng);
+						return false;
+					};
+
+					if (!phone) {
+						myToast(that.txt.my.inputDianhua);
+						return false;
+					};
+					if (!proportion) {
+						myToast(that.txt.my.inputZhanbi);
+						return false;
+					};
+					if (!wechatID) {
+						myToast(that.txt.my.inputWx);
+						return false;
+					};
+
+					postAjax("appagent/user/edit", {
+						id: agentID,
+						padminpass: pasd,
+						pisLock: islock,
+						pisTan: yTanchu,
+						pisTixian: yTixian,
+						pisMian: freeLease,
+						ptype: specialShop,
+						penName: nickName,
+						padminOpenID: wechatID,
+						ptel: phone,
+						prov: prov,
+						pcity: city,
+						pdist: dist,
+						ptc: proportion
+					}, function(ret) {
+						if (ret.code == 1) {
+							myToast(ret.msg || ret.message);
+							$api.send('reloadAgent');
+							setTimeout(function() {
+								api.closeWin({});
+							}, 1200);
+						}
+					});
+				}
+			},
+			filters: {
+				// nameChange(val) {
+				// 	return val;
+				// 	console.log(val)
+				// 	if (val == '平台') {
+				// 		return "總公司"
+				// 	} else if(val == '省级代理') {
+				// 		return "加盟商"
+				// 	} else if (val == '业务员') {
+				// 		return "業務員";
+				// 	} else if (val == '店铺管理') {
+				// 		return "店鋪管理";
+				// 	} else {
+				// 		return val
+				// 	}
+				// }
+				nameChange(val) {
+					switch (val) {
+						case '省级代理':
+							return that.txt.count.shengjidaili;
+							break;
+						case '市级代理':
+							return that.txt.count.shijidaili;
+							break;
+						case '区域代理':
+							return that.txt.count.quyudaili;
+							break;
+						case '业务员':
+							return that.txt.count.yewuyuan;
+							break;
+						case '店铺管理':
+							return that.txt.orderDetail.dianpu;
+							break;
+						default:
+							return  val;
+					}
+				}
+			}
+		});
+	};
+</script>
+
+</html>

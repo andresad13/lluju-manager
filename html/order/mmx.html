@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>密码线</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/public.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/defult.css" />
+    <link rel="stylesheet" class="theme" href="" />
+    <script type="text/javascript" src="../../script/api.js"></script>
+    <script type="text/javascript" src="../../script/common.js"></script>
+    <script>
+        getTheme()
+    </script>
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            background: #f2f2f2;
+        }
+
+        #view {
+            width: 100%;
+            height: 100%;
+        }
+
+        .tab {
+            display: flex;
+            justify-content: center;
+            background: white;
+        }
+
+        .tab .item {
+
+            position: relative;
+            float: left;
+            width: 72px;
+            padding: 10px;
+            padding-top: 10px;
+            box-sizing: border-box;
+            background: white;
+        }
+
+        .tab .item img {
+            width: 100%;
+        }
+
+        .tab .item p {
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .tab .item:last-child p {
+            margin-top: 4px;
+        }
+
+        .tab .item .txt {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            line-height: 76px;
+            font-size: 8px;
+            text-align: center;
+
+        }
+
+        .lists {
+
+            width: 100%;
+            padding: 10px 0;
+            /* padding-bottom:0; */
+            background: #f2f2f2;
+        }
+
+        .list {
+            width: 100%;
+            background: white;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            box-sizing: border-box;
+        }
+
+        .list .list-title {
+            font-size: 17px;
+            font-weight: 600;
+            padding-bottom: 8px;
+            padding-left: 10px;
+            border-bottom: 1px solid #eeeeee;
+            margin-bottom: 5px;
+        }
+
+        .list .list-title span {
+            float: right;
+            margin-right: 12px;
+            font-weight: 600;
+        }
+
+
+        .list .item-lists {
+            padding-left: 10px;
+            line-height: 25px;
+        }
+
+        .list .item-lists span {
+            float: right;
+            margin-right: 12px;
+        }
+
+        .hoverBtn {
+            opacity: .8;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="view" v-cloak>
+
+        <div class="tab ab">
+            <div class="item" @click="changeImg(0)">
+                <img src="../../image/device-bj-hover.png" alt="" class="items">
+                <p class="txt">{{txt.order.sonTitle1}}</p>
+                <p>{{orderCount.leaseTotal}}{{txt.symbol.tai}}</p>
+            </div>
+            <div class="item" @click="changeImg(1)">
+                <img src="../../image/device-bj.png" alt="" class="items">
+                <p class="txt">{{txt.order.sonTitle2}}</p>
+                <p>{{orderCount.completeTotal}}{{txt.symbol.tai}}</p>
+            </div>
+            <div class="item" @click="openSearch">
+                <img style="display: block;" src="../../image/device-search.png" alt="">
+                <p>{{txt.device.sonTitle5}}</p>
+            </div>
+        </div>
+        <div class="lists">
+            <div class="list ab" v-for="i in orderList"  @click="$api.openPage('../../publicWin.html','html/order/','mmxOrderDetail',txt.order.orderDetails,i.p_id+','+showUser)">
+                <p class="list-title">
+                    {{txt.order.itemTitle}}
+                    <span>{{i.p_OrderID}}</span>
+                </p>
+                <p class="item-lists">
+                    {{txt.order.deviceTxt1}}
+                    <span>{{i.p_WxName}}</span>
+                </p>
+                <p class="item-lists">
+                    {{txt.order.deviceTxt2}}
+                    <span>{{i.p_ShopName}}</span>
+                </p>
+                <p class="item-lists">
+                    {{txt.order.deviceTxt3}}
+                    <span>{{i.p_DeviceID}}</span>
+                </p>
+                <p class="item-lists">
+                    {{txt.order.deviceTxt4}}
+                    <span>{{i.p_BatteryID}}</span>
+                </p>
+                <p class="item-lists">
+                    {{txt.order.deviceTxt5}}
+                    <span>{{i.p_BorrowTime}}</span>
+                </p>
+                <p class="item-lists">
+                    {{txt.order.deviceTxt6}}
+                    <span>{{i.p_BorrowState}}</span>
+                </p>
+            </div>
+
+        </div>
+        <div class="nomore">
+            —— {{txt.device.showAll}} ——
+        </div>
+    </div>
+    <script type="text/javascript" src="../../script/vue.min.js"></script>
+    <script type="text/javascript" src="../../script/fastclick.js"></script>
+    <script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+    <script type="text/javascript">
+        var that;
+        apiready = function () {
+          var that,page = 1,maxpage,isloadOk = true,orderType = "租借中";
+      		var openID = "",orderID = "",shopName = "",deviceID = "",key = "",clickTypes = '';
+          var color = $api.getStorage("themeColor");
+          var styleColor;
+            new Vue({
+                el: '#view',
+                data: {
+                    txt: '',
+                    orderList: [],
+                    orderCount: {}
+                },
+                created() {
+                    that = this;
+                    this.txt = $api.getLanguage();
+                },
+                mounted() {FastClick.attach(document.body);
+
+                  myUpLoad(function(){
+          					if(isloadOk){
+          						page++;
+          						if (total > 0) {
+                        if(page <= maxpage){
+            							that.getData();
+            						}else{
+            							$(".nomore").show();
+            						}
+                      }
+          					}
+          				});
+          				myPullDown(function(){
+          					page = 1;
+          					openID = "",orderID = "",shopName = "",deviceID = "",key = "";
+          					$("#userID,#orderID,#shopName,#deviceID,#key").val("");
+          					that.getData();
+                    that.getCount();
+          				});
+                  that.getData();
+                  that.getCount();
+                  api.addEventListener({
+                      name: 'sendKey'
+                  }, function (ret, err) {
+                    if (clickTypes == "orderMmx") {
+                      key = ret.value.deviceId;
+                      that.getData()
+                      // ret.value.shopName;
+                    }
+
+                  })
+                  // 根据颜色渲染不同的主题
+                  if(color == 'default.css') {
+                    styleColor = "../../image/red/device-bj-hover.png"
+                  } else if  (color == 'green.css'){
+                    styleColor = "../../image/green/device-bj-hover.png"
+                  } else if (color == 'blue.css') {
+                    styleColor = "../../image/blue/device-bj-hover.png";
+                  } else {
+                    styleColor = "../../image/red/device-bj-hover.png";
+                  }
+                  $('.items')[0].src = styleColor;
+                    api.addEventListener({
+                        name: 'changeLanguage'
+                    }, function (ret, err) {
+                        that.txt = $api.getLanguage();
+                    });
+                    // 颜色改变事件
+                    api.addEventListener({
+                          name:'chooseColor'
+                    },function(ret,err){
+                          $(".theme").attr("href","");
+                          $(".theme").attr("href","../../css/"+ret.value+".css");
+                          // 根据颜色渲染不同的主题
+                          setTimeout(function () {
+                              window.location.reload()
+                          }, 500)
+                          if(color == 'default.css') {
+                            styleColor = "../../image/red/device-bj-hover.png"
+                          } else if  (color == 'green.css'){
+                            styleColor = "../../image/green/device-bj-hover.png"
+                          } else if (color == 'blue.css') {
+                            styleColor = "../../image/blue/device-bj-hover.png";
+                          } else {
+                            styleColor = "../../image/red/device-bj-hover.png";
+                          }
+                          $('.items')[0].src = styleColor;
+                    });
+
+                },
+                methods: {
+                  getData:function(){
+          					isloadOk = false;
+          					postAjax("appagent/order/list",{
+          						borrowState: orderType,
+          						page: page,
+          						key: key,
+          						deviceType: "密码线",
+          						openID: openID,
+          						orderID: orderID,
+          						shopName: shopName,
+          						deviceID: deviceID
+          					},function(ret){
+          						if(ret.code == 1){
+          							that.showUser = ret.IsAvatar;
+          							that.totalDevice = ret.total;
+                        total = ret.total;
+          							if(ret.total > 0){
+          								maxpage = ret.maxpage;
+          								if(page == 1){
+          									that.orderList = [];
+          								};
+          								that.orderList = that.orderList.concat(ret.data);
+          								closeNoData();
+          								if(page == maxpage){
+          									$(".nomore").show();
+          								}else{
+          									$(".nomore").hide();
+          								}
+          							}else{
+          								that.orderList = [];
+                          $(".nomore").hide();
+                          if($('.null')) {
+                              $('.null').remove()
+                          }
+                          $(".lists").append('<div class="null" id="nodata" style="position: absolute;top: 30%">' +
+                              '<img src="' + "../../image/null.png" + '" alt="" class="nullImg" />' +
+                              '<p class="nullMsg">' + that.txt.order.noData + '</p>' +
+                              '</div>');
+          							}
+          						}else{
+          							myAlert(ret.msg);
+          						};
+          						isloadOk = true;
+          						api.refreshHeaderLoadDone();
+          					});
+          				},
+
+                  // 获取数量
+                  getCount() {
+                    postAjax("appagent/order/countOrderState",{
+                      borrowState: orderType,
+          						page: page,
+          						key: key,
+          						deviceType: "密码线",
+          						openID: openID,
+          						orderID: orderID,
+          						shopName: shopName,
+          						deviceID: deviceID
+                    },function(ret){
+                      if(ret.code == 1){
+                        console.log(JSON.stringify(ret))
+                        that.orderCount = ret;
+                      }
+                    });
+                  },
+
+                  search: function(){
+          					page = 1;
+          					openID = $("#userID").val();
+          					orderID = $("#orderID").val();
+          					shopName = $("#shopName").val();
+          					deviceID = $("#deviceID").val();
+          					key = $("#key").val();
+          					if(!openID && !orderID && !shopName && !deviceID && !key){
+          						myToast(that.txt.userListDetail.input1);
+          						return false;
+          					};
+          					that.getData();
+          					that.hideSearchBox();
+          				},
+                    changeImg(e) {
+                        if(!isloadOk) return;
+                        for (var i = 0; i < $('.items').length; i++) {
+                            $('.items')[i].src = "../../image/device-bj.png"
+                        }
+                        if(e == 0) {
+                          orderType = "租借中"
+                        } else if (e == 1) {
+                          orderType = "已归还"
+                        }
+                        page = 1;
+                        that.getData();
+                        $('.items')[e].src = styleColor
+                    },
+                    goToOrderDetails(titleId) {
+                        $api.openPage("../../publicWin.html", "html/device/", "orderDetails", titleId, {
+                            isShowColor: true
+                        });
+                    },
+                    goToCell(titleId) {
+                        $api.openPage("../../publicWin.html", "html/device/", "cell", titleId, {
+                            isShowColor: true
+                        });
+                    },
+                    // 默认弹框
+                     goToAlert(txt) {
+                        api.openFrame({
+                            name: 'alertConfim',
+                            url: './confim.html',
+                            bgColor: 'rgba(0, 0, 0, .6)',
+                            bounces: true,
+                            rect: {
+                                x: 0,
+                                y: 0,
+                                w: 'auto',
+                                h: 'auto'
+                            },
+                            pageParam: {
+                                txt: txt,
+                                eventName: "isAscertain"
+                            }
+                        })
+                    },
+
+                    // 打开搜索框页面
+                    openSearch() {
+                      clickTypes = "orderMmx";
+                        api.openFrame({
+                            name: 'search',
+                            url: '../index/search.html',
+                            bgColor: 'rgba(0, 0, 0, .6)',
+                            bounces: true,
+                            rect: {
+                                x: 0,
+                                y: 0,
+                                w: 'auto',
+                                h: 'auto'
+                            },
+                            pageParam: {
+                                eventName: "isAscertain",
+                                clickType2: "id"
+                            }
+                        })
+                    }
+
+
+                }
+            })
+
+        }
+    </script>
+</body>
+
+</html>

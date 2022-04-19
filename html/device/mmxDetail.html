@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>密码线详情</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="" class="theme"/>
+    <script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+	<script type="text/javascript" src="../../script/common.js"></script>
+	<script>
+		var theme = $api.getStorage("themeColor");
+		 getTheme("../../"+theme);
+	</script>
+    <style>
+    	html,body{font-size:16px;}
+    	.main{font-size:1rem;}
+    	.deviceNum{line-height: 2.8rem;padding:0 0.6rem;font-weight:600;}
+
+    	.detail{margin:2.8rem 0 3rem;background:white;padding:0.1rem 0.6rem;}
+    	.detail p{padding:0.4rem 0;}
+    	.ititle{color:#585858;}
+    	.icontent{float:right;width:15rem;text-align:right;word-break: break-all;}
+    	.ercode{position:fixed;width:100%;height:100%;background:rgba(0,0,0,.3);top:0;left:0;display: none;}
+    	.ercode canvas{position:absolute;width:14rem;height:14rem;top:50%;left:50%;margin-top:-7rem;margin-left:-7rem;}
+    	.bottomBtn{position:fixed;width:100%;top:0;display:flex;}
+    	.bottomBtn button{float:left;flex:1;font-size:0.8rem;border-radius:0;line-height: 2.8rem;}
+    	.btn{float:right;line-height:2rem;}
+
+		/*备注框*/
+		.prompt{position:fixed;width:100%;height:100%;top:0;left:0;background:rgba(0,0,0,.5);z-index: 10;display:none;}
+		.pContent{position:absolute;width:86%;height:11rem;top:50%;left:50%;margin-top:-6rem;margin-left:-43%;background:white;border-radius:5px;font-size:0.9rem;overflow:hidden;}
+		.pTitle{height:2.4rem;line-height:2.4rem;border-bottom:1px solid;text-align:center;box-sizing: border-box;}
+		.txtArea{height:6.2rem;padding:0.6rem;border-bottom:2px solid;box-sizing: border-box;}
+		#mark{width:100%;height:5rem;border:1px solid #f1f1f1;padding:0.6rem;border-radius:5px;box-sizing:border-box;resize:none;}
+		.pSure,.pCancel{float:left;width:50%;height:2.4rem;line-height:2.4rem;}
+		.pSure{border-right:1px solid #f1f1f1;}
+    </style>
+</head>
+<body>
+	<div class="main" id="view" v-cloak>
+<!--		<p class="deviceNum">
+			SAB123123
+			<button class="btn greenBtn showErcode" tapmode="btnhover">二维码</button>
+		</p>-->
+
+		<div class="detail">
+			<p class="clearfix" v-if="deviceDetail.p_AgentID && myRoleName == '平台'">
+				<span class="ititle">{{txt.order.deviceTxtTitle}}</span>
+				<span class="icontent">{{deviceDetail.p_AgentID}}</span>
+			</p>
+			<p class="clearfix" v-if="deviceDetail.p_AgentID1 && (myRoleName == '平台' || myRoleName == '省级代理')">
+				<span class="ititle">{{txt.order.deviceTxt7}}</span>
+				<span class="icontent">{{deviceDetail.p_AgentID1}}</span>
+			</p>
+			<p class="clearfix" v-if="deviceDetail.p_AgentID2 && (myRoleName == '平台' || myRoleName == '省级代理' || myRoleName == '市级代理')">
+				<span class="ititle">{{txt.order.deviceTxt8}}</span>
+				<span class="icontent">{{deviceDetail.p_AgentID2}}</span>
+			</p>
+			<p class="clearfix" v-if="deviceDetail.p_AgentID3 && (myRoleName == '平台' || myRoleName == '省级代理' || myRoleName == '市级代理' || myRoleName == '区域代理')">
+				<span class="ititle">{{txt.order.deviceTxt9}}</span>
+				<span class="icontent">{{deviceDetail.p_AgentID3}}</span>
+			</p>
+			<p class="clearfix" v-if="deviceDetail.p_AgentID4 && (myRoleName == '平台' || myRoleName == '省级代理' || myRoleName == '市级代理' || myRoleName == '区域代理' || myRoleName == '业务员')">
+				<span class="ititle">{{txt.order.deviceTxt905}}</span>
+				<span class="icontent">{{deviceDetail.p_AgentID4}}</span>
+			</p>
+			<p class="clearfix" v-if="deviceDetail.p_AgentID5">
+				<span class="ititle">{{txt.order.deviceTxt906}}</span>
+				<span class="icontent">{{deviceDetail.p_AgentID5}}</span>
+			</p>
+			<p class="clearfix">
+				<span class="ititle">{{txt.order.deviceTxt10}}</span>
+				<span class="icontent">{{deviceDetail.p_type}}</span>
+			</p>
+			<p class="clearfix">
+				<span class="ititle">{{txt.order.deviceTxt11}}</span>
+				<span class="icontent">{{deviceDetail.p_sh == 1 ? txt.order.deviceIs : txt.order.deviceIsNo}}</span>
+			</p>
+
+			<p class="clearfix">
+				<span class="ititle">{{txt.order.deviceTxt13}}</span>
+				<span class="icontent">{{deviceDetail.p_ShopName == '' ? txt.order.noBind : deviceDetail.p_ShopName}}</span>
+			</p>
+
+			<p class="clearfix">
+				<span class="ititle">{{txt.order.useCount}}</span>
+				<span class="icontent">{{deviceDetail.passnum}}</span>
+			</p>
+			<p class="clearfix">
+				<span class="ititle">{{txt.order.fuwei}}</span>
+				<span class="icontent">{{deviceDetail.reset}}</span>
+			</p>
+
+			<p class="clearfix">
+				<span class="ititle">{{txt.order.deviceTxt14}}</span>
+				<span class="icontent">{{deviceDetail.p_QRCode == '' ? {{txt.alert.query4}} : deviceDetail.p_QRCode}}</span>
+			</p>
+			<p class="clearfix">
+				<span class="ititle">{{txt.order.deviceTxt15}}</span>
+				<span class="icontent">{{deviceDetail.p_addtime}}</span>
+			</p>
+		</div>
+
+		<div class="ercode">
+
+		</div>
+
+		<div class="bottomBtn" v-if="myRoleName != '店铺管理'">
+			<button class="btn orangeBtn" tapmode="btnhover" @click="reset(deviceDetail.p_id)">{{deviceDetail.p_id}} {{txt.order.fuweis}}</button>
+			<button class="btn redBtn" tapmode="btnhover" @click="revokeShop(deviceDetail.p_DeviceID)">{{txt.order.orderTitleBtn3}}</button>
+			<button class="btn lightBlueBtn slvs" tapmode="btnhover" @click="$api.openPage('../../publicWin.html','html/device/','bindShopList',txt.order.orderTitleBtn35, deviceDetail.p_id + ',Device/device_xian.asp')">{{txt.order.orderTitleBtn4}}</button>
+		</div>
+
+		<div class="bottomBtn" v-else>
+			<button class="btn orangeBtn" tapmode="btnhover" @click="showbMark()">{{txt.order.orderTitleBtn1}}</button>
+		</div>
+
+		<div class="prompt">
+			<div class="pContent">
+				<h4 class="pTitle appBorder">{{txt.order.inputBeizhu}}</h4>
+				<p class="txtArea appBorder">
+					<textarea name="mark" id="mark" cols="30" rows="5" :placeholder="txt.order.inputContent" :value="deviceDetail.p_sm"></textarea>
+				</p>
+				<p class="pBtn clearfix">
+					<button class="pSure" @click="subMark()">{{txt.btnText.confirmBtn}}</button>
+					<button class="pCancel" @click="hideMark()">{{txt.btnText.cancel}}</button>
+				</p>
+			</div>
+		</div>
+	</div>
+
+</body>
+
+<script type="text/javascript" src="../../script/vue.min.js"></script>
+<script type="text/javascript" src="../../script/fastclick.js"></script>
+<script type="text/javascript" src="../../script/jquery.qrcode.min.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+
+
+		var deviceID = api.pageParam.data.id;
+		console.log(JSON.stringify(api.pageParam))
+		var that;
+		api.setStatusBarStyle({
+				style: 'dark',
+		});
+		var app = new Vue({
+			el:"#view",
+			data:{
+				txt: $api.getLanguage() || {},
+				deviceDetail:{},
+				myRoleName:$api.getStorage("p_GroupName")
+			},
+			mounted() {FastClick.attach(document.body);
+				that = this;
+				that.getData();
+				$(".showErcode").click(function(){
+					$(".ercode").show();
+				});
+				$(".ercode").click(function(){
+					$(this).hide();
+				});
+				api.addEventListener({
+	                name:'refreshDeviceDetail'
+                },function(ret,err){
+                	that.getData();
+                });
+			},
+			methods:{
+				getData:function(){
+					postAjax("appagent/deviceLine/deviceDetailxiang",{
+						id: deviceID
+					},function(ret){
+						if(ret.code == 1){
+							that.deviceDetail = ret.data;
+							if(ret.data.p_QrcodeUrl){
+								$('.ercode').qrcode(ret.data.p_QrcodeUrl);
+							}
+						}else{
+							// myAlert(ret.msg);
+						}
+					});
+				},
+
+				//撤销绑定绑定商户
+				revokeShop:function(id){
+					if($api.getStorage("myGroupName") == "店铺管理"){
+						myAlert(that.txt.order.noRoot);
+						return false;
+					};
+					myConfirm(that.txt.order.cancelList,function(){
+						postAjax("appagent/device/shopCancel",{
+							id: id
+						},function(ret){
+							if(ret.code == 1){
+								myAlert(that.txt.alert.returnSccuss,function(){
+									that.getData();
+								});
+							}else {
+								// myAlert(ret.msg);
+							}
+						});
+					})
+				},
+
+				//备注
+				showbMark:function(){
+					$(".prompt").fadeIn(200);
+				},
+				hideMark:function(){
+					$(".prompt").fadeOut(200);
+				},
+				subMark:function(){
+					var mark = $("#mark").val();
+					that.hideMark();
+					postAjax("appagent/device/mark",{
+						id: that.deviceDetail.p_DeviceID,
+						remark:mark
+					},function(ret){
+						if(ret.code == 1){
+							myToast(ret.msg);
+							that.getData();
+						}else{
+							// myAlert(ret.msg);
+							$("#mark").val("");
+						}
+					});
+				},
+				//复位
+				reset:function(pid){
+					myConfirm(that.txt.order.isRes,function(){
+						postAjax("appagent/device/reset",{
+							id: pid
+						},function(ret){
+							if(ret.code == 1){
+								myAlert(ret.msg,function(){
+									that.getData();
+								});
+							} else {
+								// myAlert(ret.msg);
+							}
+						});
+					})
+				}
+			}
+		});
+	};
+</script>
+</html>

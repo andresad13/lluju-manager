@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>代理列表</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="../../css/public.css"/>
+    <link rel="stylesheet" type="text/css" href="" class="theme"/>
+    <script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+	<script type="text/javascript" src="../../script/common.js"></script>
+	<script>
+		 getTheme();
+	</script>
+    <style>
+    	.nav{display:flex;font-size: 0.75rem;background:white;box-shadow: 0 0 8px #DDD;position:fixed;width:100%;top:0;}
+      .nav .item{flex:1;text-align:center;line-height: 2.4rem;}
+      .nav .item.active{border-bottom:2px solid;font-weight:bold;}
+
+      .searchBox{position:fixed;top:3rem;width:100%;padding:0.4rem 0.6rem;background:white;box-sizing: border-box;z-index: 9999999;font-size:0.75rem;}
+    	.flex-3{  -webkit-box-flex: 4; -webkit-flex: 4; flex: 4;margin-right:0.4rem;}
+    	.searchInput{height:2.2rem;line-height:1.6rem;padding:0.3rem 0.5rem;box-sizing:border-box;border:1px solid #f1f1f1;border-radius:5px;box-sizing: border-box;}
+    	.searchBtn{height:2.2rem;line-height:2.2rem;text-align:center;border-radius:5px;}
+
+    	.aList{margin-top:6.6rem;position:relative;}
+    	.aItem{background:white;margin-bottom:0.6rem;padding:0.6rem;}
+    	.agentInfo{display:flex;line-height: 2.5rem;padding-bottom:0.6rem;}
+    	.agentAvatar{width:2.5rem;height:2.5rem;}
+    	.agentName{flex:3;margin-left:0.5rem;}
+    	.royalty{flex:2;text-align:right;}
+    	.arrowright{width:1rem;height:1rem;margin-top:0.75rem;margin-left:0.4rem;}
+    	.agentAvatar img{width:100%;border-radius:50%;vertical-align: text-bottom;}
+
+    	.opear{border-top:1px solid #f1f1f1;text-align:right;padding:0.4rem 0.6rem 0;}
+    	.btn{margin-left:0.2rem;}
+    </style>
+</head>
+<body>
+	<div class="main" id="view" v-cloak>
+		<div class="nav">
+    		<div v-for="(i,index) in navList" :class="index== 0 ? 'item active appBorderColor' : 'item'">{{i | nameChange}}</div>
+    	</div>
+    	<div class="searchBox flex-wrap flex-con">
+			<input type="search" :placeholder="txt.my.searchkey" class="searchInput flex-3 flex-wrap flex-vertical"/>
+			<button tapmode="btnhover" class="btn searchBtn appBg flex-con" @click="search()">{{txt.nearShop.searchBtn}}</button>
+		</div>
+
+		<div class="aList">
+			<div class="aItem" v-for="i in listData">
+				<div class="agentInfo">
+					<div class="agentAvatar"><img :src="i.p_WxPic || '../../image/logo.png'" alt="" /></div>
+					<div class="agentName text-ov">{{i.p_PenName}}</div>
+					<div class="royalty">{{txt.symbol.moneySymbol}}{{i.p_sum}}({{i.p_tc}}%)</div>
+					<img src="../../image/arrowRight.png" alt="" class="arrowright"/>
+				</div>
+				<div class="opear">
+					<button v-for="(x,yy) in i.groupData" :class="yy==0?'btn orangeBtn' : yy==1 ? 'btn greenBtn' : 'btn redBtn'" @click="clickAgent(x.groupID,i.p_AdminName)" tapmode="btnhover">{{x.GroupName}}({{x.count}})</button>
+					<button class="btn appBg" tapmode="btnhover" @click="bindAgent(i.p_Admin_OpenID)">{{txt.my.selects}}</button>
+				</div>
+			</div>
+
+			<div class="nomore">
+					—— {{txt.device.showAll}} ——
+			</div>
+		</div>
+
+	</div>
+</body>
+<script type="text/javascript" src="../../script/vue.min.js"></script>
+<script type="text/javascript" src="../../script/fastclick.js"></script>
+<script type="text/javascript" src="../../script/jquery.qrcode.min.js"></script>
+<script type="text/javascript" src="../../script/myJq.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		var that,key = "",sTime = "",eTime = "",buttons = [];
+		var deviceID = api.pageParam.data.deviceID; //绑定的设备ID
+		var subUrl = api.pageParam.data.subUrl;  //绑定代理提交地址
+		var language = $api.getStorage("language");
+		api.setStatusBarStyle({
+				style: 'dark',
+		});
+		var groupID;
+		var myAdminName;
+
+		var app = new Vue({
+			el:"#view",
+			data:{
+				txt: $api.getLanguage(),
+				listData:[],
+				groupLst:[],
+				navList:[]
+			},
+			mounted() {
+				FastClick.attach(document.body);
+				that = this;
+				that.getGroup();
+				$(".searchInput").on('keypress',function(e) {
+					var keycode = e.keyCode;
+			        if(keycode=='13') {
+								e.preventDefault();
+			        	$(this).blur();
+			          that.search();
+			        }
+				});
+
+				myPullDown(function(){
+					key = "",sTime = "",eTime = "";
+					$(".searchInput").val("");
+					that.getData();
+				});
+			},
+			methods:{
+				getGroup:function(){
+					postAjax("appagent/user/groupList",{},function(ret){
+						if(ret.code == 1){
+							var buttons = [];
+							var clickAgent = ret.data.list;
+							that.groupLst = ret.data.list;
+							for(var i=0;i<ret.data.list.length;i++){
+								var groupName = that.nameChange(ret.data.list[i].groupName)
+								buttons.push(groupName + "("+ret.data.list[i].count+")");
+							};
+
+							that.navList = buttons;
+
+							groupID = ret.data.list[0].groupID;
+							myAdminName = ret.data.myAdminName;
+							that.getData();
+						}
+					});
+				},
+
+				getData:function(){
+					//获取代理列表 appagent/user/agentList
+					postAjax("appagent/user/agentList",{
+						key: key,
+						groupID: groupID,
+						// p_GroupID:2,
+						adminName:myAdminName
+					},function(ret){
+						if(ret.code == 1){
+							if(ret.data.length > 0){
+								that.listData = ret.data;
+								closeNoData();
+							} else {
+								that.listData = [];
+								$(".nomore").hide();
+								if ($('.null')) {
+									$('.null').remove()
+								}
+								$(".aList").append('<div class="null" id="nodata" style="position: absolute;top: 30%">' +
+									'<img src="' + "../../image/null.png" + '" alt="" class="nullImg" />' +
+									'<p class="nullMsg">' + that.txt.alert.noDataShop + '</p>' +
+									'</div>');
+							}
+						}
+						api.refreshHeaderLoadDone();
+					});
+				},
+
+				nameChange(val) {
+					switch (val) {
+						case '省级代理':
+							return that.txt.count.shengjidaili;
+							break;
+						case '市级代理':
+							return that.txt.count.shijidaili;
+							break;
+						case '区域代理':
+							return that.txt.count.quyudaili;
+							break;
+						case '业务员':
+							return that.txt.count.yewuyuan;
+							break;
+						case '店铺管理':
+							return that.txt.orderDetail.dianpu;
+							break;
+						default:
+							return  val;
+					}
+				},
+
+				search: function(){
+					//搜索
+					key = $(".searchInput").val();
+					if(!key){
+						myToast(that.txt.my.searchNull);
+						return false;
+					};
+					that.getData();
+				},
+
+				//代理点击事件
+				clickAgent:function(p_groupId,p_adminname){
+					var transmit = {
+						deviceID: deviceID,
+						subUrl: subUrl,
+						p_groupId: p_groupId,
+						p_adminname: p_adminname
+					};
+					$api.openPage("../../publicWin.html", "html/device/", "jgDetails", titleId, {
+							isShowColor: true,
+							deviceID: titleId
+					});
+					openNewPage('../../publicWin.html','html/device/','unAgent',that.txt.device.bindTitle,transmit);
+				},
+				//绑定代理
+				bindAgent:function(agentID){
+					//deviceID
+					var url;
+					if (subUrl == "Device/index.asp") {
+						url = "appagent/device/index/agentBanging";
+					} else {
+						url = "appagent/deviceLine/agentBanging";
+					}
+					myConfirm(that.txt.device.isConfimBind,function(){
+						postAjax(url,{
+							id: deviceID,
+							agentID: agentID
+						},function(ret){
+							if(ret.code == 1){
+								myAlert(that.txt.device.isBindOk,function(){
+									$api.send("bindAgentOk");
+									api.closeToWin({
+	                    name: 'index'
+                  });
+								});
+							}
+						})
+					});
+				}
+			},
+			updated:function(){
+				$(".item").each(function(){
+					$(this).unbind("click").click(function(){
+						$(this).addClass("active appBorderColor").siblings().removeClass("active appBorderColor");
+						var index = $(this).index();
+						groupID = that.groupLst[index].groupID;
+						that.listData = [];
+						that.getData();
+					})
+				});
+			}
+		});
+	};
+</script>
+</html>

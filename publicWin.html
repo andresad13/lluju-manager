@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>公共头部</title>
+    <link rel="stylesheet" type="text/css" href="css/api.css"/>
+    <link rel="stylesheet" class="theme" href="" />
+    <script type="text/javascript" src="script/api.js"></script>
+    <script type="text/javascript" src="script/jquery-2.1.0.js"></script>
+	<script>
+    	var colorCss = $api.getStorage("themeColor");
+			if(!colorCss) {
+				$api.setStorage("themeColor","default.css");
+			}
+		$(".theme").attr("href","./css/"+colorCss);
+	</script>
+    <style>
+    	.head{
+    		position:relative;
+    		width:100%;
+    		height:45px;
+    		line-height: 45px;
+    		text-align:center;
+    		color:white;
+    		font-size:1rem;
+			background: white;
+    	}
+
+    	.backBtn{
+    		position:absolute;
+    		width:60px;
+    		height:45px;
+    		line-height:45px;
+    		left:10px;
+    		bottom:0;
+    		text-align:left;
+    	}
+    	.backBtn img{
+    		float:left;
+    		width:15px;
+    		margin-top:15px;
+    	}
+    </style>
+</head>
+<body>
+	<header class="head appBg" id="header">
+		<div class="backBtn" id="goBack">
+			<img id="imgUrl" src="./image/backIcon.png" alt=""/>
+		</div>
+		<span id="pageTitle"></span>
+	</header>
+</body>
+<script type="text/javascript">
+	apiready = function(){
+		$api.fixStatusBar($api.byId("header"));
+		$api.byId('goBack').addEventListener('touchstart',function(){
+		    api.closeWin({});
+		});
+		api.setStatusBarStyle({
+				style: 'dark',
+		});
+        $api.setStorage("headerHeight",$api.dom('header').offsetHeight);
+
+		var route = api['pageParam']['route'];
+		var url = api['pageParam']['url'];
+		var title = api['pageParam']['title'];
+		var data = api['pageParam']['data'];
+		var isShowColor = api['pageParam']['data'] && api['pageParam']['data']['isShowColor'] ;
+		if (isShowColor) {
+			$api.removeCls($api.dom('.head'), 'appBg');
+			$api.byId("pageTitle").style.color="black";
+			$api.byId("pageTitle").style.fontWeight="700";
+			$api.byId("imgUrl").src = "./image/backIconBack.png"
+		}
+		$api.byId("pageTitle").innerHTML = title;
+		openFrame(route,url,data);//打开页面
+		api.addEventListener({
+	        name:'chooseColor'
+        },function(ret,err){
+        	$(".theme").attr("href","");
+        	$(".theme").attr("href","./css/"+ret.value+".css");
+        });
+	};
+
+	function openFrame(route,url,data){
+		api.openFrame({
+		    name: url,
+		    url: route+url+'.html',
+		    rect: {
+			    x:0,
+			    y: $api.dom('header').offsetHeight-1,
+			    w: api.winWidth,
+			    h: 'auto'
+		    },
+		    allowEdit:true,
+		    vScrollBarEnabled:false,
+		    pageParam:{data:data}
+		});
+	}
+</script>
+</html>

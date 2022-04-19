@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>高德地图</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="" class="theme"/>
+    <script type="text/javascript" src="../../script/api.js"></script>
+		<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+		<script type="text/javascript" src="../../script/common.js"></script>
+		<script>
+			getTheme();
+		</script>
+    <style>
+    	input::-webkit-input-placeholder{
+    		color:#DDD;
+    	}
+    	.address{
+    		padding:0 0.6rem;
+    	}
+    	.address input{
+    		height:40px;
+    		padding:0 10px;
+    		line-height:40px;
+    		width:100%;
+    		border:1px solid #f1f1f1;
+    		background:white;
+    		border-radius:5px;
+    		margin-top:10px;
+    		box-sizing:border-box;
+    		font-size:0.8rem;
+    	}
+    	.searchBtn{
+    		width:80%;
+    		margin:10px auto;
+    		text-align:center;
+    	}
+    	.searchBtn button{
+    		width:40%;
+    		height:40px;
+    		color:white;
+    		line-height:40px;
+    		text-align:center;
+    		border-radius:5px;
+    	}
+    </style>
+</head>
+<body>
+	<div class="address">
+		<input type="text" :placeholder="txt.userListDetail.map1" id="city" readonly="readonly" onclick="selectadd(this)"/>
+		<input type="text" :placeholder="txt.userListDetail.map2" id="detailAddress"/>
+		<div class="searchBtn">
+			<button class="appBg" onclick="getCoordsFromName()">{{txt.nearShop.searchBtn}}</button>
+			<button class="appBg" onclick="sure()">{{txt.btnTxt.sure}}</button>
+		</div>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/vue.min.js"></script>
+<script type="text/javascript">
+
+	var aMap,mylon,mylat,prov,city,dist = "";
+	var that;
+	apiready = function(){
+		aMap = api.require('aMap');
+		//aMap.stopLocation();
+		openMap();
+		new Vue({
+			el: ".address",
+			data: {
+				txt: $api.getLanguage() || {},
+			},
+			created() {
+				that = this;
+			}
+		})
+
+		getLocation(function(ret){
+			console.log("坐标："+JSON.stringify(ret));
+			mylon = ret.lon;
+			mylat = ret.lat;
+			setCenter(mylon,mylat);
+			getNameFromCoords(mylon,mylat,function(result){
+				console.log("地址："+JSON.stringify(result));
+				$api.byId("city").value = result.state + "-" + result.city + "-" +result.district;
+				$api.byId("detailAddress").value = result.township + result.street + result.number +result.building;
+			});
+		})
+	};
+	function selectadd(e){
+		selectArea(function(ret,err){
+			if(ret.eventType == "ok"){
+				var str;
+				if(ret["level1"] && ret["level2"] && ret["level3"]){
+					str = ret["level1"] + "-" + ret["level2"] + "-" + ret["level3"];
+					prov = ret["level1"];
+					city = ret["level2"];
+					dist = ret["level3"];
+				}else if(ret["level1"] && ret["level2"]){
+					str = ret["level1"] + "-" + ret["level2"];
+					prov = ret["level1"];
+					city = ret["level2"];
+					dist = "";
+				}
+				e.value = str;
+			}
+		});
+	};
+	//打开地图
+	function openMap(callback){
+		aMap.open({
+		    rect: {
+		        x: 0,
+		        y: 160,
+		        w: "auto",
+		        h: api.winHeight - 160
+		    },
+		    showUserLocation: true,
+		    zoomLevel: 12,
+		    center: {
+		        lon: 116.4021310000,
+		        lat: 39.9994480000
+		    },
+		    fixedOn: api.frameName,
+		    fixed: true
+		}, function(ret, err) {
+		    if (ret.status) {
+
+		    } else {
+          myAlert(that.txt.userListDetail.failMap + JSON.stringify(err));
+		    }
+		});
+	};
+
+	//获取当前位置
+	function getLocation(callback){
+		aMap.getLocation(function(ret, err) {
+		    if (ret.status) {
+		        callback && callback(ret);
+		    } else {
+          myAlert(that.txt.userListDetail.failSucess +JSON.stringify(err));
+		    }
+		});
+	};
+
+	//设置地图中心点
+	function setCenter(lon,lat){
+		aMap.setCenter({
+		    coords: {
+		        lon: lon,
+		        lat: lat
+		    },
+		    animation: true
+		});
+	};
+
+	//通过地理名称获取坐标
+	function getCoordsFromName(){
+		if(!prov && !city){
+			myToast(that.txt.userListDetail.map1);
+			return false;
+		};
+		var address = $api.byId("detailAddress").value;
+		address = dist + address;
+
+		aMap.getCoordsFromName({
+		    city: city,
+		    address: address
+		}, function(ret, err) {
+			console.log("坐标："+JSON.stringify(ret));
+		    if (ret.status) {
+		        mylon = ret.lon;
+		        mylat = ret.lat;
+		        setCenter(mylon,mylat);
+		    } else {
+          myAlert(that.txt.userListDetail.shib+JSON.stringify(err));
+		    }
+		});
+	};
+
+	//通过坐标获取地理名称
+	function getNameFromCoords(lon,lat,callback){
+		aMap.getNameFromCoords({
+		    lon: lon,
+		    lat: lat
+		}, function(ret, err) {
+		    if (ret.status) {
+		        callback && callback(ret);
+		    } else {
+          myAlert(that.txt.userListDetail.failMap+JSON.stringify(err));
+		    }
+		});
+	};
+
+	//确定坐标
+	function sure(){
+		$api.send("chooseLocataionOk",{lon:mylon,lat:mylat});
+		api.closeWin({});
+	};
+	 //添加注标
+	function addAnnotations(){
+		aMap.addAnnotations({
+		    annotations: [{
+		        id: 1,
+		        lon: mylon,
+		        lat: mylat
+		    }],
+		    icons: ['widget://res/location.png'],
+		    draggable: true,
+		    timeInterval: 2.0
+		}, function(ret,err) {
+		    if (ret.eventType == 'click') {
+		        //myAlert("点击之后："+JSON.stringify(ret));
+		    }
+		});
+	};
+</script>
+</html>

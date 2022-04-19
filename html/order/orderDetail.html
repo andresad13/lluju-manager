@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>订单详情</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="" class="theme"/>
+    <script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+	<script type="text/javascript" src="../../script/common.js"></script>
+	<script>
+		 getTheme();
+	</script>
+    <style>
+    	html,body{font-size:16px;}
+    	.main{font-size:1rem;}
+    	.orderNum{line-height: 2.4rem;padding:0 0.6rem;text-align:left;font-weight:600;}
+
+    	.detail{margin:2.8rem 0 0;background:white;border-radius:5px;padding:0.1rem 0.6rem 0.6rem;}
+    	.detail p{margin-top:0.8rem;}
+    	.ititle{color:#585858;}
+    	.icontent{float:right;}
+    	.red{line-height:2.4rem;color:red;text-align:center;}
+
+
+    	.bottom{position:fixed;width:100%;top:0;background:white;display:flex;box-sizing:border-box;}
+    	.btn{flex:1;border-radius: 0;line-height:2.8rem;}
+    </style>
+</head>
+<body>
+	<div class="main" id="view" v-cloak>
+		<div class="detail" :style="(myRoleName == '平台' && (orderDetail.p_BorrowState == '租借中' || orderDetail.p_BorrowState == '故障单'))? 'margin-top:2.8rem;' : 'margin-top:0;'">
+			<p>
+				<span class="ititle">{{txt.devide.order}}</span>
+				<span class="icontent">{{orderDetail.p_OrderID}}</span>
+			</p>
+			<p v-if="orderDetail.p_AliOrderID">
+				<span class="ititle">{{txt.orderDetail.zhifubao}}</span>
+				<span class="icontent">{{orderDetail.p_AliOrderID}}</span>
+			</p>
+			<p>
+				<span class="ititle">{{txt.userList.useType}}</span>
+				<span class="icontent">{{orderDetail.p_UserType || ''}}</span>
+			</p>
+			<p v-if="showUser == 1">
+				<span class="ititle">{{txt.orderDetail.name}}</span>
+				<span class="icontent">{{orderDetail.p_WxName}}</span>
+			</p>
+			<p>
+				<span class="ititle">{{txt.order.deviceTxt10}}</span>
+				<span class="icontent">{{orderDetail.p_DeviceType | textTH}}</span>
+			</p>
+			<p>
+				<span class="ititle">{{txt.devide.deviceId}}</span>
+				<span class="icontent">{{orderDetail.p_DeviceID}}</span>
+			</p>
+			<p>
+				<span class="ititle" v-if="orderDetail.p_BatteryID">{{txt.orderDetail.cell}}</span>
+				<span class="icontent">{{orderDetail.p_BatteryID}}</span>
+			</p>
+			<p>
+				<span class="ititle">{{txt.orderDetail.shop}}</span>
+				<span class="icontent">{{orderDetail.p_ShopName}}</span>
+			</p>
+			<p>
+				<span class="ititle">{{txt.orderDetail.leaseTime}}</span>
+				<span class="icontent">{{orderDetail.p_BorrowTime}}</span>
+			</p>
+			<p>
+				<span class="ititle">{{txt.walletPg.deposit}}</span>
+				<span class="icontent">{{txt.symbol.moneySymbol}}{{orderDetail.p_Price_Yajin}}</span>
+			</p>
+			<p>
+				<span class="ititle">{{txt.orderPg.settle}}</span>
+				<span class="icontent">{{txt.symbol.moneySymbol}}{{orderDetail.p_PayPrice}}</span>
+			</p>
+			<p>
+				<span class="ititle">{{txt.leasePg.free}}</span>
+				<span class="icontent">{{orderDetail.p_FreeTime}}{{txt.symbol.fengzhong}}</span>
+			</p>
+			<p>
+				<span class="ititle">{{txt.network.jifei}}</span>
+				<span class="icontent">{{txt.symbol.moneySymbol}}{{orderDetail.p_Price}}/{{txt.symbol.xiaoshi}}</span>
+			</p>
+			<p>
+				<span class="ititle">{{txt.network.shanxiang}}</span>
+				<span class="icontent">{{txt.symbol.moneySymbol}}{{orderDetail.p_Price_Max}}</span>
+			</p>
+			<p v-if="orderDetail.p_ReturnShopName">
+				<span class="ititle">{{txt.orderDetail.returnShop}}</span>
+				<span class="icontent">{{orderDetail.p_ReturnShopName}}</span>
+			</p>
+			<p v-if="orderDetail.p_ReturnTime">
+				<span class="ititle">{{txt.orderDetailPg.returnTime}}</span>
+				<span class="icontent">{{orderDetail.p_ReturnTime}}</span>
+			</p>
+			<p>
+				<span class="ititle">{{txt.orderDetail.yidi}}</span>
+				<span class="icontent">{{orderDetail.yidi == 0 ? txt.agentAdd.no : txt.agentAdd.yes}}</span>
+			</p>
+			<p>
+				<span class="ititle">{{txt.orderDetail.statu}}</span>
+				<span class="icontent">{{orderDetail.p_PayState | nameChange}}</span>
+			</p>
+			<p>
+				<span class="ititle">{{txt.orderDetail.leaseStatus}}</span>
+				<span class="icontent">{{orderDetail.p_BorrowState | nameChange}}</span>
+			</p>
+
+			<p v-if="orderDetail.p_AgentID && myRoleName == '平台'">
+				<span class="ititle">{{txt.orderDetail.pintai}}</span>
+				<span class="icontent">{{orderDetail.p_AgentID}}</span>
+			</p>
+			<p v-if="orderDetail.p_AgentMoney && myRoleName == '平台'">
+				<span class="ititle">{{txt.orderDetail.pintaibi}}</span>
+				<span class="icontent">{{orderDetail.p_AgentMoney}}%</span>
+			</p>
+
+
+			<p v-if="orderDetail.p_AgentID1 && (myRoleName == '平台' || myRoleName == '省级代理')">
+				<span class="ititle">{{txt.count.shengjidaili}}</span>
+				<span class="icontent">{{orderDetail.p_AgentID1}}</span>
+			</p>
+			<p v-if="orderDetail.p_AgentMoney1 && (myRoleName == '平台' || myRoleName == '省级代理')">
+				<span class="ititle">{{txt.count.shengjidailiBili}}</span>
+				<span class="icontent">{{orderDetail.p_AgentMoney1}}%</span>
+			</p>
+
+
+			<p v-if="orderDetail.p_AgentID2 && (myRoleName == '平台' || myRoleName == '省级代理' || myRoleName == '市级代理')">
+				<span class="ititle">{{txt.count.shijidaili}}</span>
+				<span class="icontent">{{orderDetail.p_AgentID2}}</span>
+			</p>
+			<p v-if="orderDetail.p_AgentMoney2 && (myRoleName == '平台' || myRoleName == '省级代理' || myRoleName == '市级代理')">
+				<span class="ititle">{{txt.orderDetail.zhanbi}}</span>
+				<span class="icontent">{{orderDetail.p_AgentMoney2}}%</span>
+			</p>
+
+
+			<p v-if="orderDetail.p_AgentID3 && (myRoleName == '平台' || myRoleName == '省级代理' || myRoleName == '市级代理' || myRoleName == '区域代理')">
+				<span class="ititle">{{txt.count.quyudaili}}</span>
+				<span class="icontent">{{orderDetail.p_AgentID3}}</span>
+			</p>
+			<p v-if="orderDetail.p_AgentMoney3 && (myRoleName == '平台' || myRoleName == '省级代理' || myRoleName == '市级代理' || myRoleName == '区域代理')">
+				<span class="ititle">{{txt.orderDetail.qudai}}</span>
+				<span class="icontent">{{orderDetail.p_AgentMoney3}}%</span>
+			</p>
+
+
+			<p v-if="orderDetail.p_AgentID4 && (myRoleName == '平台' || myRoleName == '省级代理' || myRoleName == '市级代理' || myRoleName == '区域代理' || myRoleName == '业务员')">
+				<span class="ititle">{{txt.orderDetail.yewu}}</span>
+				<span class="icontent">{{orderDetail.p_AgentID4}}</span>
+			</p>
+			<p v-if="orderDetail.p_AgentMoney4 && (myRoleName == '平台' || myRoleName == '省级代理' || myRoleName == '市级代理' || myRoleName == '区域代理' || myRoleName == '业务员')">
+				<span class="ititle">{{txt.orderDetail.ywzhanbi}}</span>
+				<span class="icontent">{{orderDetail.p_AgentMoney4}}%</span>
+			</p>
+
+
+			<p v-if="orderDetail.p_AgentID5">
+				<span class="ititle">{{txt.orderDetail.dianpu}}</span>
+				<span class="icontent">{{orderDetail.p_AgentID5}}</span>
+			</p>
+			<p v-if="orderDetail.p_AgentMoney5">
+				<span class="ititle">{{txt.orderDetail.dpzhanbi}}</span>
+				<span class="icontent">{{orderDetail.p_AgentMoney5}}%</span>
+			</p>
+		</div>
+
+		<p class="red">{{txt.orderDetail.zhu}}</p>
+		<div class="bottom" v-if="myRoleName != '店铺管理' && (orderDetail.p_BorrowState == '租借中' || orderDetail.p_BorrowState == '故障单')">
+			<button class="btn greenBtn" tapmode="btnhover" @click="settle()">{{txt.orderDetail.btn1}}</button>
+			<button class="btn redBtn" tapmode="btnhover" @click="cancel()">{{txt.orderDetail.btn2}}</button>
+		</div>
+	</div>
+</body>
+
+<script type="text/javascript" src="../../script/vue.min.js"></script><script type="text/javascript" src="../../script/fastclick.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		var lg = language();
+		var that;
+		var orderid = api.pageParam.data.split(",")[0];
+		var lg = language();
+		var app = new Vue({
+			el:"#view",
+			data:{
+				txt: $api.getLanguage() || {},
+				orderDetail:{},
+				showUser:api.pageParam.data.split(",")[1],
+				myRoleName:$api.getStorage("p_GroupName")
+			},
+			mounted() {
+				FastClick.attach(document.body);
+				that = this;
+				that.getData();
+			},
+			methods:{
+
+				getData:function(){
+					postAjax("appagent/order/detail",{
+						id: orderid
+					},function(ret){
+						if (ret.code == 1){
+							that.orderDetail = ret.data;
+						}
+					});
+				},
+
+				// 结算
+				settle:function(){
+					myConfirm(that.txt.orderDetail.jiesuans,function(){
+						postAjaxPlus("appagent/order/order_close?token=" + $api.getStorage("token") + "&_lang=" + lg + "&id=" + orderid,{
+							// id: orderid
+						},function(ret){
+							if(ret.code == 1){
+								myAlert(ret.msg || ret.message);
+								that.getData();
+								$api.send("changeOrder");
+							}
+						});
+					});
+				},
+
+				//	撤销
+				cancel:function(){
+					myConfirm(that.txt.orderDetail.chexiao,function(){
+						// postAjax("appagent/order/orderCancel",{
+						postAjaxPlus("appagent/order/orderCancel?token=" + $api.getStorage("token") + "&_lang=" + lg + "&id=" + orderid,{
+							// id: orderid
+						},function(ret){
+							if(ret.code == 1){
+								myAlert(ret.msg || ret.message);
+								that.getData();
+								$api.send("changeOrder");
+							}
+						});
+					});
+				}
+			},
+			filters: {
+				ofilter(val) {
+						if (!val) return 'null';
+						return that.decodeUnicode(val.replace(/\\\\/, '\\'));
+				},
+				timestampToTime(timestamp) {
+						var date = new Date(timestamp); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
+						var Y = date.getFullYear() + '-';
+						var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+						var D = date.getDate() + ' ';
+						var h = date.getHours() + ':';
+						var m = date.getMinutes() + ':';
+						var s = date.getSeconds();
+						return Y + M + D + h + m + s;
+				},
+				textTH(val) {
+					if(val)	return val.replace(/力量威/, '速時電');
+				},
+				nameChange(val) {
+					switch (val) {
+						case '已归还':
+							return that.txt.order.sonTitle0;
+							break;
+						case '租借中':
+							return that.txt.order.sonTitle1;
+							break;
+						case '已完成':
+							return that.txt.order.sonTitle2;
+							break;
+						case '故障单':
+							return that.txt.order.sonTitle3;
+							break;
+						case '超时单':
+							return that.txt.order.sonTitle4;
+							break;
+						case '撤销单':
+							return that.txt.order.sonTitle5;
+							break;
+						case '购买单':
+							return that.txt.order.sonTitle6;
+							break;
+						case '已支付':
+							return that.txt.order.pay;
+							break;
+						default:
+							return  val;
+					}
+				}
+			}
+		})
+	};
+</script>
+</html>

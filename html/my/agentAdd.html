@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+	<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+	<title>添加代理</title>
+	<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/public.css" />
+	<link rel="stylesheet" type="text/css" href="" class="theme" />
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+	<script type="text/javascript" src="../../script/common.js"></script>
+	<script>
+		getTheme();
+	</script>
+	<style>
+		html,
+		body {
+			font-size: 16px;
+		}
+
+		.main {
+			font-size: 1rem;
+		}
+
+		.detail {
+			background: white;
+			padding: 0.8rem 0.6rem 0;
+		}
+
+		.detail p {
+			height: 2.4rem;
+			line-height: 2.4rem;
+			margin-bottom: 0.6rem;
+		}
+
+		.ititle {
+			color: #101010;
+			font-size: 14px;
+		}
+
+		.icontent {
+			float: right;
+			width: 10rem;
+			height: 2.4rem;
+			text-align: right;
+			border-bottom: 1px solid #f1f1f1;
+			padding: 0.4rem 0.8rem 0 0.4rem;
+			box-sizing: border-box;
+			font-size: 14px;
+		}
+
+		.selectSpan {
+			float: right;
+			width: 10rem;
+			height: 2.4rem;
+			border-bottom: 1px solid #f1f1f1;
+			text-align: right;
+		}
+
+		.selectBox {
+			padding: 0.4rem;
+			border-radius: 5px;
+			outline: none;
+			border: 0;
+			background: white;
+		}
+
+		.careful {
+			font-size: 0.8rem;
+			color: red;
+			margin-top: 0.8rem;
+			text-align: center;
+		}
+
+		.btn {
+			width: 94%;
+			margin: 1rem 3%;
+		}
+
+		[v-cloak] {
+			display: none;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="main" id="view" v-cloak>
+		<div class="detail">
+
+			<p>
+				<span class="ititle">{{txt.agentAdd.agent}}</span>
+				<span class="selectSpan">
+					<select name="roleName" id="roleName" class="selectBox" v-cloak>
+						<option v-for="i in groupName" :value="i.groupID">{{i.groupname | nameChange}}</option>
+					</select>
+				</span>
+			</p>
+
+			<p>
+				<span class="ititle">{{txt.agentAdd.login}}</span>
+				<input type="number" class="icontent" :placeholder="txt.agentAdd.inputlogin" id="account" />
+			</p>
+
+			<p>
+				<span class="ititle">{{txt.agentAdd.nicheng}}</span>
+				<input type="text" class="icontent" :placeholder="txt.agentAdd.inputnicheng" id="nickName" />
+			</p>
+
+			<!-- <p>
+				<span class="ititle">{{txt.agentAdd.quyu}}</span>
+				<input type="text" class="icontent" :placeholder="txt.agentAdd.inputquyu" readonly="readonly" id="area" />
+			</p> -->
+
+			<p>
+				<span class="ititle">{{txt.agentAdd.loginPsd}}</span>
+				<input type="password" class="icontent" :placeholder="txt.agentAdd.inputloginPsd" id="pasd" />
+			</p>
+
+			<p>
+				<span class="ititle">{{txt.agentAdd.lianxi}}</span>
+				<input type="number" class="icontent" :placeholder="txt.agentAdd.inputlianxi" id="phone" />
+			</p>
+
+			<!-- <p style="display: none;"> -->
+			<p>
+				<span class="ititle">{{txt.agentAdd.ticheng}}</span>
+				<input type="number" class="icontent" id="proportion" :placeholder="txt.agentAdd.inputticheng"/>
+			</p>
+
+			<p>
+				<span class="ititle">{{txt.agentAdd.weChat}}</span>
+				<input type="text" class="icontent" :placeholder="txt.agentAdd.inputweChat" id="wechat" readonly="readonly" @click="$api.openPage('../../publicWin.html','html/my/','wechatList',txt.agentAdd.selectUse)" />
+			</p>
+
+			<p>
+				<span class="ititle">{{txt.agentAdd.lease}}</span>
+				<span class="selectSpan">
+					<select name="freeLease" id="freeLease" class="selectBox">
+						<option value="1">{{txt.agentAdd.yes}}</option>
+						<option value="0">{{txt.agentAdd.no}}</option>
+					</select>
+				</span>
+			</p>
+
+			<p>
+				<span class="ititle">{{txt.agentAdd.teyue}}</span>
+				<span class="selectSpan">
+					<select name="specialShop" id="specialShop" class="selectBox">
+						<option value="0">{{txt.agentAdd.no}}</option>
+						<option value="1">{{txt.agentAdd.yes}}</option>
+					</select>
+				</span>
+			</p>
+
+			<p>
+				<span class="ititle">{{txt.agentAdd.tan}}</span>
+				<span class="selectSpan">
+					<select name="yTanchu" id="yTanchu" class="selectBox">
+						<option value="1">{{txt.agentAdd.yes}}</option>
+						<option value="0">{{txt.agentAdd.no}}</option>
+					</select>
+				</span>
+			</p>
+
+			<p>
+				<span class="ititle">{{txt.agentAdd.ti}}</span>
+				<span class="selectSpan">
+					<select name="yTixian" id="yTixian" class="selectBox">
+						<option value="1">{{txt.agentAdd.yes}}</option>
+						<option value="0">{{txt.agentAdd.no}}</option>
+					</select>
+				</span>
+			</p>
+
+
+			<p>
+				<span class="ititle">{{txt.agentAdd.status}}</span>
+				<span class="selectSpan">
+					<select name="acountStatus" id="acountStatus" class="selectBox">
+						<option value="1">{{txt.agentAdd.zhengchang}}</option>
+						<option value="0">{{txt.agentAdd.souding}}</option>
+					</select>
+				</span>
+			</p>
+
+		</div>
+
+		<p class="careful">{{txt.agentAdd.zhu}}</p>
+
+		<div>
+			<button class="btn appBg" id="subBtn" tapmode="btnhover" @click="addAgent()">{{txt.agentAdd.add}}</button>
+		</div>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/vue.min.js"></script>
+<script type="text/javascript" src="../../script/fastclick.js"></script>
+<script type="text/javascript">
+	apiready = function() {
+		var that, groupID, prov, city, dist, wechatID;
+		var app = new Vue({
+			el: "#view",
+			data: {
+				txt: $api.getLanguage() || {},
+				groupName: []
+			},
+			mounted() {
+				FastClick.attach(document.body);
+				that = this;
+				that.getGroup();
+				// $api.byId("area").onclick = function() {
+				// 	 //地址
+				// 	var _this = this;
+				// 	selectArea(function(ret, err) {
+				// 		if (ret.eventType == "ok") {
+				// 			var str;
+				// 			if (ret["level1"] && ret["level2"] && ret["level3"]) {
+				// 				str = ret["level1"] + "-" + ret["level2"] + "-" + ret["level3"];
+				// 				prov = ret["level1"];
+				// 				city = ret["level2"];
+				// 				dist = ret["level3"];
+				// 			} else if (ret["level1"] && ret["level2"]) {
+				// 				str = ret["level1"] + "-" + ret["level2"];
+				// 				prov = ret["level1"];
+				// 				city = ret["level1"];
+				// 				dist = ret["level2"];
+				// 			}
+				// 			_this.value = str;
+				// 		}
+				// 	});
+				// };
+
+				$api.byId("roleName").onchange = function() {
+					groupID = this.value;
+				};
+
+				api.addEventListener({
+					name: 'chooseWechatUser'
+				}, function(ret, err) {
+					$api.byId("wechat").value = ret.value.username;
+					wechatID = ret.value.userid;
+				});
+
+			},
+			methods: {
+				getGroup: function() {
+					postAjax("appagent/group_show", {}, function(ret) {
+						if (ret.code == 1 && ret.data) {
+							that.groupName = ret.data;
+							// if (that.groupName[0].groupname == "市级代理") {
+							// 	that.groupName.splice(0, 1);
+							// }
+							groupID = ret.data[0].groupID;
+						}
+					});
+				},
+
+				addAgent: function() {
+					var account = $api.byId("account").value;
+					var nickName = $api.byId("nickName").value;
+					var pasd = $api.byId("pasd").value;
+					var phone = $api.byId("phone").value;
+					var proportion = $api.byId("proportion").value;
+					var islock = $api.byId("acountStatus").value;
+					var freeLease = $api.byId("freeLease").value;
+					var specialShop = $api.byId("specialShop").value;
+					var yTanchu = $api.byId("yTanchu").value;
+					var yTixian = $api.byId("yTixian").value;
+
+					if (!account) {
+						myToast(that.txt.agentAdd.inputAgent);
+						return false;
+					};
+					if (!checkMobile(account)) {
+						myToast(that.txt.agentAdd.loginAgetn);
+						return false;
+					};
+					if (!nickName) {
+						myToast(that.txt.agentAdd.inputnicheng);
+						return false;
+					};
+					// if (!prov) {
+					// 	myToast(that.txt.agentAdd.inputquyu);
+					// 	return false;
+					// };
+					if (!pasd) {
+						myToast(that.txt.agentAdd.inputloginPsd);
+						return false;
+					};
+					if(pasd.length < 6){
+						myToast(that.txt.agentAdd.inputPasd);
+						return false;
+					};
+					if(!checkMobile(phone)) {
+						myToast(that.txt.agentAdd.inputDianHua);
+						return false;
+					};
+					if (!phone) {
+						myToast(that.txt.agentAdd.inputlianxi);
+						return false;
+					};
+
+					if (!proportion) {
+						myToast(that.txt.agentAdd.inputticheng);
+						return false;
+					};
+
+					if (!wechatID) {
+						myToast(that.txt.agentAdd.inputweChat);
+						return false;
+					};
+
+					// if(groupID == 5) {
+					// 	console.log('业务员')
+					// 	proportion = "0";
+					// } else if(groupID == 2) {
+					// 	console.log('省级')
+					// 	proportion = "75";
+					// } else if(groupID == 6) {
+					// 	console.log('店铺')
+					// 	proportion = "25";
+					// }
+					// Agent/index.asp?act=add
+					postAjax("appagent/user/add", {
+						adminName: account,
+						adminpass: pasd,
+						groupId: groupID,
+						isLock: islock,
+						isTan: yTanchu,
+						isTixian: yTixian,
+						isMian: freeLease,
+						ptype: specialShop,
+						penName: nickName,
+						adminOpenId: wechatID,
+						ptel: phone,
+						prov: prov,
+						city: city,
+						dist: dist,
+						ptc: proportion
+					}, function(ret) {
+						// console.log("返回内容"+JSON.stringify(ret));
+						if (ret.code == 1) {
+							myToast(ret.msg||ret.message);
+							$api.send("refreshAgent");
+							setTimeout(function() {
+								api.closeWin({});
+							}, 1000);
+						}
+					});
+				}
+			},
+			filters: {
+				// nameChange(val) {
+				// 	return val;
+				// 	console.log(val)
+				// 	if (val == '平台') {
+				// 		return "總公司";
+				// 	} else if(val == '省级代理') {
+				//
+				// 		return "加盟商";
+				// 	} else if (val == '业务员') {
+				//
+				// 		return "業務員";
+				// 	} else if (val == '店铺管理') {
+				//
+				// 		return "店鋪管理";
+				// 	} else {
+				// 		return val;
+				// 	}
+				// }
+				nameChange(val) {
+					switch (val) {
+						case '省级代理':
+							return that.txt.count.shengjidaili;
+							break;
+						case '市级代理':
+							return that.txt.count.shijidaili;
+							break;
+						case '区域代理':
+							return that.txt.count.quyudaili;
+							break;
+						case '业务员':
+							return that.txt.count.yewuyuan;
+							break;
+						case '店铺管理':
+							return that.txt.orderDetail.dianpu;
+							break;
+						default:
+							return  val;
+					}
+				}
+			}
+		});
+	};
+</script>
+
+</html>

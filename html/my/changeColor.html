@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>换肤</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="" class="theme"/>
+    <script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+	<script type="text/javascript" src="../../script/common.js"></script>
+	<script>
+		 getTheme();
+	</script>
+    <style>
+    	html,body{background:white;}
+    	.colorList{display:flex;}
+    	.colorList .colorItem{flex:1;padding:2rem;margin: 0.6rem;text-align:center;color:white;border-radius:5px;}
+    	.blue{background:#1763b3;}
+    	.pink{background:pink; opacity: 0;position: relative; top: -1000px;}
+    	.green{background:#10bc59;}
+    	.red{background:#ae000c;}
+    	.sureBox{width:94%;margin: 1rem auto;}
+    	.btn{width:100%;height:2.8rem;line-height: 2.8rem;}
+    </style>
+</head>
+<body>
+	<div class="main" id="view">
+		<div class="colorList">
+			<div class="colorItem blue" @click="ChangeColor('blue')">
+				{{txt.changeColor.color1}}
+			</div>
+			<!-- <div class="colorItem pink" data-color="pink">
+				少女粉
+			</div> -->
+			<div class="colorItem green" @click="ChangeColor('green')">
+				{{txt.changeColor.color2}}
+			</div>
+		</div>
+		<div class="colorList">
+
+			<div class="colorItem red" @click="ChangeColor('default')">
+				{{txt.changeColor.color3}}
+			</div>
+			<div class="colorItem pink" data-color="pink">
+				{{txt.changeColor.color4}}
+			</div>
+		</div>
+
+		<div class="sureBox" @click="sure()">
+			<button class="btn appBg" tapmode="btnhover">{{txt.changePasd.yes}}</button>
+		</div>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/vue.min.js"></script>
+<script type="text/javascript">
+	apiready = function(){
+		var that;
+		// 颜色改变事件
+		api.addEventListener({
+				name: 'chooseColor'
+		}, function (ret, err) {
+				// window.location.reload();
+		});
+		var txt = $api.getLanguage() || {}
+
+		new Vue({
+			el: "#view",
+			data: {
+				txt: $api.getLanguage() || {},
+				color: 'default'
+			},
+			created() {
+				that = this
+			},
+			methods: {
+				ChangeColor(color) {
+					this.color = color;
+					// $api.send("chooseColor",this.color);
+					$(".theme").attr("href","");
+					$(".theme").attr("href","../../css/"+color+".css");
+				},
+				sure(){
+					//css/blue.css
+					$api.setStorage("themeColor",this.color+".css");
+					$api.send("chooseColor",this.color);
+					myToast(that.txt.my.settingSucess);
+				}
+			}
+		})
+	};
+	var color;
+	$(".colorItem").each(function(){
+		$(this).click(function(){
+			console.log(11)
+			color = $(this).attr("data-color");
+			// $api.send("chooseColor",color);
+			$(".theme").attr("href","");
+			$(".theme").attr("href","../../css/"+color+".css");
+			console.log($(".theme").attr("href"));
+		});
+	});
+	function sure(){
+		//css/blue.css
+		$api.setStorage("themeColor",color+".css");
+		$api.send("chooseColor",color);
+		myToast(that.txt.my.settingSucess);
+	}
+</script>
+</html>

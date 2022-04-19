@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>机柜</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/public.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/defult.css" />
+    <link rel="stylesheet" class="theme" href="" />
+    <script type="text/javascript" src="../../script/api.js"></script>
+    <script type="text/javascript" src="../../script/common.js"></script>
+    <script>
+        getTheme()
+    </script>
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            background: #f2f2f2;
+        }
+
+        #view {
+            width: 100%;
+            height: 100%;
+        }
+
+        .tab {
+            display: flex;
+            /*flex-wrap: wrap;*/
+            justify-content: space-between;
+            background: #fff;
+        }
+
+        .tab .item {
+            position: relative;
+            float: left;
+            width: 72px;
+            padding: 10px;
+            padding-top: 10px;
+            box-sizing: border-box;
+            background: white;
+        }
+
+        .tab .item img {
+            width: 100%;
+        }
+
+        .tab .item p {
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .tab .item:last-child p {
+            margin-top: 4px;
+        }
+
+        .tab .item .txt {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            line-height: 76px;
+            font-size: 8px;
+            text-align: center;
+        }
+
+        .lists {
+            width: 100%;
+            padding: 10px 0;
+            /* padding-bottom:0; */
+            background: #f2f2f2;
+        }
+
+        .list {
+            width: 100%;
+            background: white;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            box-sizing: border-box;
+        }
+
+        .list .list-title {
+            font-size: 17px;
+            padding-bottom: 8px;
+            padding-left: 10px;
+            border-bottom: 1px solid #eeeeee;
+        }
+
+        /*.list .status span:nth-child(1) {
+            margin-left: 0px;
+        }*/
+
+        /*.list .status span {
+            padding: 8px;
+            padding-left: 10px;
+            margin-left: 35px;
+        }*/
+
+        .list .status {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: flex-start;
+          box-sizing: border-box;
+        }
+
+        .list .status span {
+          flex: 1;
+          width: 50%;
+          min-width: 46%;
+          max-width: 46%;
+          padding-top: 8px;
+          padding-left: 4%;
+        }
+
+        .list .affiliation {
+            padding-top: 8px;
+            padding-left: 4%;
+            padding-bottom: 10px;
+        }
+
+        .list .deviceBtn {
+            display: flex;
+            justify-content: flex-end;
+            padding: 0 5px 0 10px;
+        }
+
+        .list .deviceBtn div {
+            flex: 1;
+            text-align: center;
+            float: left;
+            padding: 5px 0px;
+            color: white;
+            border-radius: 3px;
+            margin-right: 5px;
+        }
+
+        .list .deviceBtn div {
+            background: #fd4a13;
+        }
+
+
+        .list .deviceBtn div:nth-child(5) {
+            background: #ae000c;
+        }
+
+        .hoverBtn {
+            opacity: .8;
+        }
+
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="view" v-cloak>
+        <div class="tab ab">
+            <div class="item" tapmode @click="changeImg(0)">
+                <img src="../../image/device-bj.png" alt="" class="items">
+                <p class="txt">{{txt.device.sonTitle1}}</p>
+                <p>{{deviceCount.cabinetOnline}}{{txt.symbol.tai}}</p>
+            </div>
+            <div class="item" tapmode @click="changeImg(1)">
+                <img src="../../image/device-bj.png" alt="" class="items">
+                <p class="txt">{{txt.device.sonTitle2}}</p>
+                <p>{{deviceCount.cabinetBinded}}{{txt.symbol.tai}}</p>
+            </div>
+            <div class="item" tapmode @click="changeImg(2)">
+                <img src="../../image/device-bj.png" alt="" class="items">
+                <p class="txt">{{txt.device.sonTitle3}}</p>
+                <p>{{deviceCount.cabinetUnbound}}{{txt.symbol.tai}}</p>
+            </div>
+            <div class="item" tapmode @click="changeImg(3)">
+                <img src="../../image/device-bj.png" alt="" class="items">
+                <p class="txt">{{txt.device.sonTitle4}}</p>
+                <p>{{deviceCount.cabinetOffline}}{{txt.symbol.tai}}</p>
+            </div>
+            <div class="item" tapmode @click="openSearch">
+                <img style="display: block;" src="../../image/device-search.png" alt="">
+                <p>{{txt.device.sonTitle5}}</p>
+            </div>
+        </div>
+        <div class="lists">
+            <div class="list ab" v-for="item in deviceList">
+                <p class="list-title">
+                    {{txt.device.deviceNumber}} {{item.p_DeviceID}}
+                </p>
+                <p class="status">
+                    <span>
+                        {{txt.device.deviceTxt1}}
+                        {{item.p_CanBorrow}}
+                    </span>
+                    <span>
+                        {{txt.device.deviceTxt2}}
+                        {{item.p_CanReturn}}
+                    </span>
+                    <span>
+                        {{txt.device.deviceTxt3}}
+                        {{item.p_BatteryCount}}
+                    </span>
+                </p>
+                <p class="affiliation">
+                    {{txt.device.deviceTxt4}} {{item.p_ShopName || txt.device.noBindShop}}
+                </p>
+                <div class="deviceBtn">
+                    <div tapmode="hoverBtn" tapmode @click="goToAlertssxx(txt.device.alertMsg2, 'detectionsss', item.p_DeviceID)">{{txt.device.deviceBtn1}}
+                    </div>
+                    <div tapmode="hoverBtn" tapmode @click="goToAlertssxx(txt.device.alertMsg3, 'restartsss', item.p_DeviceID)">{{txt.device.deviceBtn2}}
+                    </div>
+                    <div tapmode="hoverBtn" tapmode @click="goToCell(item.p_DeviceID, item.p_BatteryCount)">{{txt.device.deviceBtn3}}</div>
+                    <div tapmode="hoverBtn" tapmode @click="goToOrderDetails(item.p_DeviceID)">{{txt.device.deviceBtn4}}</div>
+                    <div class="appBg" tapmode="hoverBtn" v-if="item.daili_state == 1 && myRoleName != '店铺管理'" @click="goToAlertssxx(txt.device.alertMsg4, 'bindingAgentsss',item.p_DeviceID)">{{txt.device.deviceBtn5}}</div>
+                    <div class="appBg" tapmode="hoverBtn" v-if="item.daili_state == 0 && myRoleName != '店铺管理'" @click="bindAgent(item.p_id)">{{txt.device.deviceBtn6}}</div>
+                </div>
+
+            </div>
+
+            <div class="nomore">
+                —— {{txt.device.showAll}} ——
+            </div>
+
+        </div>
+    </div>
+    <script type="text/javascript" src="../../script/vue.min.js"></script>
+    <script type="text/javascript" src="../../script/fastclick.js"></script>
+    <script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+    <script type="text/javascript" src="../../script/myJq.js"></script>
+    <script type="text/javascript">
+        apiready = function() {
+            var that;
+            var clickTypes = '';
+
+            var clickTypessxxxx = ""; //1检测 detection   2重启 restart   3绑定代理 bindingAgent
+            // page = 1,
+            // maxpage,
+            // key = "",
+            // isloadOk = true,
+            // sTime = "",
+            // eTime = "",
+            // orderType = "租借中";
+            // var that, key = "";
+            // var deviceType;//设备类型 0 为机柜   1为密码线
+            // var jgselectNavNum = 0, mmxselectNavNum = 0;//当前选中状态
+            var that, page = 1, pageSize=10,
+                maxpage = 0, total=0, key = "",
+                isloadOk = true,
+                p_Online = "在线",
+                bangding = "";
+            var deviceID;
+            var styleColor;
+            new Vue({
+                el: '#view',
+                data: {
+                    txt: '',
+                    showUser: "",
+                    deviceList: [],
+                    deviceCount: {},
+                    myRoleName: $api.getStorage("p_GroupName")
+                },
+                created() {
+                    that = this;
+                    this.txt = $api.getLanguage();
+                    if ('addEventListener' in document) {
+                        document.addEventListener('DOMContentLoaded', function() {
+                            FastClick.attach(document.body);
+                        }, false);
+                    }
+                    api.parseTapmode()
+                },
+                mounted() {
+                    FastClick.attach(document.body);
+                    api.parseTapmode();
+
+                    $api.send('clearVal');
+
+                    that.changeClorImg();
+
+                    api.addEventListener({
+                        name: 'changeLanguage'
+                    }, function(ret, err) {
+                        that.txt = $api.getLanguage();
+                    });
+
+                    this.getData();
+                    that.getCount();
+
+                    myPullDown(function(ret) {
+                        page = 1;
+                        key = "";
+                        that.getData();
+                        that.getCount();
+                    });
+
+                    api.addEventListener({
+                        name: 'sendKey'
+                    }, function(ret, err) {
+                        if (clickTypes == "deviceSearch") {
+                            key = ret.value.deviceId;
+                            that.getData()
+                        }
+
+                    });
+
+                    api.addEventListener({
+              	        name:'bindAgentOk'
+                    },function(ret,err){
+                        that.getData();
+                        that.getCount();
+                    });
+
+                    // 颜色改变事件
+                    api.addEventListener({
+                        name: 'chooseColor'
+                    }, function(ret, err) {
+
+                        $(".theme").attr("href", "");
+                        $(".theme").attr("href", "../../css/" + ret.value + ".css");
+                        setTimeout(function() {
+                            window.location.reload()
+                        }, 500);
+                        that.changeClorImg();
+                    });
+
+                    //监听弹框相应事件
+                    api.addEventListener({
+                        name: "sendAlertEvent"
+                    }, function(ret, err) {
+                        if (clickTypessxxxx === 'detectionsss') {
+                            that.testDevices(deviceID);
+                            return;
+                        } else if (clickTypessxxxx === 'restartsss') {
+                            // 重启 restart
+                            that.restartDevices(deviceID);
+                            return;
+                        } else if (clickTypessxxxx === 'bindingAgentsss') {
+                            that.revokeAgents(deviceID);
+                            return;
+                        }
+                    })
+
+                    api.addEventListener({
+                        name: 'clearVal'
+                    }, function(ret, err){
+                        clickTypessxxxx = null
+                    });
+
+                    // 下拉加载更多
+                    myUpLoad(function() {
+                        if (isloadOk) {
+                          if (total == pageSize) {
+                            page++;
+                            that.getData();
+                          } else {
+                              $(".nomore").show();
+                          }
+                        }
+                    });
+                },
+                methods: {
+                    getData: function() {
+                        isloadOk = false;
+                        postAjax("appagent/device/deviceList", {
+                            p_Online: p_Online,
+                            bangding: bangding,
+                            page: page,
+                            key: key,
+                            pageSize: pageSize
+                        }, function(ret) {
+                            if (ret.code == 1) {
+                                total = ret.data.length;
+                                if (total > 0) {
+                                    if (page == 1) {
+                                        that.deviceList = [];
+                                    };
+                                    that.deviceList = that.deviceList.concat(ret.data);
+                                    closeNoData();
+                                    if (total < pageSize) {
+                                        $(".nomore").show();
+                                    } else {
+                                      $(".nomore").hide();
+                                    }
+                                } else if (total == 0 && page != 1) {
+                  								$(".nomore").show();
+                  							} else {
+                                    that.deviceList = [];
+                                    $(".nomore").hide();
+                                    if ($('.null')) {
+                                        $('.null').remove()
+                                    }
+                                    $(".lists").append('<div class="null" id="nodata" style="position: absolute;top: 30%">' +
+                                        '<img src="' + "../../image/null.png" + '" alt="" class="nullImg" />' +
+                                        '<p class="nullMsg">' + that.txt.alert.noData + '</p>' +
+                                        '</div>');
+                                    $(".nomore").hide();
+                                }
+                            };
+                            isloadOk = true;
+                            api.refreshHeaderLoadDone();
+                        });
+                    },
+                    search() {
+                        this.$refs.key.value
+                    },
+                    getCount() {
+                        postAjax("appagent/device/deviceCount2", {}, function(ret) {
+                            if (ret.code == 1) {
+                                that.deviceCount = ret.data;
+                            }
+                        });
+                    },
+
+                    // 根据颜色渲染不同的主题
+                    changeClorImg() {
+                      var color = $api.getStorage("themeColor");
+                      if (color == 'default.css') {
+                          styleColor = "../../image/red/device-bj-hover.png"
+                      } else if (color == 'green.css') {
+                          styleColor = "../../image/green/device-bj-hover.png"
+                      } else if (color == 'blue.css') {
+                          styleColor = "../../image/blue/device-bj-hover.png";
+                      } else {
+                          styleColor = "../../image/red/device-bj-hover.png";
+                      }
+                      $('.items')[0].src = styleColor;
+                    },
+
+                    // 改变子菜单图片样式
+                    changeImg(e) {
+                        if (!isloadOk) return;
+                        for (var i = 0; i < $('.items').length; i++) {
+                            $('.items')[i].src = "../../image/device-bj.png"
+                        }
+                        switch (e) {
+                            case 0:
+                                p_Online = '在线';
+                                bangding = ''
+                                break;
+                            case 1:
+                                p_Online = '';
+                                bangding = '1';
+                                break;
+                            case 2:
+                                p_Online = "";
+                                bangding = '0';
+                                break;
+                            case 3:
+                                p_Online = '离线';
+                                bangding = ''
+                                break;
+                        }
+                        page = 1;
+                        that.getData();
+                        $('.items')[e].src = styleColor;
+                    },
+
+                    // 打开订单详情页面
+                    goToOrderDetails(titleId) {
+                        $api.openPage("../../publicWin.html", "html/device/", "jgDetail", titleId, {
+                            isShowColor: true,
+                            deviceID: titleId
+                        });
+                    },
+
+                    // 打开电池页面
+                    goToCell(titleId, count) {
+                        $api.openPage("../../publicWin.html", "html/device/", "cell", titleId, {
+                            isShowColor: true,
+                            deviceID: titleId,
+                            count: count
+                        });
+                    },
+                    // 默认弹框
+                    goToAlertssxx(txt, type, id) {
+                        clickTypessxxxx = type;
+                        deviceID = id;
+                        api.openFrame({
+                            name: 'alertConfim',
+                            url: '../index/confim.html',
+                            bgColor: 'rgba(0, 0, 0, .6)',
+                            bounces: true,
+                            animation: {
+                                type:"fade",
+                            },
+                            rect: {
+                                x: 0,
+                                y: 0,
+                                w: 'auto',
+                                h: 'auto'
+                            },
+                            pageParam: {
+                                txt: txt
+                            }
+                        })
+                    },
+
+                    // 打开搜索框页面
+                    openSearch() {
+                        clickTypes = 'deviceSearch';
+                        api.openFrame({
+                            name: 'search',
+                            url: '../index/search.html',
+                            bgColor: 'rgba(0, 0, 0, .6)',
+                            bounces: true,
+                            rect: {
+                                x: 0,
+                                y: 0,
+                                w: 'auto',
+                                h: 'auto'
+                            },
+                            pageParam: {
+                                eventName: "isAscertain",
+                                clickType2: "id"
+                            }
+                        })
+                    },
+
+                    //重启
+                    restartDevices: function(id) {
+                        postAjax("appagent/device/restart", {
+                            id: id,
+                        }, function(
+                            ret) {
+                            if (ret.code == 1) {
+                                myAlert(that.txt.alert.sccuss);
+                            }
+                        });
+                    },
+
+                    //绑定代理
+                    bindAgent: function(did) {
+                        var transmit = {
+                            deviceID: did,
+                            subUrl: "Device/index.asp"
+                        };
+                        $api.openPage('../../publicWin.html', 'html/device/', 'bindAgentList', that.txt.device.bindTitle,
+                            transmit);
+                        //					postAjax("Agent/index.asp?act=groupList",{},function(ret){
+                        //						if(ret.code == 1){
+                        //							var buttons = [];
+                        //							var clickAgent = ret.data;
+                        //							for(var i=0;i<ret.data.length;i++){
+                        //								buttons.push(ret.data[i].GroupName+"("+ret.data[i].count+")");
+                        //							};
+                        //							api.actionSheet({
+                        //							    buttons: buttons
+                        //							}, function(result, err) {
+                        //								console.log(JSON.stringify(result));
+                        //							    var index = result.buttonIndex;
+                        //							    if(index > 0 && index <= clickAgent.length){
+                        //								    var sub = index - 1;//点击按钮的下标
+                        //								    var transmit = {
+                        //								    	groupID:clickAgent[sub].groupID,
+                        //								    	myAdminName:ret.myAdminName,
+                        //								    	deviceID:did,
+                        //								    	subUrl:"Device/index.asp"
+                        //								    };
+                        //								    $api.openPage('../../publicWin.html','html/Device/','bindAgentList',clickAgent[sub].GroupName+'列表',transmit);
+                        //							    };
+                        //							});
+                        //						}else{
+                        //							myAlert(ret.msg);
+                        //						}
+                        //					});
+                    },
+                    //撤销代理
+                    revokeAgents: function(id) {
+                        postAjax("appagent/device/agentCancel", {
+                            deviceId: id
+                        }, function(ret) {
+                            if (ret.code == 1) {
+                                myAlert(that.txt.alert.returnSccuss, function() {
+                                    that.getData();
+                                    that.getCount();
+                                });
+                            }
+                        });
+                    },
+                    //检测设备
+                    testDevices: function(id) {
+                        postAjax("appagent/device/check", {
+                            id: id
+                        }, function(ret) {
+                            if (ret.code == 1) {
+                                myAlert(ret.message);
+                            }
+                        });
+                    }
+
+                }
+            })
+
+        }
+    </script>
+</body>
+
+</html>

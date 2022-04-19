@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
+    <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+    <title>地图</title>
+    <link rel="stylesheet" type="text/css" href="../../css/api.css"/>
+    <link rel="stylesheet" type="text/css" href="" class="theme"/>
+		<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+	<script type="text/javascript" src="../../script/common.js"></script>
+	<script>
+	getTheme();
+	</script>
+    <style>
+    	input::-webkit-input-placeholder{
+    		color:#DDD;
+    	}
+    	html,body{
+    		background:white;
+    	}
+    	#form{
+				display: flex;
+				align-items: center;
+    		padding:8px 0.6rem;
+    		line-height:32px;
+				box-sizing: border-box;
+    	}
+    	#btn_go,.chooseBtn{
+    		line-height:32px;
+    		padding:0 1rem;
+    		border-radius:5px;
+    		margin-left:0.4rem;
+				box-sizing: border-box;
+
+    	}
+    	#info{
+    		height:42px;
+    		padding: 4px 0.6rem;
+				box-sizing: border-box;
+    	}
+			.appBg {
+				color: #fff;
+			}
+			#pac-input {
+				background: #fff;
+				width: 60%;
+				height: 30px;
+				color: 18px;
+				padding: 5px 15px;
+				border: 1px solid #ccc;
+				box-sizing: border-box;
+				border-radius: 10px
+			}
+    </style>
+</head>
+<body>
+	<div class="address">
+		<div id="form">
+			<input id="pac-input" value="" :placeholder="txt.nearShop.placeholder"/>
+			<button id="btn_go" class="appBg">Search</button>
+			<button id="choose" class="chooseBtn appBg">Select</button>
+		</div>
+
+		<div id="info">
+		</div>
+		<div id="googleMap" style="width:100%;"></div>
+
+	</div>
+</body>
+
+<!-- 速时电谷歌地图key: AIzaSyBDtfao7y4gYBuM1INjMMcFIcLybP1pK-g , Places API 未开启 &language=en-US-->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBDtfao7y4gYBuM1INjMMcFIcLybP1pK-g&language=en-US"></script>
+
+<script type="text/javascript" src="../../script/vue.min.js"></script>
+<script type="text/javascript">
+	window.g = {};
+	window.$$ = function(id) {
+		return document.getElementById(id)
+	};
+	var that;
+	apiready = function(){
+		var txt = $api.getLanguage() || {};
+		var h = api.winHeight - 90 - 82;
+		$api.byId("googleMap").style.height = h + "px";
+
+		var lonLat = api.pageParam.data.latLon; // 经纬度
+		var region = api.pageParam.data.region || ''; // 区域
+		var city = api.pageParam.data.city || ''; // 地址
+
+		// Bogotá 波哥大 （哥伦比亚的首都）
+		var addressval = city || region || 'Bogotá';
+		document.getElementById('pac-input').value = addressval;
+
+		var lat = "4.72024",
+				lng = "-74.076015",
+				map,
+				marker,
+				geocoder,
+				markersArray = [];
+		myloading();
+
+		// 获取当前经纬度位置
+		navigator.geolocation.getCurrentPosition(function (position){
+				var coords=position.coords;
+
+				if(!lonLat) {
+					lat = coords.latitude;
+					lng = coords.longitude;
+				} else {
+					lat = lonLat.split(",")[0];
+			    lng = lonLat.split(",")[1];
+				}
+				render(parseFloat(lat), parseFloat(lng), "");
+				initialize()
+		}, function (err) {
+			// alert(err.code);
+			// code：返回获取位置的状态
+			// 0  :  不包括其他错误编号中的错误
+			// 1  :  用户拒绝浏览器获取位置信息
+			// ​2  :  尝试获取用户信息，但失败了
+			// ​3  :   设置了timeout值，获取位置超时了
+			render(parseFloat(lat), parseFloat(lng), "");
+			initialize()
+    }, {
+      enableHighAcuracy: false, //位置是否精确获取
+      timeout: 5000,            //获取位置允许的最长时间
+      maximumAge: 1000          //多久更新获取一次位置
+    })
+
+		// 地图初始化
+    function initialize() {
+			closeloading();
+
+			try {
+				if(google){
+				}
+			} catch(e){
+			 	return false
+			}
+
+			var myCenter = new google.maps.LatLng(lat, lng);
+
+      var mapProp = {
+          center: myCenter, // 地图的中心点
+          zoom: 15, //缩放级数,
+					gestureHandling: 'greedy', // 属性设置，greedy为触摸屏和移动设备
+					mapTypeControl: true, // 显示控件
+          mapTypeControlOptions: { // 指定控件样式和位置
+              position: google.maps.ControlPosition.TOP_RIGHT
+          }
+      };
+
+			//实例化地址解析
+      map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
+      geocoder = new google.maps.Geocoder();
+
+			if (addressval != 'Bogotá' && !lonLat) {
+				byAddressGetCoordinates();
+			}
+      //给地图绑定点击事件
+      google.maps.event.addListener(map, 'click', function (event) {
+          placeMarker(event.latLng);
+      });
+
+			// // 创建搜索框并将其链接到UI元素
+			// var input = document.getElementById('pac-input');
+			// var searchBox = new google.maps.places.SearchBox(input);
+			// // map.controls[google.maps.ControlPosition.TOP_LEFT].push(input); // 输入框位置
+			//
+			// // 将SearchBox结果偏向当前地图的视口
+			// map.addListener('bounds_changed', function() {
+			// 	searchBox.setBounds(map.getBounds());
+			// });
+
+			marker = new google.maps.Marker({
+				position: myCenter,
+				map: map
+			});
+			markersArray.push(marker);
+    }
+
+		// 点击地图
+    function placeMarker(location) {
+        clearOverlays();
+        marker = new google.maps.Marker({
+            position: location,
+            map: map,
+        });
+        markersArray.push(marker);
+        //根据经纬度获取地址
+        if(geocoder) {
+            geocoder.geocode({
+                'location': location
+            }, function(results, status) {
+                if(status == google.maps.GeocoderStatus.OK) {
+                    if(results[0]) {
+											console.log(JSON.stringify(results))
+											render(results[0].geometry.location.lat(), results[0].geometry.location.lng(),results[0].formatted_address)
+											document.getElementById('pac-input').value = results[0].formatted_address;
+                    }
+                } else {
+                    alert("Geocoder failed due to: " + status);
+                }
+            });
+        }
+    }
+
+		// 搜素
+		$$("btn_go").onclick = function() {
+			byAddressGetCoordinates()
+    }
+
+		// 根据地址获取经纬度
+		function byAddressGetCoordinates() {
+			var val = document.getElementById('pac-input').value;
+			console.log(val);
+			if(!val) return;
+      var request = {
+        address: val
+      };
+     	var geocoder = new google.maps.Geocoder();
+      geocoder.geocode(request,
+        function (GeocoderResult, GeocoderStatus) {
+          //移除加载等待效果...
+          //GeocoderResult.geometry.location
+					console.log(JSON.stringify(GeocoderResult))
+					if(GeocoderResult == false) {
+						return;
+					}
+          var location = GeocoderResult[0].geometry.location;
+					render(GeocoderResult[0].geometry.location.lat(), GeocoderResult[0].geometry.location.lng(), GeocoderResult[0].formatted_address)
+					var marker = new google.maps.Marker({
+				      position: location,
+				      map: map
+				  });
+					markersArray.push(marker);
+
+          //定位到搜索結果
+          map.panTo(location);
+      });
+		}
+
+		// 选择
+		$$("choose").onclick = function(){
+			if (lat && lng) {
+				$api.send("chooseLocataionOk",{lat:lat,lng:lng});
+				api.closeWin({});
+			};
+		};
+
+		// 把叠加物从地图上清除
+    function clearOverlays() {
+        for (var i = 0; i < markersArray.length; i++) {
+            markersArray[i].setMap(null);
+        }
+        markersArray.length = 0;
+    }
+
+		function render(latitude, longitude, address) {
+			var info = "<strong style='font-size:12px;overflow: hidden;text-overflow: ellipsis;white-space: nowrap;'>" + address + "</strong><br / > " + txt.nearShop.latitude  + latitude.toFixed(6) + txt.nearShop.longitude + longitude.toFixed(6);
+			$$("info").innerHTML = info;
+			lat = latitude;
+			lng = longitude;
+		}
+	};
+
+</script>
+</html>

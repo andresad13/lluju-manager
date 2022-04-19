@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+	<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+	<title>title</title>
+	<link rel="stylesheet" type="text/css" href="../../css/api.css" />
+	<link rel="stylesheet" type="text/css" href="../../fonts/iconfont.css" />
+	<link rel="stylesheet" type="text/css" href="../../css/defult.css" class="theme" />
+	<script type="text/javascript" src="../../script/api.js"></script>
+	<script type="text/javascript" src="../../script/jquery-2.1.0.js"></script>
+	<script type="text/javascript" src="../../script/common.js"></script>
+	<script>
+		getTheme();
+	</script>
+	<style>
+		html,
+		body {
+			background: #f1f1f1;
+		}
+
+		input::-webkit-input-placeholder,
+		textarea::-webkit-input-placeholder {
+			color: #999;
+		}
+
+		input:-moz-placeholder,
+		textarea:-moz-placeholder {
+			color: #999;
+		}
+
+		input::-moz-placeholder,
+		textarea::-moz-placeholder {
+			color: #999;
+		}
+
+		input:-ms-input-placeholder,
+		textarea:-ms-input-placeholder {
+			color: #999;
+		}
+
+		input {
+			outline: none;
+		}
+
+		.item {
+			width: 94%;
+			margin: 0.5rem auto;
+			padding: 0 0.8rem;
+			background: white;
+			height: 2.5rem;
+			line-height: 2.5rem;
+			border-radius: 5px;
+			box-sizing: border-box;
+		}
+
+		.item input {
+			width: 15rem;
+			font-size: 0.85rem;
+			padding-left: 0.8rem;
+			box-sizing: border-box;
+		}
+
+		.icon {
+			color: #DDD;
+		}
+
+		.yImg {
+			float: right;
+			height: 1.2rem;
+			margin-top: 0.7rem;
+		}
+
+		.loginBtn {
+			width: 94%;
+			height: 2.5rem;
+			line-height: 2.5rem;
+			color: white;
+			text-align: center;
+			margin-top: 1.5rem;
+			margin-left: 3%;
+			border-radius: 5px;
+			box-sizing: border-box;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="view">
+		<div class="info">
+			<div class="item acountBox">
+				<i class="icon iconfont icon-password" style="font-size:1.1rem;"></i> <input type="password" :placeholder="txt.changePasd.jiu" id="oldPasd" />
+			</div>
+			<div class="item pasdBox">
+				<i class="icon iconfont icon-password" style="font-size:1.1rem;"></i> <input type="password" :placeholder="txt.changePasd.xin" id="pasd" />
+			</div>
+			<div class="item pasdBox">
+				<i class="icon iconfont icon-password" style="font-size:1.1rem;"></i> <input type="password" :placeholder="txt.changePasd.sure" id="aginPasd" />
+			</div>
+		</div>
+		<button class="loginBtn appBg" tapmode="btnhover" onclick="reset()">
+			{{txt.changePasd.yes}}
+		</button>
+	</div>
+</body>
+<script type="text/javascript" src="../../script/myJq.js"></script>
+<script type="text/javascript" src="../../script/vue.min.js"></script>
+<script type="text/javascript">
+var txt;
+	apiready = function() {
+		txt = $api.getLanguage() || {};
+
+		new Vue({
+			el: "#view",
+			data: {
+				txt: $api.getLanguage() || {},
+			}
+		})
+	};
+
+	$("#oldPasd,#pasd,#aginPasd").on('keypress', function(e) {
+		var keycode = e.keyCode;
+		if (keycode == '13') {
+			$(this).blur();
+			e.preventDefault();
+			setTimeout(function() {
+				reset();
+			}, 600);
+		}
+	});
+
+	function reset() {
+		var oldPasd = $("#oldPasd").val();
+		var pasd = $("#pasd").val();
+		var aginPasd = $("#aginPasd").val();
+		if (!oldPasd) {
+			api.toast({
+				msg: txt.my.inputJiu
+			});
+			return false;
+		};
+		if (!pasd) {
+			api.toast({
+				msg: txt.my.newPsd
+			});
+			return false;
+		};
+		if (pasd != aginPasd) {
+			api.toast({
+				msg: txt.my.NOPasd
+			});
+			return false;
+		};
+
+		postAjax("appagent/user/updatePwd", {
+			oldPwd: oldPasd,
+			newPwd: pasd
+		}, function(ret) {
+			if (ret.code == 1) {
+				myAlert(txt.my.changeSucess, function() {
+					$api.send("changeYcode");
+					$api.send("changePasd");
+					api.closeToWin({
+						name: 'root'
+					});
+				});
+			}
+		});
+
+		//		myFunction.showMyloadding({title:"修改中...",img:"../../image/loadding.gif"});
+		//		$api.post(apiurl+"app/Edit.asp",{
+		//			values:{
+		//				old_psd:oldPasd,
+		//				new_psd:pasd
+		//			}
+		//		},function(ret,err){
+		//			if(ret){
+		//				if(ret.code == 1){
+		//					myFunction.hideMyloadding();
+		//					api.toast({
+		//		                msg:'修改成功,请重新登录'
+		//	                });
+		//	                $api.send("changeYcode");
+		//	                setTimeout(function(){
+		//	                	api.closeToWin({
+		//		                    name: 'root'
+		//	                    });
+		//	                },1000);
+		//				}else if(ret.code == 2){
+		//					myFunction.hideMyloadding();
+		//					layer.open({
+		//						content:"登录超时，请重新登录",
+		//						btn:"好的",
+		//						yes:function(){
+		//							$api.send("changeYcode");
+		//							ayer.close(index);
+		//							api.closeToWin({
+		//	                            name: 'root'
+		//	                        });
+		//						}
+		//					});
+		//				}else{
+		//					myFunction.hideMyloadding();
+		//					layer.open({
+		//						content:ret.msg,
+		//						btn:"好的",
+		//						yes:function(index){
+		//							layer.close(index);
+		//						}
+		//					});
+		//				}
+		//			};
+		//			if(err){
+		//				layer.open({
+		//					content:"服务器错误！",
+		//					btn:"好的",
+		//					yes:function(index){
+		//						layer.close(index);
+		//					}
+		//				});
+		//			}
+		//		},"json");
+	}
+</script>
+
+</html>
